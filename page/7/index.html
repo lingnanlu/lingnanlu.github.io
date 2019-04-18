@@ -260,7 +260,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/27/toast-show-in-remote-service/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/27/parcelable-and-classloader/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -279,7 +279,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/03/27/toast-show-in-remote-service/" itemprop="url">toast show in remote service[TBD]</a></h1>
+                <a class="post-title-link" href="/2016/03/27/parcelable-and-classloader/" itemprop="url">Parcelable与ClassLoader</a></h1>
         
 
         <div class="post-meta">
@@ -331,36 +331,64 @@
       
         
           
-            <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>这天在用Messenger实现RemoteService时, 有如下代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessengerService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">        Toast.makeText(getApplication(), <span class="string">"binding"</span>, Toast.LENGTH_SHORT.show();</span><br><span class="line">        <span class="keyword">return</span> mMessenger.getBinder();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Manifest文件中相应的部分如下</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">".RemoteMessager.MessengerService"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:process</span>=<span class="string">":remote"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>即, Service运行在另一个进程中.</p>
-<p>当一个Activity(和Service不是同一个进程)bind该Service时, 在Activity的界面弹出了Toast.</p>
-<p>于是, 有了这样一个问题?</p>
+            <p>利用Messenger, 向远端Service传递自定义Parcelable对象时, 代码如下</p>
+<p>自定义Parcelable类</p>
+<pre><code>public class Person implements Parcelable{}
+</code></pre><p>客户端</p>
+<pre><code>Bundle bundle = new Bundle();
+bundle.putParcelable(&quot;Test&quot;, new Person(&quot;dongpuo&quot; , &quot;su&quot;));
+msg.setData(bundle);
+mService.send(msg);
+</code></pre><p>服务端</p>
+<pre><code>Bundle bundle = msg.getData();
+Person person = bundle.getParcelable(&quot;Test&quot;);
+</code></pre><p>在运行到<code>bundle.getParcelable(&quot;Test&quot;)</code>时会报如下错误</p>
+<pre><code>android.os.BadParcelableException: ClassNotFoundException when unmarshalling: io.github.lingnanlu.clientserverdemo.Person
+</code></pre><p>即当unmarshalling时, 找不到Person类, 这是什么原因呢?</p>
+<p>找不到Person类, 说明Person.class对象没有生成, 而Person.class对象又是由ClassLoader生成的, 所以这样牵扯到了Android中的ClassLoader机制.</p>
+<p>经过Google, 了解到Android的ClassLoader机制大概如下</p>
 <blockquote>
-<p>Toast的显示不是涉及到UI的重绘, 而UI的重绘不是需要在UI线程中, 利用Looper机制来实现么? 难道该Service所在的新进程也有这样的一个UI线程, 也有相应的Looper? 还是该Service通过了某种IPC将所要重绘的信息发回给了Activity所在的进程?</p>
+<p>Android has two different classloaders: the framework classloader (which knows how to load Android classes) and the APK classloader (which knows how to load your code). The APK classloader has the framework classloader set as its parent, meaning it can also load Android classes.</p>
 </blockquote>
-<p>代码中并没有显示的Service通过IPC将信息发回给Activity所在的进程, 所以我认为第3个疑问是站不住脚的.</p>
-<p>难道真的是Service所在的新进程中也包含着一个UI线程?</p>
-<p>首先通过代码来验证一下, 修改如上代码如下</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessengerService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">	    String thread = Thread.currentThread() + <span class="string">""</span>;</span><br><span class="line">	    String packageName = getApplication().getPackageName();</span><br><span class="line">	    String pid = Process.myPid() + <span class="string">""</span></span><br><span class="line">        Toast.makeText(getApplication(), <span class="string">"binding"</span> + thread + packageName+ pid, Toast.LENGTH_SHORT).show();</span><br><span class="line">        <span class="keyword">return</span> mMessenger.getBinder();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>而在另一个进程中Activity的onCreate方法中添加如下代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_activity_messenger);</span><br><span class="line">    String thread = Thread.currentThread() + <span class="string">""</span>;</span><br><span class="line">		String packageName = getApplication().getPackageName();</span><br><span class="line">		String pid = Process.myPid() + <span class="string">""</span></span><br><span class="line">    Toast.makeText(getApplication(), <span class="string">"binding"</span> + thread + packageName +pid, Toast.LENGTH_SHORT).show();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过比较两个弹出的Toast来看, packageName是相同的, 而pid是不同的.</p>
-<p>这说明Service与Activity虽然在不同的进程中, 但是属于同一个Application, 即可以有如下结论</p>
+<p>即, 有两类Classloader, 一类是framework classloader(BootClassLoader), 该classloader主要是负责加载framework中的类, 另一类是APK classLoader(具体名称是PathClassLoader, 下面会介绍怎么知道的), 负责加载APK中定义的类.</p>
+<p>查看Bundle的源代码, Bundle中包含着一个ClassLoader, 当调用Bundle的get方法时, 会利用该ClassLoader加载需要unmarshalling的类, 进而再组装成对象.</p>
+<p>由于可以推断, 通过msg.getData()取出来的bundle中的ClassLoader, 并不是APK classLoader, 所以无法加载Person.</p>
+<p>我们可以通过输出ClassLoader来进一步观察. 修改以上代码如下</p>
+<p>客户端</p>
+<pre><code>Bundle bundle = new Bundle();
+Log.i(TAG, bundle.getClassLoader());
+Log.i(TAG, Message.class.getClassLoader());
+Log.i(TAG, Bundle.class.getClassLoader());
+bundle.putParcelable(&quot;Test&quot;, new Person(&quot;dongpuo&quot; , &quot;su&quot;));
+msg.setData(bundle);
+mService.send(msg);
+</code></pre><p>服务端</p>
+<pre><code>Bundle bundle = msg.getData();
+Person person = bundle.getParcelable(&quot;Test&quot;);
+Log.i(TAG, bundle.getClassLoader());
+</code></pre><p>运行程序后, 客户端打印出来的都是</p>
+<pre><code>java.lang.BootClassLoader
+</code></pre><p>而服务端打印出来的为</p>
+<pre><code>null
+</code></pre><p>以上可以说明Person类找不到的原因. 还说明Bundle和Message, 都是由BootClassLoader加载的, 因为这两个类是Framework类.</p>
+<p>客户端的第三个Log也是输出java.lang.BootClassLoader, 可这里, 我们并没有为其显示的指定其ClassLoader, 查看基类的构造函数, 可以看出原因.</p>
+<pre><code>mClassLoader = loader == null ? getClass().getClassLoader() : loader;
+</code></pre><p>我们知道, 跨越进程传输数据, 要不是基本类型, 要不就是Parceble, 在这里Message与Bundle对象也是跨进程进行传输的, 查看这两个类定义的文件, 发现这两个类都是Parceble的, 又因为这两个类的ClassLoader是BootClassLoader, 所以在服务器端组装这两个类对象没有问题.</p>
+<p>那么为什么bundle本来有一个BootClassLoader, 在传输到了服务端之后就为null了呢?</p>
+<p>我猜想是这样的.</p>
 <blockquote>
-<p>Android中的Application只是由四大组件组成, 而对于四大组件是否在同一个进程中, 则不一定</p>
+<p>ClassLoader并不是一个Parceble, 所以无法传输到服务端, 所以为null.</p>
 </blockquote>
-<p>即Android中的Application可以有多个进程.</p>
-<p>好, 回到之前的问题, 看来Service所在进程真的有那么一个UI线程, 但该线程是如何生成呢?</p>
-<p>参照<a href="http://lingnanlu.github.io/2016/02/28/ams" target="_blank" rel="noopener">由一个实例了解AMS机制</a>可得出以下结论.</p>
-<blockquote>
-<p>在新进程中启动Activity或Service时, 都是通过AMS生成一个的进程, 并在进程中运行android.app.ActivityThread.main方法, 而该方法中就准备了Looper和相应的Handler. 所以在新的进程中启动Activity和Service时, 都有一个UI线程.</p>
-</blockquote>
-<p>所以可以得出, Toast是真的在新的进程当中所重绘的.</p>
-<p><em>注:以上解释并不正确, 参考实例代码中, 使用Messenger时获得上述结论, 使用AIDL时, 新进程的Service会报错, 没有调用 Looper.prepare(), 这个问题还没搞清</em></p>
-<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p><a href="https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo" target="_blank" rel="noopener">https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo</a></p>
+<p>现在好了, 知道原因了, 因为bundle缺乏PathClassLoader, 所以无法加载类, 解决方法就是在getParcelable之前, 显示的设置PathClassLoader. 如</p>
+<pre><code>bundle.setClassLoader(自定义的一个类.class.getClassLoader());
+</code></pre><p><em>注, ClassLoader加载类的机制是首先委托给父ClassLoader加载, 如果父ClassLoader加载不了, 再由子ClassLoader加载. 这样的限制避免了用户自己的代码冒充核心类库的类访问核心类库包可见成员的情况。这也好理解，一些系统层级的类会在系统初始化的时候被加载，比如java.lang.String，如果在一个应用里面能够简单地用自定义的String类把这个系统的String类给替换掉，那将会有严重的安全问题。</em></p>
+<p>参考</p>
+<ol>
+<li><a href="https://segmentfault.com/a/1190000004062880" target="_blank" rel="noopener">Android动态加载基础 ClassLoader工作机制</a></li>
+<li><a href="http://stackoverflow.com/questions/13997550/unmarshalling-errors-in-android-app-with-custom-parcelable-classes" target="_blank" rel="noopener">Unmarshalling errors in Android app with custom parcelable classes</a></li>
+</ol>
+<p>代码</p>
+<p><a href="https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo" target="_blank" rel="noopener">https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo</a></p>
 
           
         
@@ -927,7 +955,7 @@ String trim() 忽略前导空白和末尾空白
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/20/java-regex-and-escape-character/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/20/collections/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -946,7 +974,7 @@ String trim() 忽略前导空白和末尾空白
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/03/20/java-regex-and-escape-character/" itemprop="url">为什么Java正则表达式中要使用\\来进行转义?</a></h1>
+                <a class="post-title-link" href="/2016/03/20/collections/" itemprop="url">Collections常用方法</a></h1>
         
 
         <div class="post-meta">
@@ -998,36 +1026,46 @@ String trim() 忽略前导空白和末尾空白
       
         
           
-            <p>首先明确一个概念</p>
-<h3 id="什么是转义"><a href="#什么是转义" class="headerlink" title="什么是转义?"></a>什么是转义?</h3><p>转义是一个动词,就是转换含义的意思,一个事物本来有一个含义,将之转义就是将之转换为另一个含义.</p>
-<p>举个例子</p>
-<p>字符t的本来含义就是字母表中的t, 而如果是\t则将t的含义转换成了制表符.这里\就是转义字符,其作用是改变其后字符的含义.而t就是被转义的字符.</p>
-<p>由上可知,\出现在字符串中时,其含义就是<strong>转义字符</strong>, 如果想将之当做字面意义上的反斜线,则同样需要转义,即\\就表示一个普通意义上的反斜杠了.</p>
-<p>既然知道了什么是转义,那么在Java语言中,哪些字符有另一个含义呢?也就是说哪些字符可以被转义?</p>
-<h3 id="Java字符串中合法的转义"><a href="#Java字符串中合法的转义" class="headerlink" title="Java字符串中合法的转义"></a>Java字符串中合法的转义</h3><p><a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.10.6" target="_blank" rel="noopener">Java语言规范</a>中提到</p>
-<blockquote>
-<p>It is a compile-time error if the character following a backslash in an escape sequence is not an ASCII  b ,  t ,  n ,  f ,  r ,  “ , ‘ ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7 . The Unicode escape  \u is processed earlier</p>
-</blockquote>
-<p>所以,非以上字符的转义会导致编译错误. 即只有 b ,  t ,  n ,  f ,  r ,  “ ,  ‘,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7 可在被转义.</p>
-<p>关于以上字符被转义后的含义,同样参照<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.10.6" target="_blank" rel="noopener">Java语言规范</a></p>
-<p>那么,说了这些,和正则表达式有什么关系呢?</p>
-<h3 id="为什么正则表达式中需要"><a href="#为什么正则表达式中需要" class="headerlink" title="为什么正则表达式中需要\\"></a>为什么正则表达式中需要\\</h3><p>我们知道,正则表达式中也有一些字符有双重含义,一重是其字面上的含义,另一重是其特殊含义.</p>
-<p>如+, 字面含义是加号字符, 特殊含义是匹配一个或多个.如果使用转义字符\将之转换成另一个含义的话, 如下</p>
-<p>\+</p>
-<p>但是这样会报错, 为什么?</p>
-<p>由以上Java语言规范中提到的只有 b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7才能被\进行转义,而+显然不在此中.</p>
-<p>与此类似的情况还有很多, 如 <strong>?</strong> , <strong>.</strong> 等等.</p>
-<p>那么如果能即不编译报错,又可以对这些字符进行转义呢?</p>
-<p>Java定义了一个新的转义方式, 那就是\\</p>
-<p>所以可以这样</p>
-<p>\\+</p>
-<p>而以上这种也没有违反Java语言规范中的定义,所以不会导致编译错误.</p>
-<p>所以可以认为,\\是Java为了将正则表达式中的特殊字符(不包含在 b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7)进行转义而引进的新的转义方式.</p>
-<h3 id="如果在正则表达式中使用-与"><a href="#如果在正则表达式中使用-与" class="headerlink" title="如果在正则表达式中使用\与\\"></a>如果在正则表达式中使用\与\\</h3><p>对于那些只在正则表达式中有特殊含义的字符(非b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7) ,使用\\,如(D,s,S,w,W, +,…..)</p>
-<p>对于(b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7), 依然使用\</p>
-<p><em>注:这里有一个特殊的字符\, 如果想将之转义为普通的反斜线,并不能直接\\, 因为这和正则表达式中定义的新的转义方式冲突了,这种情况下使用\\\\,表示正则表达式中的字面意义的反斜线. 这是一种特殊情况, 记下即可</em></p>
-<p><em>再注: 还有一个特殊字符b, 使用\与\\转义后的含义不同,此时应该根据所使用的含义进行选择</em></p>
+            <h4 id="1-添加"><a href="#1-添加" class="headerlink" title="1. 添加"></a>1. 添加</h4><pre><code>static &lt;T&gt; boolean addAll(Collection&lt;? super T&gt; c, T... elements)
+</code></pre><p>将所有指定的元素添加到指定collection中当c发生改变时,返回true</p>
+<h4 id="2-查找"><a href="#2-查找" class="headerlink" title="2. 查找"></a>2. 查找</h4><pre><code>static &lt;T&gt; int binarySearch(List&lt;? extends Comparable&lt;? super T&gt;&gt; list, T key)
 
+static &lt;T&gt; int binarySearch(List&lt;? extends T&gt; list, T key, Comparator&lt;? super T&gt; c)
+</code></pre><p>如果搜索键包含在列表中，则返回搜索键的索引；否则返回 (-(插入点) - 1)。</p>
+<h4 id="3-复制"><a href="#3-复制" class="headerlink" title="3. 复制"></a>3. 复制</h4><pre><code>static &lt;T&gt; void copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src)
+</code></pre><h4 id="4-不相交"><a href="#4-不相交" class="headerlink" title="4. 不相交"></a>4. 不相交</h4><pre><code>static boolean disjoint(Collection&lt;?&gt; c1, Collection&lt;?&gt; c2)
+</code></pre><p>如果两个指定 collection 中没有相同的元素，则返回 true</p>
+<h4 id="5-填充"><a href="#5-填充" class="headerlink" title="5. 填充"></a>5. 填充</h4><pre><code>static &lt;T&gt; void fill(List&lt;? super T&gt; list, T obj)
+</code></pre><p>使用指定元素替换指定列表中的所有元素</p>
+<h4 id="6-统计"><a href="#6-统计" class="headerlink" title="6. 统计"></a>6. 统计</h4><pre><code>static int frequency(Collection&lt;?&gt; c, Object o)
+</code></pre><p>返回指定 collection 中等于指定对象的元素数。</p>
+<h4 id="7-最大最小"><a href="#7-最大最小" class="headerlink" title="7. 最大最小"></a>7. 最大最小</h4><pre><code>static &lt;T extends Object &amp; Comparable&lt;? super T&gt;&gt; T max(Collection&lt;? extends T c)
+
+static &lt;T extends Object &amp; Comparable&lt;? super T&gt;&gt; T min(Collection&lt;? extends T c)
+
+static &lt;T&gt; T max(Collection&lt;? extends T&gt; c, Comparator&lt;? super T&gt; comp)
+
+static &lt;T&gt; T min(Collection&lt;? extends T&gt; c, Comparator&lt;? super T&gt; comp)
+</code></pre><h4 id="8-替换"><a href="#8-替换" class="headerlink" title="8. 替换"></a>8. 替换</h4><pre><code>static &lt;T&gt; boolean replaceAll(List&lt;T&gt; list, T oldVal, T newVal)
+</code></pre><p>使用另一个值替换列表中出现的所有某一指定值。</p>
+<h4 id="9-反转"><a href="#9-反转" class="headerlink" title="9. 反转"></a>9. 反转</h4><pre><code>static void reverse(List&lt;?&gt; list)
+</code></pre><h4 id="10-轮换"><a href="#10-轮换" class="headerlink" title="10. 轮换"></a>10. 轮换</h4><pre><code>static void rotate(List&lt;?&gt; list, int distance)
+</code></pre><h4 id="11-打乱"><a href="#11-打乱" class="headerlink" title="11. 打乱"></a>11. 打乱</h4><pre><code>static void shuffle(List&lt;?&gt; list)
+
+static void shuffle(List&lt;?&gt; list, Random rnd)
+</code></pre><h4 id="12-排序"><a href="#12-排序" class="headerlink" title="12. 排序"></a>12. 排序</h4><pre><code>static &lt;T extends Comparable&lt;? super T&gt;&gt; void sort(List&lt;T&gt; list)
+
+static &lt;T&gt; void sort(List&lt;T&gt; list, Comparator&lt;? super T&gt; c)
+</code></pre><h4 id="13-交换"><a href="#13-交换" class="headerlink" title="13. 交换"></a>13. 交换</h4><pre><code>static void swap(List&lt;?&gt; list, int i, int j)
+</code></pre><p>在指定列表的指定位置处交换元素</p>
+<h4 id="14-返回同步版本"><a href="#14-返回同步版本" class="headerlink" title="14. 返回同步版本"></a>14. 返回同步版本</h4><pre><code>static &lt;T&gt; Collection&lt;T&gt; synchronizedCollection(Collection&lt;T&gt; c)
+
+static &lt;T&gt; List&lt;T&gt; synchronizedList(List&lt;T&gt; list)
+
+static &lt;K, V&gt; Map&lt;K, V&gt; synchronizedMap(Map&lt;K, V&gt; m)
+
+static &lt;T&gt; Set&lt;T&gt; synchronizedSet(Set&lt;T&gt; s)
+</code></pre>
           
         
       

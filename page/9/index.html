@@ -260,166 +260,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/java-gc-and-ref/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/11/java-gc-and-ref/" itemprop="url">Java 垃圾回收以及引用类型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
-                2016-03-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="判断对象是否可被回收的算法"><a href="#判断对象是否可被回收的算法" class="headerlink" title="判断对象是否可被回收的算法"></a>判断对象是否可被回收的算法</h3><ol>
-<li><p>引用计数算法</p>
-<p>缺点:无法处理相互循环引用的问题,如</p>
-<pre><code>a.instance = b;
-b.instance = a;
-</code></pre></li>
-<li><p>可达性分析算法:选择GC root对象为起始点,对其进行图的可达性分析,达不到的点就是可回收的点,可作为GC root的对象包括以下几种</p>
-<ul>
-<li>虚拟机栈(栈帧中的本地变量表)中引用的对象</li>
-<li>方法区中类静态属性引用的对象</li>
-<li>方法区中常量引用的对象</li>
-</ul>
-</li>
-</ol>
-<h3 id="再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom"><a href="#再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom" class="headerlink" title="再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)"></a>再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)</h3><p>以上4种引用强度依次减弱</p>
-<p>这四者的不同之处在于<strong>回收的时机不同,即生存期不同</strong></p>
-<ol>
-<li>强引用:就是平时的引用</li>
-<li>软引用:软引用的对象将尽可能得到保存,直到将要发生内存溢出.</li>
-<li>弱引用:只生存到下一次垃圾收集发生之前</li>
-<li>虚引用:不会对其生存时间构成影响,其存在的目的是当被虚引用引用的对象被回收时收到一个系统通知.</li>
-</ol>
-<h3 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h3><p>垃圾回收不仅仅发生在堆区,也可以发生在方法区.</p>
-<p>方法区回收主要包括两部分内容:废弃常量, 无用的类</p>
-<h3 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h3><ol>
-<li><p>标记-清除算法</p>
-<p>分两个阶段,先标记可回收的对象,再对其进行清除,因为没有整理空闲空间,所以会产生大量不连续的内存碎片.</p>
-</li>
-<li><p>复制算法</p>
-<p>将内存分两块,每次只用一块,当其中一块快用完时,将存活的对象复制到另一块上,再把已使用过的内存空间一次清理掉.</p>
-<p>因为有一块一直没被使用,所以有一定的空间浪费,所以这两块的大小可以根据情况不一定要相同.</p>
-<p>该算法适合对象存活率不高时使用,因为存活率高时,内存经常不够用,会存在大量的复制行为.</p>
-</li>
-<li><p>标记 - 整理</p>
-<p>该方法是对1的改进,在第二阶段会对内存整理,整理出连续的空闲空间.</p>
-</li>
-<li><p>分代收集</p>
-<p>该方法是以上三种的结合. 首先将内存根据对象的存活期分为几块,对于不同的存活期的使用不同的收集算法.</p>
-<p>如对于大批死去,少量存活的新生代,使用复制算法<br>对于大批存活,少量死去的老年代,使用标记-清除或标记整理</p>
-</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/java-sugar/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -557,6 +397,166 @@ for(int i : list) {
 </code></pre><p>转化成</p>
 <pre><code>method(new T[]);
 </code></pre>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/java-gc-and-ref/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/03/11/java-gc-and-ref/" itemprop="url">Java 垃圾回收以及引用类型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
+                2016-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="判断对象是否可被回收的算法"><a href="#判断对象是否可被回收的算法" class="headerlink" title="判断对象是否可被回收的算法"></a>判断对象是否可被回收的算法</h3><ol>
+<li><p>引用计数算法</p>
+<p>缺点:无法处理相互循环引用的问题,如</p>
+<pre><code>a.instance = b;
+b.instance = a;
+</code></pre></li>
+<li><p>可达性分析算法:选择GC root对象为起始点,对其进行图的可达性分析,达不到的点就是可回收的点,可作为GC root的对象包括以下几种</p>
+<ul>
+<li>虚拟机栈(栈帧中的本地变量表)中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+</ul>
+</li>
+</ol>
+<h3 id="再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom"><a href="#再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom" class="headerlink" title="再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)"></a>再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)</h3><p>以上4种引用强度依次减弱</p>
+<p>这四者的不同之处在于<strong>回收的时机不同,即生存期不同</strong></p>
+<ol>
+<li>强引用:就是平时的引用</li>
+<li>软引用:软引用的对象将尽可能得到保存,直到将要发生内存溢出.</li>
+<li>弱引用:只生存到下一次垃圾收集发生之前</li>
+<li>虚引用:不会对其生存时间构成影响,其存在的目的是当被虚引用引用的对象被回收时收到一个系统通知.</li>
+</ol>
+<h3 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h3><p>垃圾回收不仅仅发生在堆区,也可以发生在方法区.</p>
+<p>方法区回收主要包括两部分内容:废弃常量, 无用的类</p>
+<h3 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h3><ol>
+<li><p>标记-清除算法</p>
+<p>分两个阶段,先标记可回收的对象,再对其进行清除,因为没有整理空闲空间,所以会产生大量不连续的内存碎片.</p>
+</li>
+<li><p>复制算法</p>
+<p>将内存分两块,每次只用一块,当其中一块快用完时,将存活的对象复制到另一块上,再把已使用过的内存空间一次清理掉.</p>
+<p>因为有一块一直没被使用,所以有一定的空间浪费,所以这两块的大小可以根据情况不一定要相同.</p>
+<p>该算法适合对象存活率不高时使用,因为存活率高时,内存经常不够用,会存在大量的复制行为.</p>
+</li>
+<li><p>标记 - 整理</p>
+<p>该方法是对1的改进,在第二阶段会对内存整理,整理出连续的空闲空间.</p>
+</li>
+<li><p>分代收集</p>
+<p>该方法是以上三种的结合. 首先将内存根据对象的存活期分为几块,对于不同的存活期的使用不同的收集算法.</p>
+<p>如对于大批死去,少量存活的新生代,使用复制算法<br>对于大批存活,少量死去的老年代,使用标记-清除或标记整理</p>
+</li>
+</ol>
+
           
         
       

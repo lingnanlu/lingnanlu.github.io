@@ -260,6 +260,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/20/java-regex-and-escape-character/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/03/20/java-regex-and-escape-character/" itemprop="url">为什么Java正则表达式中要使用\\来进行转义?</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-20T00:00:00+08:00">
+                2016-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>首先明确一个概念</p>
+<h3 id="什么是转义"><a href="#什么是转义" class="headerlink" title="什么是转义?"></a>什么是转义?</h3><p>转义是一个动词,就是转换含义的意思,一个事物本来有一个含义,将之转义就是将之转换为另一个含义.</p>
+<p>举个例子</p>
+<p>字符t的本来含义就是字母表中的t, 而如果是\t则将t的含义转换成了制表符.这里\就是转义字符,其作用是改变其后字符的含义.而t就是被转义的字符.</p>
+<p>由上可知,\出现在字符串中时,其含义就是<strong>转义字符</strong>, 如果想将之当做字面意义上的反斜线,则同样需要转义,即\\就表示一个普通意义上的反斜杠了.</p>
+<p>既然知道了什么是转义,那么在Java语言中,哪些字符有另一个含义呢?也就是说哪些字符可以被转义?</p>
+<h3 id="Java字符串中合法的转义"><a href="#Java字符串中合法的转义" class="headerlink" title="Java字符串中合法的转义"></a>Java字符串中合法的转义</h3><p><a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.10.6" target="_blank" rel="noopener">Java语言规范</a>中提到</p>
+<blockquote>
+<p>It is a compile-time error if the character following a backslash in an escape sequence is not an ASCII  b ,  t ,  n ,  f ,  r ,  “ , ‘ ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7 . The Unicode escape  \u is processed earlier</p>
+</blockquote>
+<p>所以,非以上字符的转义会导致编译错误. 即只有 b ,  t ,  n ,  f ,  r ,  “ ,  ‘,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7 可在被转义.</p>
+<p>关于以上字符被转义后的含义,同样参照<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.10.6" target="_blank" rel="noopener">Java语言规范</a></p>
+<p>那么,说了这些,和正则表达式有什么关系呢?</p>
+<h3 id="为什么正则表达式中需要"><a href="#为什么正则表达式中需要" class="headerlink" title="为什么正则表达式中需要\\"></a>为什么正则表达式中需要\\</h3><p>我们知道,正则表达式中也有一些字符有双重含义,一重是其字面上的含义,另一重是其特殊含义.</p>
+<p>如+, 字面含义是加号字符, 特殊含义是匹配一个或多个.如果使用转义字符\将之转换成另一个含义的话, 如下</p>
+<p>\+</p>
+<p>但是这样会报错, 为什么?</p>
+<p>由以上Java语言规范中提到的只有 b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7才能被\进行转义,而+显然不在此中.</p>
+<p>与此类似的情况还有很多, 如 <strong>?</strong> , <strong>.</strong> 等等.</p>
+<p>那么如果能即不编译报错,又可以对这些字符进行转义呢?</p>
+<p>Java定义了一个新的转义方式, 那就是\\</p>
+<p>所以可以这样</p>
+<p>\\+</p>
+<p>而以上这种也没有违反Java语言规范中的定义,所以不会导致编译错误.</p>
+<p>所以可以认为,\\是Java为了将正则表达式中的特殊字符(不包含在 b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7)进行转义而引进的新的转义方式.</p>
+<h3 id="如果在正则表达式中使用-与"><a href="#如果在正则表达式中使用-与" class="headerlink" title="如果在正则表达式中使用\与\\"></a>如果在正则表达式中使用\与\\</h3><p>对于那些只在正则表达式中有特殊含义的字符(非b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7) ,使用\\,如(D,s,S,w,W, +,…..)</p>
+<p>对于(b ,  t ,  n ,  f ,  r ,  “ ,   ,  \ ,  0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 , or  7), 依然使用\</p>
+<p><em>注:这里有一个特殊的字符\, 如果想将之转义为普通的反斜线,并不能直接\\, 因为这和正则表达式中定义的新的转义方式冲突了,这种情况下使用\\\\,表示正则表达式中的字面意义的反斜线. 这是一种特殊情况, 记下即可</em></p>
+<p><em>再注: 还有一个特殊字符b, 使用\与\\转义后的含义不同,此时应该根据所使用的含义进行选择</em></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/20/arrays/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -365,164 +513,6 @@ static &lt;T&gt; void sort(T[] a, int fromIndex, int toIndex, Comparator&lt;? su
 static String deepToString(Object[] a)(多维数组)
 </code></pre><p>T为基本类型或Object</p>
 
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/20/collections/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/20/collections/" itemprop="url">Collections常用方法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-20T00:00:00+08:00">
-                2016-03-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="1-添加"><a href="#1-添加" class="headerlink" title="1. 添加"></a>1. 添加</h4><pre><code>static &lt;T&gt; boolean addAll(Collection&lt;? super T&gt; c, T... elements)
-</code></pre><p>将所有指定的元素添加到指定collection中当c发生改变时,返回true</p>
-<h4 id="2-查找"><a href="#2-查找" class="headerlink" title="2. 查找"></a>2. 查找</h4><pre><code>static &lt;T&gt; int binarySearch(List&lt;? extends Comparable&lt;? super T&gt;&gt; list, T key)
-
-static &lt;T&gt; int binarySearch(List&lt;? extends T&gt; list, T key, Comparator&lt;? super T&gt; c)
-</code></pre><p>如果搜索键包含在列表中，则返回搜索键的索引；否则返回 (-(插入点) - 1)。</p>
-<h4 id="3-复制"><a href="#3-复制" class="headerlink" title="3. 复制"></a>3. 复制</h4><pre><code>static &lt;T&gt; void copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src)
-</code></pre><h4 id="4-不相交"><a href="#4-不相交" class="headerlink" title="4. 不相交"></a>4. 不相交</h4><pre><code>static boolean disjoint(Collection&lt;?&gt; c1, Collection&lt;?&gt; c2)
-</code></pre><p>如果两个指定 collection 中没有相同的元素，则返回 true</p>
-<h4 id="5-填充"><a href="#5-填充" class="headerlink" title="5. 填充"></a>5. 填充</h4><pre><code>static &lt;T&gt; void fill(List&lt;? super T&gt; list, T obj)
-</code></pre><p>使用指定元素替换指定列表中的所有元素</p>
-<h4 id="6-统计"><a href="#6-统计" class="headerlink" title="6. 统计"></a>6. 统计</h4><pre><code>static int frequency(Collection&lt;?&gt; c, Object o)
-</code></pre><p>返回指定 collection 中等于指定对象的元素数。</p>
-<h4 id="7-最大最小"><a href="#7-最大最小" class="headerlink" title="7. 最大最小"></a>7. 最大最小</h4><pre><code>static &lt;T extends Object &amp; Comparable&lt;? super T&gt;&gt; T max(Collection&lt;? extends T c)
-
-static &lt;T extends Object &amp; Comparable&lt;? super T&gt;&gt; T min(Collection&lt;? extends T c)
-
-static &lt;T&gt; T max(Collection&lt;? extends T&gt; c, Comparator&lt;? super T&gt; comp)
-
-static &lt;T&gt; T min(Collection&lt;? extends T&gt; c, Comparator&lt;? super T&gt; comp)
-</code></pre><h4 id="8-替换"><a href="#8-替换" class="headerlink" title="8. 替换"></a>8. 替换</h4><pre><code>static &lt;T&gt; boolean replaceAll(List&lt;T&gt; list, T oldVal, T newVal)
-</code></pre><p>使用另一个值替换列表中出现的所有某一指定值。</p>
-<h4 id="9-反转"><a href="#9-反转" class="headerlink" title="9. 反转"></a>9. 反转</h4><pre><code>static void reverse(List&lt;?&gt; list)
-</code></pre><h4 id="10-轮换"><a href="#10-轮换" class="headerlink" title="10. 轮换"></a>10. 轮换</h4><pre><code>static void rotate(List&lt;?&gt; list, int distance)
-</code></pre><h4 id="11-打乱"><a href="#11-打乱" class="headerlink" title="11. 打乱"></a>11. 打乱</h4><pre><code>static void shuffle(List&lt;?&gt; list)
-
-static void shuffle(List&lt;?&gt; list, Random rnd)
-</code></pre><h4 id="12-排序"><a href="#12-排序" class="headerlink" title="12. 排序"></a>12. 排序</h4><pre><code>static &lt;T extends Comparable&lt;? super T&gt;&gt; void sort(List&lt;T&gt; list)
-
-static &lt;T&gt; void sort(List&lt;T&gt; list, Comparator&lt;? super T&gt; c)
-</code></pre><h4 id="13-交换"><a href="#13-交换" class="headerlink" title="13. 交换"></a>13. 交换</h4><pre><code>static void swap(List&lt;?&gt; list, int i, int j)
-</code></pre><p>在指定列表的指定位置处交换元素</p>
-<h4 id="14-返回同步版本"><a href="#14-返回同步版本" class="headerlink" title="14. 返回同步版本"></a>14. 返回同步版本</h4><pre><code>static &lt;T&gt; Collection&lt;T&gt; synchronizedCollection(Collection&lt;T&gt; c)
-
-static &lt;T&gt; List&lt;T&gt; synchronizedList(List&lt;T&gt; list)
-
-static &lt;K, V&gt; Map&lt;K, V&gt; synchronizedMap(Map&lt;K, V&gt; m)
-
-static &lt;T&gt; Set&lt;T&gt; synchronizedSet(Set&lt;T&gt; s)
-</code></pre>
           
         
       
@@ -805,217 +795,6 @@ Boy eats Fruit
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/equals-hashcode-tostring-clone-finalize/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/11/equals-hashcode-tostring-clone-finalize/" itemprop="url">equals hashCode clone </a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
-                2016-03-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Object主要是用来扩展的,它定义了一些非final方法,如</p>
-<p>equals, hashCode, clone</p>
-<p>这些方法交有子类实现,但实现并非随意,Object为这些方法的实现设定了一些约定,子类的实现必须遵守这些约定.</p>
-<p><strong>为什么需要遵守这些约定呢?</strong></p>
-<blockquote>
-<p>因为Java类库的类已经遵守了这些约定,如果自定义的类不遵守这些约定的话,那么,自定义的类就不能和类库中的类正常的工作.</p>
-</blockquote>
-<p>以下从两个方面对各个方法进行介绍</p>
-<ol>
-<li>需要遵守哪些约定?</li>
-<li>如何遵守约定(即如何正确的编写这些方法)</li>
-</ol>
-<h3 id="equals"><a href="#equals" class="headerlink" title="equals"></a>equals</h3><h4 id="什么时候需要覆盖equals"><a href="#什么时候需要覆盖equals" class="headerlink" title="什么时候需要覆盖equals"></a>什么时候需要覆盖equals</h4><p>通常需要覆盖equals是一种”值类”, 对于这种类的对象a, b,并不关心是否是同一个对象,而是关于它的值是不是相同的,如Integer和Date</p>
-<h4 id="需要遵守的约定"><a href="#需要遵守的约定" class="headerlink" title="需要遵守的约定"></a>需要遵守的约定</h4><ol>
-<li>自反性</li>
-<li>对称性</li>
-<li>传递性</li>
-<li>一致性</li>
-<li>对于任何非null的引用值x, x.equals(null)返回false</li>
-</ol>
-<p>值得注意的是, 试图去比较一个添加了新的值组件(即一个新的域,该域对该对象的值有影响)与其父类对象是很困难的,这往往导致违反对称性与传递性的约定. 一种workaround就是<strong>复合优于继承</strong></p>
-<p>关于以上的详细解释,参照<em>Effective Java</em>第8条.</p>
-<h4 id="如何编写equals方法"><a href="#如何编写equals方法" class="headerlink" title="如何编写equals方法"></a>如何编写equals方法</h4><ol>
-<li>使用==操作符检查”参数是否为这个对象的引用”</li>
-<li>使用instanceof操作符检查”参数是否是正确的类型”</li>
-<li>把参数转换成正确的类型</li>
-<li>对于该类中的每个”关键(significant,对其值有影响)”域, 检查参数中的域是否与该对象中对应的域相匹配</li>
-</ol>
-<p>一个例子</p>
-<pre><code>class PhoneNumber {
-
-    private short areaCode;
-    private short prefix;
-    private short lineNumber;
-
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-
-        if (!(o instanceof PhoneNumber))
-            return false;
-
-        PhoneNumber pn = (PhoneNumber)o;
-
-        return pn.areaCode == areaCode &amp;&amp; pn.prefix == prefix &amp;&amp; pn.lineNumber == lineNumber;
-    }
-}
-</code></pre><p> 更详细的解释请参照<em>Effective Java</em>第8条.</p>
-<h3 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h3><blockquote>
-<p>覆盖equals时总要覆盖hashCode</p>
-</blockquote>
-<p>为什么?</p>
-<p>不妨从反面去考虑一下</p>
-<blockquote>
-<p>如果只覆盖equals而不覆盖hashCode， 会发生什么？</p>
-</blockquote>
-<p>比如说对以下场景， 如果我们覆盖了PhoneNumber的equals方法， 认为电话号码相同的两个对象是相同的。那么对于如下代码。</p>
-<pre><code>class PhoneNumber {}
-
-Map&lt;PhoneNumber, String&gt; m = new HashMap&lt;PhoneNumber, String&gt;();
-m.put(new PhoneNumber(&quot;1862233445&quot;), ht);
-
-String name = m.get(new PhoneNumber(&quot;1862233445&quot;));
-</code></pre><p>如果两者的hashCode不同， 则会放在不同的bucket中， 于是name就为空, 这对使用者来说， 很困惑。</p>
-<p>所以覆盖equals后也就覆盖hashCode.</p>
-<p><strong>所以可知,当期望两个对象通过equals比较相同时,也同时希望它们的hashCode返回相同的整形值.并可以推论出,equals与hashCode方法中涉及到的域也应该是相同的,并且都是与”值”有关的域.</strong></p>
-<p><strong>同时也可以推导出,如果一个域对该对象的”值”没有影响,则不应该影响到equals与hashCode的结果</strong></p>
-<p>上面的讨论只是说明了</p>
-<p><strong>如果对象相等, 那么hashCode返回相同的整型值</strong></p>
-<p>其它情况都是允许的,并没有规定,如hashCode返回相同整形值,对象不相等.</p>
-<h4 id="如何编写hashCode方法"><a href="#如何编写hashCode方法" class="headerlink" title="如何编写hashCode方法"></a>如何编写hashCode方法</h4><p>参照<em>Effective Java</em>第9条.</p>
-<h3 id="clone方法与深拷贝与浅拷贝"><a href="#clone方法与深拷贝与浅拷贝" class="headerlink" title="clone方法与深拷贝与浅拷贝"></a>clone方法与深拷贝与浅拷贝</h3><ol>
-<li>Object的clone方法是一个native方法</li>
-<li><p>一个对象要想提供一个public的clone方法， 就必须实现cloneable接口， 这是因为Object.clone()会返回一个实现了Cloneable接口的对象的逐域拷贝， 如果没有实现cloneable接口， 在调用Object.clone()时会抛出CloneNotSupportedException的异常</p>
-<p>一般clone方法是这样的</p>
-<p>   @override<br>   public SubClass clone() {</p>
-<pre><code>try {
-    retrun (SubClass) super.clone();
-} catch(CloneNotSupportedException e) {...}
-</code></pre><p>   }</p>
-</li>
-<li><p>clone是浅拷贝，所以需要人工的去重置各个域指向新的成员对象。</p>
-</li>
-<li>在一个调用链中， 需要所有的父类实现深拷贝的clone()，但有时这是不可能的， 因为父类可能来自第三方库</li>
-<li><p>所以， 如果想实现拷贝的功能， 最好是不用clone()， 而是提供一个copy constructor或copy factory， 就像这样</p>
-<pre><code>public Yum(Yum objectToBeClone)
-
-public static Yum newInstance(Yum objectToBeClone)
-</code></pre></li>
-</ol>
-<p>参考</p>
-<p><a href="http://blog.csdn.net/zhangjg_blog/article/details/18369201" target="_blank" rel="noopener">详解Java中的clone方法 – 原型模式</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/reflection/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1243,6 +1022,217 @@ public boolean isSynthetic()
 <p>其中不带Declared的版本, 是得到该类的所有public成员(包括从父类继承的), 因为Constructor不能从父类继承, 所以getConstructors()只是返回当前类的public构造函数</p>
 <p>而带Declared的版本返回当前类中所声明的所有的成员(不包括从父类继承, 但是包括public, private, protected)</p>
 <h2 id="4-关于以上API的例子-请参考如下文章"><a href="#4-关于以上API的例子-请参考如下文章" class="headerlink" title="4. 关于以上API的例子,请参考如下文章"></a>4. 关于以上API的例子,请参考如下文章</h2><p><a href="http://wangkuiwu.github.io/2012/03/04/reflection/" target="_blank" rel="noopener">Java 反射机制(包括组成、结构、示例说明等内容)</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/equals-hashcode-tostring-clone-finalize/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/03/11/equals-hashcode-tostring-clone-finalize/" itemprop="url">equals hashCode clone </a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
+                2016-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Object主要是用来扩展的,它定义了一些非final方法,如</p>
+<p>equals, hashCode, clone</p>
+<p>这些方法交有子类实现,但实现并非随意,Object为这些方法的实现设定了一些约定,子类的实现必须遵守这些约定.</p>
+<p><strong>为什么需要遵守这些约定呢?</strong></p>
+<blockquote>
+<p>因为Java类库的类已经遵守了这些约定,如果自定义的类不遵守这些约定的话,那么,自定义的类就不能和类库中的类正常的工作.</p>
+</blockquote>
+<p>以下从两个方面对各个方法进行介绍</p>
+<ol>
+<li>需要遵守哪些约定?</li>
+<li>如何遵守约定(即如何正确的编写这些方法)</li>
+</ol>
+<h3 id="equals"><a href="#equals" class="headerlink" title="equals"></a>equals</h3><h4 id="什么时候需要覆盖equals"><a href="#什么时候需要覆盖equals" class="headerlink" title="什么时候需要覆盖equals"></a>什么时候需要覆盖equals</h4><p>通常需要覆盖equals是一种”值类”, 对于这种类的对象a, b,并不关心是否是同一个对象,而是关于它的值是不是相同的,如Integer和Date</p>
+<h4 id="需要遵守的约定"><a href="#需要遵守的约定" class="headerlink" title="需要遵守的约定"></a>需要遵守的约定</h4><ol>
+<li>自反性</li>
+<li>对称性</li>
+<li>传递性</li>
+<li>一致性</li>
+<li>对于任何非null的引用值x, x.equals(null)返回false</li>
+</ol>
+<p>值得注意的是, 试图去比较一个添加了新的值组件(即一个新的域,该域对该对象的值有影响)与其父类对象是很困难的,这往往导致违反对称性与传递性的约定. 一种workaround就是<strong>复合优于继承</strong></p>
+<p>关于以上的详细解释,参照<em>Effective Java</em>第8条.</p>
+<h4 id="如何编写equals方法"><a href="#如何编写equals方法" class="headerlink" title="如何编写equals方法"></a>如何编写equals方法</h4><ol>
+<li>使用==操作符检查”参数是否为这个对象的引用”</li>
+<li>使用instanceof操作符检查”参数是否是正确的类型”</li>
+<li>把参数转换成正确的类型</li>
+<li>对于该类中的每个”关键(significant,对其值有影响)”域, 检查参数中的域是否与该对象中对应的域相匹配</li>
+</ol>
+<p>一个例子</p>
+<pre><code>class PhoneNumber {
+
+    private short areaCode;
+    private short prefix;
+    private short lineNumber;
+
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+
+        if (!(o instanceof PhoneNumber))
+            return false;
+
+        PhoneNumber pn = (PhoneNumber)o;
+
+        return pn.areaCode == areaCode &amp;&amp; pn.prefix == prefix &amp;&amp; pn.lineNumber == lineNumber;
+    }
+}
+</code></pre><p> 更详细的解释请参照<em>Effective Java</em>第8条.</p>
+<h3 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h3><blockquote>
+<p>覆盖equals时总要覆盖hashCode</p>
+</blockquote>
+<p>为什么?</p>
+<p>不妨从反面去考虑一下</p>
+<blockquote>
+<p>如果只覆盖equals而不覆盖hashCode， 会发生什么？</p>
+</blockquote>
+<p>比如说对以下场景， 如果我们覆盖了PhoneNumber的equals方法， 认为电话号码相同的两个对象是相同的。那么对于如下代码。</p>
+<pre><code>class PhoneNumber {}
+
+Map&lt;PhoneNumber, String&gt; m = new HashMap&lt;PhoneNumber, String&gt;();
+m.put(new PhoneNumber(&quot;1862233445&quot;), ht);
+
+String name = m.get(new PhoneNumber(&quot;1862233445&quot;));
+</code></pre><p>如果两者的hashCode不同， 则会放在不同的bucket中， 于是name就为空, 这对使用者来说， 很困惑。</p>
+<p>所以覆盖equals后也就覆盖hashCode.</p>
+<p><strong>所以可知,当期望两个对象通过equals比较相同时,也同时希望它们的hashCode返回相同的整形值.并可以推论出,equals与hashCode方法中涉及到的域也应该是相同的,并且都是与”值”有关的域.</strong></p>
+<p><strong>同时也可以推导出,如果一个域对该对象的”值”没有影响,则不应该影响到equals与hashCode的结果</strong></p>
+<p>上面的讨论只是说明了</p>
+<p><strong>如果对象相等, 那么hashCode返回相同的整型值</strong></p>
+<p>其它情况都是允许的,并没有规定,如hashCode返回相同整形值,对象不相等.</p>
+<h4 id="如何编写hashCode方法"><a href="#如何编写hashCode方法" class="headerlink" title="如何编写hashCode方法"></a>如何编写hashCode方法</h4><p>参照<em>Effective Java</em>第9条.</p>
+<h3 id="clone方法与深拷贝与浅拷贝"><a href="#clone方法与深拷贝与浅拷贝" class="headerlink" title="clone方法与深拷贝与浅拷贝"></a>clone方法与深拷贝与浅拷贝</h3><ol>
+<li>Object的clone方法是一个native方法</li>
+<li><p>一个对象要想提供一个public的clone方法， 就必须实现cloneable接口， 这是因为Object.clone()会返回一个实现了Cloneable接口的对象的逐域拷贝， 如果没有实现cloneable接口， 在调用Object.clone()时会抛出CloneNotSupportedException的异常</p>
+<p>一般clone方法是这样的</p>
+<p>   @override<br>   public SubClass clone() {</p>
+<pre><code>try {
+    retrun (SubClass) super.clone();
+} catch(CloneNotSupportedException e) {...}
+</code></pre><p>   }</p>
+</li>
+<li><p>clone是浅拷贝，所以需要人工的去重置各个域指向新的成员对象。</p>
+</li>
+<li>在一个调用链中， 需要所有的父类实现深拷贝的clone()，但有时这是不可能的， 因为父类可能来自第三方库</li>
+<li><p>所以， 如果想实现拷贝的功能， 最好是不用clone()， 而是提供一个copy constructor或copy factory， 就像这样</p>
+<pre><code>public Yum(Yum objectToBeClone)
+
+public static Yum newInstance(Yum objectToBeClone)
+</code></pre></li>
+</ol>
+<p>参考</p>
+<p><a href="http://blog.csdn.net/zhangjg_blog/article/details/18369201" target="_blank" rel="noopener">详解Java中的clone方法 – 原型模式</a></p>
 
           
         

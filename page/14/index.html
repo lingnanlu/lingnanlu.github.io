@@ -260,7 +260,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/14/dive-into-yii---alias_configure_env/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/14/kramdown-syntax---key-conceptions/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -279,7 +279,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2015/07/14/dive-into-yii---alias_configure_env/" itemprop="url">深入理解Yii笔记 - 别名、配置、环境</a></h1>
+                <a class="post-title-link" href="/2015/07/14/kramdown-syntax---key-conceptions/" itemprop="url">kramdown syntax - 关键概念</a></h1>
         
 
         <div class="post-meta">
@@ -331,13 +331,45 @@
       
         
           
-            <h3 id="别名"><a href="#别名" class="headerlink" title="别名"></a>别名</h3><h4 id="别名的作用"><a href="#别名的作用" class="headerlink" title="别名的作用"></a>别名的作用</h4><p>防止硬编码一些文件路径和URL</p>
-<h4 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h4><ol>
-<li>注意别名定义的地方</li>
-<li>了解别名的注册和解析过程</li>
+            <h4 id="一、kramdown-元素"><a href="#一、kramdown-元素" class="headerlink" title="一、kramdown 元素"></a>一、kramdown 元素</h4><p>kramdown元素分为 <strong>Block-level Elements</strong> 和 <strong>Span-Level Elements</strong></p>
+<p><strong>Block-level Elements</strong> 包括</p>
+<ul>
+<li>Paragraphs</li>
+<li>Headers</li>
+<li>Blockquotes</li>
+<li>Code Blocks</li>
+<li>Horizontal Rules</li>
+<li>Lists</li>
+<li>Definition Lists</li>
+<li>Tables</li>
+<li>其它</li>
+</ul>
+<p><strong>Span-Level Elements</strong> 包括</p>
+<ul>
+<li>Emphasis</li>
+<li>Links and Images</li>
+<li>Inline Code</li>
+<li>Footnotes</li>
+<li>Abbreviations</li>
+</ul>
+<p>关于kramdown元素，不必记忆，现用现学，但学的时候要注意以下几点</p>
+<ol>
+<li><p>元素的表示法</p>
+<p>如Blockquotes的表示是以<code>&gt;</code>开头，后跟一个可选的空格，并且每一行的开头都为<code>&gt;</code>。</p>
+<p>而Code Blocks的表示又有两种，一种是 <strong>以4个空格</strong> 缩进，另一种不用缩进，但是使用 **<figure class="highlight plain"><figcaption><span>标志</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">#### 二、Block-level 元素的结束</span><br><span class="line"></span><br><span class="line">当Block-level元素遇到以下时结束。</span><br><span class="line"></span><br><span class="line">1. 空行</span><br><span class="line">2. EOB字符，a `^` as first character on an otherwise empty line.</span><br><span class="line">3. 其它(参见官方文档)</span><br><span class="line"></span><br><span class="line">#### 三、first character 和 first column</span><br><span class="line"></span><br><span class="line">当提交当前Block元素的 **first character** 或 **first column** 时，均是指相对于当前元素的嵌套等级来说的，而不是绝对于文档的最左边。</span><br><span class="line"></span><br><span class="line">#### 四、缩进与嵌套</span><br><span class="line"></span><br><span class="line">即如何利用缩进来嵌套元素。</span><br><span class="line"></span><br><span class="line">Block元素中可以包含多个Block元素，这就是嵌套，当然，这种嵌套可以有多层。</span><br><span class="line"></span><br><span class="line">可以这样理解，把整个文档想像成一个大的Block元素，这个元素中包含着许许多多的Block元素，拿一个Blockquotes来说，其`&gt;`必须在第一列上，然后是一个可选的空格，再接非空白字符。这样，一个Block元素就嵌套在文档这个最外层Block元素中了。</span><br><span class="line"></span><br><span class="line">此时，再空一行，就可以添加另一个Block元素，如无序列表，只要其`*`也在第一列上，即Blockquote和List的缩进是相同的，那么，这两个元素就都是外面文档的嵌套元素。</span><br><span class="line"></span><br><span class="line">然后就可以引申了，比如要在一个Blockquotes元素中嵌套元素，就可以利用上面的规则来实现。首先要找到Blockquotes元素的第一列是哪一列，然后，其所有要被嵌套的元素都与第一列对齐即可，如嵌套最一个Blockquotes和List, 因为Blockquotes的第一列为其非空白字符所在的那一列，所以只需要将嵌套的Blockquote的`&gt;`与List的`*`与该列对齐，两者之间使用空行隔开，就行了。具体的两个更复杂的例子如下：</span><br><span class="line"></span><br><span class="line">----</span><br><span class="line"></span><br><span class="line">&gt; This is a quote</span><br><span class="line">&gt; </span><br><span class="line">&gt; This is another para.  </span><br><span class="line">&gt;</span><br><span class="line">&gt; &gt; This is a nested quote.</span><br><span class="line">&gt; &gt; </span><br><span class="line">&gt; &gt; 1. This is Item 1</span><br><span class="line">&gt; &gt; 2. This is Item 2.</span><br><span class="line">&gt; &gt;  </span><br><span class="line">&gt; &gt;</span><br></pre></td></tr></table></figure></p>
+</li>
 </ol>
-<h3 id="配置与环境"><a href="#配置与环境" class="headerlink" title="配置与环境"></a>配置与环境</h3><p>配置就是设置对象的属性，应用程序也是一种对象，所以配置文件就是改变应用程序的属性。</p>
-<p>环境就是一组配置文件，切换环境就是切换配置文件，不同环境应用程序的属性也应该不同，如开发环境所使用的数据库与发布环境所使用的数据库肯定不同，进而更改程序的属性。</p>
+<blockquote>
+<blockquote>
+<p>   This is a code block<br>   <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="code">   </span></span><br><span class="line">----</span><br><span class="line"><span class="code">   </span></span><br><span class="line">1. This is a item 1</span><br><span class="line">2. This is a item 2</span><br><span class="line"></span><br><span class="line"><span class="code">   &gt; This is a quoteblock</span></span><br><span class="line"><span class="code">   &gt; </span></span><br><span class="line"><span class="code">   &gt; another paragraph</span></span><br><span class="line"><span class="code">   &gt;</span></span><br><span class="line"><span class="code">   &gt;</span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>another code block<br>~~~</p>
+</blockquote>
+<hr>
+<p>关键点：</p>
+<p>找到其直接外层元素的第一列的位置(不同Block元素的第一列位置也不同，可参见文档)，然后对齐该位置。</p>
 
           
         
@@ -471,6 +503,165 @@
 <h3 id="Object与Component关系"><a href="#Object与Component关系" class="headerlink" title="Object与Component关系"></a>Object与Component关系</h3><p>Component相比Object多了 <strong>事件</strong> 和 <strong>行为</strong></p>
 <p>同时，Component重载了<strong>set()和</strong>get()方法，这两个方法的行为类似于Object的行为，只是因为Component多了 <strong>行为</strong> ， <strong>行为</strong> 会将其中的属性注入到该Component中，所以这两个方法做了稍微的修改。</p>
 <h3 id="属性与配置的关系"><a href="#属性与配置的关系" class="headerlink" title="属性与配置的关系"></a>属性与配置的关系</h3><p>一个对象存在，必须有某种状态或者说，有某种属性，而在对象的构建过程中，如何获得其所要求的属性呢？这里就需要配置文件，程序启动后，将配置文件的属性读入。所以说，配置文件配置的是对象的属性，如数据库对象的密码和用户名等。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---event/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/07/10/dive-into-yii---event/" itemprop="url">深入理解Yii笔记 - 事件(Event)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
+                2015-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="有关事件的几个关键问题"><a href="#有关事件的几个关键问题" class="headerlink" title="有关事件的几个关键问题"></a>有关事件的几个关键问题</h3><ol>
+<li><p>事件由谁产生？</p>
+<p> 有三种情况：</p>
+<ul>
+<li>由某一Component实例产生，这称为实例事件</li>
+<li>由某一类产生，这称为类事件</li>
+<li>由某一全局可访问的实例产生，如全局唯一的Application实例，这称为全局事件</li>
+</ul>
+</li>
+<li><p>什么是事件的产生？<br> 因为事件发生时，必定有东西来做出响应，即处理事件，这里，事件的产生实际上指的是事件 的trigger。</p>
+<ul>
+<li>对于实例事件和全局事件，是由实例的trigger方法触发的</li>
+<li>对于类事件，是由Event类的static方法trigger触发的。</li>
+</ul>
+</li>
+<li><p>当事件发生(产生，触发，调用trigger)时，如何处理？</p>
+<p> 首先，将某些处理者与某一事件进行绑定.</p>
+<ul>
+<li>对于实例事件和全局事件，是由实例的on方法绑定的</li>
+<li><p>对于类事件，是由Event类的static方法on绑定的。</p>
+<p>绑定后，事件发生(产生，触发，调用trigger)时,使用用绑定的handler来依次处理该事件。</p>
+</li>
+</ul>
+</li>
+<li><p>事件抽象在程序中如何表示？</p>
+<p> 首先有一个事件名，然后还可以有一个Event对象，为该事件提供额外的一些信息和数据。</p>
+</li>
+<li><p>事件处理者有哪些？</p>
+<ul>
+<li>全局函数</li>
+<li>对象方法或类静态方法</li>
+<li>匿名函数</li>
+</ul>
+</li>
+<li><p>所涉及的数据结构有哪些？</p>
+<p> 所谓的绑定就是一个二维数组，第一维是事件名，第二维是绑定到这个事件上的handler所组成的一个数组。</p>
+</li>
+</ol>
+<hr>
+<p>综上所说，首先事件由某一Component实例或Event与handler进行绑定，然后，由某一Component实例或Event进行触发，相应的handler进行处理。</p>
 
           
         
@@ -720,165 +911,6 @@
 </ol>
 <h3 id="行为的一个应用"><a href="#行为的一个应用" class="headerlink" title="行为的一个应用"></a>行为的一个应用</h3><p>yii\behaviors\TimeStampBehavior是yii内置的一种行为，其绑定了两个事件，<br>BaseActiveRecord::EVENT_BEFORE_INSERT<br>BaseActiveRecord::EVENT_BEFORE_UPDATE<br>当这两个事件发生时，会更新相应字段的时间戳。</p>
 <p>此时，我们可以定义一个Component做为Model，将TimeStampBehavior绑定到该对象上，当往数据库插入或更新一条记录时，会发生相应的事件，然后自动更新相应的字段。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---event/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/07/10/dive-into-yii---event/" itemprop="url">深入理解Yii笔记 - 事件(Event)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
-                2015-07-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="有关事件的几个关键问题"><a href="#有关事件的几个关键问题" class="headerlink" title="有关事件的几个关键问题"></a>有关事件的几个关键问题</h3><ol>
-<li><p>事件由谁产生？</p>
-<p> 有三种情况：</p>
-<ul>
-<li>由某一Component实例产生，这称为实例事件</li>
-<li>由某一类产生，这称为类事件</li>
-<li>由某一全局可访问的实例产生，如全局唯一的Application实例，这称为全局事件</li>
-</ul>
-</li>
-<li><p>什么是事件的产生？<br> 因为事件发生时，必定有东西来做出响应，即处理事件，这里，事件的产生实际上指的是事件 的trigger。</p>
-<ul>
-<li>对于实例事件和全局事件，是由实例的trigger方法触发的</li>
-<li>对于类事件，是由Event类的static方法trigger触发的。</li>
-</ul>
-</li>
-<li><p>当事件发生(产生，触发，调用trigger)时，如何处理？</p>
-<p> 首先，将某些处理者与某一事件进行绑定.</p>
-<ul>
-<li>对于实例事件和全局事件，是由实例的on方法绑定的</li>
-<li><p>对于类事件，是由Event类的static方法on绑定的。</p>
-<p>绑定后，事件发生(产生，触发，调用trigger)时,使用用绑定的handler来依次处理该事件。</p>
-</li>
-</ul>
-</li>
-<li><p>事件抽象在程序中如何表示？</p>
-<p> 首先有一个事件名，然后还可以有一个Event对象，为该事件提供额外的一些信息和数据。</p>
-</li>
-<li><p>事件处理者有哪些？</p>
-<ul>
-<li>全局函数</li>
-<li>对象方法或类静态方法</li>
-<li>匿名函数</li>
-</ul>
-</li>
-<li><p>所涉及的数据结构有哪些？</p>
-<p> 所谓的绑定就是一个二维数组，第一维是事件名，第二维是绑定到这个事件上的handler所组成的一个数组。</p>
-</li>
-</ol>
-<hr>
-<p>综上所说，首先事件由某一Component实例或Event与handler进行绑定，然后，由某一Component实例或Event进行触发，相应的handler进行处理。</p>
 
           
         
