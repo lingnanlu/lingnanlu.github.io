@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)在开发app时有几个与次相关的概念: compileSdkVersion, minSdkVersion, targetSdkVersion, Support Library. minSdkVersion:从字面意思去理解就是该app所支持的最小的sdk,如果系统的sdk小于该值,则系统不能安装该">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略">
+<meta property="og:url" content="http://asanelder.me/2016/02/25/compilesdkversion-minsdkversion-targetsdkversion/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)在开发app时有几个与次相关的概念: compileSdkVersion, minSdkVersion, targetSdkVersion, Support Library. minSdkVersion:从字面意思去理解就是该app所支持的最小的sdk,如果系统的sdk小于该值,则系统不能安装该">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略">
+<meta name="twitter:description" content="如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)在开发app时有几个与次相关的概念: compileSdkVersion, minSdkVersion, targetSdkVersion, Support Library. minSdkVersion:从字面意思去理解就是该app所支持的最小的sdk,如果系统的sdk小于该值,则系统不能安装该">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/02/25/compilesdkversion-minsdkversion-targetsdkversion/">
+
+
+
+
+
+  <title>compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/02/25/compilesdkversion-minsdkversion-targetsdkversion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-25T00:00:00+08:00">
+                2016-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="如何让app支持更多的系统版本-并且能利用最新系统的特性-如android-6-0-的运行时权限检查"><a href="#如何让app支持更多的系统版本-并且能利用最新系统的特性-如android-6-0-的运行时权限检查" class="headerlink" title="如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)"></a><strong>如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)</strong></h2><p>在开发app时有几个与次相关的概念: compileSdkVersion, minSdkVersion, targetSdkVersion, Support Library.</p>
+<h4 id="minSdkVersion"><a href="#minSdkVersion" class="headerlink" title="minSdkVersion:"></a>minSdkVersion:</h4><p>从字面意思去理解就是该app所支持的最小的sdk,如果系统的sdk小于该值,则系统不能安装该app.</p>
+<p>另一方面,该值也限制了该app所能使用的api,如minSdkVersion=13, 那么高于13的api就不能使用,因为如果使用了的话,在系统sdk=13的平台上该app就无法运行,与其声称的支持最小13相背.</p>
+<p>那么,如何能即不违背其声明,又想在sdk大于13的平台上使用新的api呢?可以使用如下的方式:</p>
+<pre><code>if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.HONEYCOMB) {
+    ActionBar actionBar = getActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
+}
+</code></pre><h4 id="targetSdkVersion"><a href="#targetSdkVersion" class="headerlink" title="targetSdkVersion:"></a>targetSdkVersion:</h4><p>该值表示该app是为哪一个版本的api构建的,既然是专为某一个版本的api进行构建的,其潜在含义就是该app在该api上表现的最好? 那么,什么是表现的最好呢? 即可以利用该版本的最新特征,如targetSdkVersion=23,就可以利用android 6.0 的运行时权限检查特征.如果targetSdkVersion小于22, 那么该app同样可以在android 6.0设备上运行,但是不能利用其运行时权限检查特征(这里不能利用特征,但并非不能利用其新的api,能否使用新的api要看compileSdkVersion).</p>
+<p>如果targetSdkVersion高于运行环境的版本,那么依然能利用运行环境的特征,只有在低于时,运行环境会以兼容模式来运行程序,所以不能利用其最新特征.</p>
+<p>由以上可以,targetSdkVersion只影响app是否能利用最新平台的行为变化,而不影响能使用的api,所以在新平台发布时,为了使app利用新平台最新的行为变化,需要修改targetSdkVersion为最新平台的version.</p>
+<h4 id="compileSdkVersion"><a href="#compileSdkVersion" class="headerlink" title="compileSdkVersion:"></a>compileSdkVersion:</h4><p>这个决定了构建app时,所使用的android.jar版本,可以把android.jar当做一个java第三方库,在构建程序时,当然需要指定第三方库的版本.同时不同的版本提供的api不同,所以该值限制了你能使用的api.</p>
+<p>另外,由于android是向后兼容的,新版的sdk包含着旧版sdk中的api,所以如果只使用旧版的api,那么使用新版的sdk构建出来的app依然可以在低于新版sdk的平台上运行.</p>
+<p>所以一般指定compileSdkVersion为最新的sdk版本.</p>
+<h2 id="如何既想支持老的版本-又想使用新的api呢"><a href="#如何既想支持老的版本-又想使用新的api呢" class="headerlink" title="如何既想支持老的版本,又想使用新的api呢?"></a><strong>如何既想支持老的版本,又想使用新的api呢?</strong></h2><p>支持老的版本需要指定尽可以小的minSdkVersion, 而又使用新的api则必须指定较大的compileSdkVersion,但小的minSdkVersion限制了api的使用,所以在老版本中支持一项在新版本中的特征可以这个去写,如支持actionbar:</p>
+<pre><code>if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.HONEYCOMB) {
+    //使用native api
+    ActionBar actionBar = getActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
+} else {
+    //使用老版本的api来模拟其新特征.
+}
+</code></pre><p>而Support Library正是对以上这种代码结构做了封装,判断平台的sdk版本来决定是否使用原来的api还是使用老版本的进行模拟.</p>
+<p>所以利用Support Library就可以解决以上提出的问题.</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>一般开发应用时,三个值的关系如下</p>
+<pre><code>minSdkVersion (lowest possible) &lt;= targetSdkVersion == compileSdkVersion (latest SDK)
+</code></pre><p>并且使用Support Library来实现新SDK才有的特性.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/25/android-binder/" rel="next" title="android Binder相关知识">
+                <i class="fa fa-chevron-left"></i> android Binder相关知识
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/28/ams/" rel="prev" title="由一个实例了解AMS机制">
+                由一个实例了解AMS机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何让app支持更多的系统版本-并且能利用最新系统的特性-如android-6-0-的运行时权限检查"><span class="nav-text">如何让app支持更多的系统版本,并且能利用最新系统的特性(如android 6.0 的运行时权限检查?)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#minSdkVersion"><span class="nav-text">minSdkVersion:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#targetSdkVersion"><span class="nav-text">targetSdkVersion:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#compileSdkVersion"><span class="nav-text">compileSdkVersion:</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#如何既想支持老的版本-又想使用新的api呢"><span class="nav-text">如何既想支持老的版本,又想使用新的api呢?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-text">结论</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

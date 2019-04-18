@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一 数据的CRUD操作以及相应的抽象目的, 使使用者使用起来更方便, 不容易出错, 所以需要封装一些细节的,容易出错的东西 为了达到以上目的, 一般会设计如下几个类  Contract类 SQLiteOpenHelper类 SQLiteDatabase类 封装SQL语句的类  以下说明这三种类的存在必要性, 所扮演的角色, 以及三者之间的关系 1. SQLiteOpenHelper这是一个help">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用sqlite需要主要关注的两个方面">
+<meta property="og:url" content="http://asanelder.me/2016/03/26/how-to-use-sqlite-correctly/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="一 数据的CRUD操作以及相应的抽象目的, 使使用者使用起来更方便, 不容易出错, 所以需要封装一些细节的,容易出错的东西 为了达到以上目的, 一般会设计如下几个类  Contract类 SQLiteOpenHelper类 SQLiteDatabase类 封装SQL语句的类  以下说明这三种类的存在必要性, 所扮演的角色, 以及三者之间的关系 1. SQLiteOpenHelper这是一个help">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用sqlite需要主要关注的两个方面">
+<meta name="twitter:description" content="一 数据的CRUD操作以及相应的抽象目的, 使使用者使用起来更方便, 不容易出错, 所以需要封装一些细节的,容易出错的东西 为了达到以上目的, 一般会设计如下几个类  Contract类 SQLiteOpenHelper类 SQLiteDatabase类 封装SQL语句的类  以下说明这三种类的存在必要性, 所扮演的角色, 以及三者之间的关系 1. SQLiteOpenHelper这是一个help">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/03/26/how-to-use-sqlite-correctly/">
+
+
+
+
+
+  <title>使用sqlite需要主要关注的两个方面 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/26/how-to-use-sqlite-correctly/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用sqlite需要主要关注的两个方面</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-26T00:00:00+08:00">
+                2016-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一-数据的CRUD操作以及相应的抽象"><a href="#一-数据的CRUD操作以及相应的抽象" class="headerlink" title="一 数据的CRUD操作以及相应的抽象"></a>一 数据的CRUD操作以及相应的抽象</h2><p>目的, 使使用者使用起来更方便, 不容易出错, 所以需要封装一些细节的,容易出错的东西</p>
+<p>为了达到以上目的, 一般会设计如下几个类</p>
+<ol>
+<li>Contract类</li>
+<li>SQLiteOpenHelper类</li>
+<li>SQLiteDatabase类</li>
+<li>封装SQL语句的类</li>
+</ol>
+<p>以下说明这三种类的存在必要性, 所扮演的角色, 以及三者之间的关系</p>
+<h4 id="1-SQLiteOpenHelper"><a href="#1-SQLiteOpenHelper" class="headerlink" title="1. SQLiteOpenHelper"></a>1. SQLiteOpenHelper</h4><p>这是一个helper类, 主要是<strong>帮助数据库的创建</strong>和<strong>管理数据库的版本</strong>, 至于什么是数据库的版本, 下面会说明.</p>
+<p>一般这个类的用法如下</p>
+<pre><code>public class CustomDBHelper extends SQLiteOpenHelper() {
+
+    public void onCreate(SQLiteDatabase db) {
+        // 利用db创建相应的表
+    }
+
+    public void onUpgrade(SQliteDatabase db, int oldVersion, int newVersion){
+        //更新数据库版本时所做操作
+    }
+}
+
+//以下是客户端代码
+SQLiteDatabase db = new CustomDBHelper().getReadableDatabase();
+</code></pre><p>一个数据库对应于一个SQLiteOpenHelper, 该类负责该数据库中所有表的创建与版本管理,该类的一个对象也关联着一个SQLiteDatabase对象, 而SQLiteDatabase负责执行具体的SQL语句.</p>
+<h4 id="2-SQLiteDatabase"><a href="#2-SQLiteDatabase" class="headerlink" title="2. SQLiteDatabase"></a>2. SQLiteDatabase</h4><p>该类负责执行具体的SQL语句, 和CRUD操作.由SQLiteOpenHelper得到该对象后, 这样使用:</p>
+<pre><code>//执行SQL语句
+db.execSQL(String sql)
+
+//CRUD
+db.delete(String table, String whereClause, String[] whereArgs)
+db.insert(String table, String nullColumnHack, ContentValues values)
+db.query()
+db.update(String table, ContentValues values, String whereClause, String[] whereArgs)
+
+//其它常用
+db.beginTransaction()
+db.endTransaction()
+</code></pre><h4 id="3-封装SQL语句的类"><a href="#3-封装SQL语句的类" class="headerlink" title="3. 封装SQL语句的类"></a>3. 封装SQL语句的类</h4><p>在程序中, 如果直接使用SQL语句来做CRUD操作, 有如下弊端</p>
+<ol>
+<li><strong>很不方便</strong>, 每次操作都需要写很大的SQL语句</li>
+<li><strong>容易出错</strong>, SQL语句就是一个字符串, 格式很严格, 少一个空格, 多一个符号都不行, 如果多处使用, 就存在多处出错的可能性</li>
+<li><strong>不够直观</strong>, 因为使用数据库操作时, 往往有一个实体对象与之对应, 直接使用SQL语句操作实体对象并不直观</li>
+</ol>
+<p>可以通过对实体的常用操作封装一个类, 将真实的SQL语句放在类接口的实现中, 这样, 就可以一定程度上缓解以上问题.</p>
+<p>但还是有一点问题, 需要为每一个实体封装一个类, 而该类的接口往往都是相似的, 违反了DRY原则, 所以更好的解决方案是使用ORM.</p>
+<h4 id="4-Contract类"><a href="#4-Contract类" class="headerlink" title="4. Contract类"></a>4. Contract类</h4><p>该类并非必要, 只是提倡有这样一个类, 为的是程序的<strong>易读性</strong>和<strong>不容易出错</strong>.<br>往往一个数据库对应一个Contract类, 数据库中的一个表对应该类的一个静态内部类, 以Google官方的例子来说.</p>
+<pre><code>public final class FeedReaderContract {
+
+    //每一个表
+    public static final class FeedEntry implements BaseColumns {
+
+        //该Table的描述
+        public static final String TABLE_NAME = &quot;entry&quot;;
+        public static final String COLUMN_ENTRY_ID = &quot;entryid&quot;;
+        public static final String COLUMN_TITLE = &quot;title&quot;;
+        public static final String COLUMN_CONTENT = &quot;content&quot;;
+        public static final String COLUMN_NULLABLE = &quot;&quot;;
+
+        public static final String SQL_DELETE_ENTRIES =
+            &quot;drop table if exists &quot; + TABLE_NAME;
+
+    }
+
+}
+</code></pre><p>为一些SQL字段与语句定义一些常量, 在程序中使用常量而不直接使用对应的字符串, 可以使其更易读和不易出错.</p>
+<h2 id="二-数据库的版本管理"><a href="#二-数据库的版本管理" class="headerlink" title="二 数据库的版本管理"></a>二 数据库的版本管理</h2><h3 id="数据库的版本指的是什么"><a href="#数据库的版本指的是什么" class="headerlink" title="数据库的版本指的是什么?"></a>数据库的版本指的是什么?</h3><p>假如当前有一个数据库, 库中有一个表, 将当前数据库的状态当做版本0</p>
+<p>如果后来将该表的schema更改了, 此时可以认为数据库的版本改变了, 成为一个新的版本.</p>
+<h3 id="什么是数据库的版本管理"><a href="#什么是数据库的版本管理" class="headerlink" title="什么是数据库的版本管理"></a>什么是数据库的版本管理</h3><p>数据库的版本管理是指,当数据库的schema更改时.</p>
+<ol>
+<li>如何将之前的schema改变为新的schema</li>
+<li>如何将之前的数据Migrate到新的表中</li>
+</ol>
+<h3 id="关于版本管理的两个方法"><a href="#关于版本管理的两个方法" class="headerlink" title="关于版本管理的两个方法"></a>关于版本管理的两个方法</h3><pre><code>public abstract class SQLiteOpenHelper {
+
+    public abstract void onCreate(SQLiteDatabase db);
+    public abstract void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
+
+}
+</code></pre><p>基中, onCreate是在数据库第一次创建时调用的. 而onUpgrade是数据库的版本号不同时进行调用的, 而数据库的版本号是在创建SQLiteOpenHelper的对象时, 传入到构造函数中, 并且保存在数据库中的.该函数中的实现需要做到不同版本间数据的migration</p>
+<h3 id="一个实例"><a href="#一个实例" class="headerlink" title="一个实例"></a>一个实例</h3><p>2013年4月，我们第一次发布了我们的应用，数据库版本是1。</p>
+<p>2013年5月，我们第二次发布了我们的应用，数据库版本是2。由于业务需要，我们更改了数据库里的某个表的表结构。</p>
+<p>这时候就有这样的难题出现：</p>
+<p>有些用户已经下载了4月份的版本1，并且已经使用了，很多数据存储在数据库了，这个时候，他想安装新的版本2，怎么办？ 怎么才能让数据不丢失？</p>
+<p>这个时候就需要使用onUpgrade的方法了.</p>
+<h3 id="开发过程中表的schema需要改变怎么办"><a href="#开发过程中表的schema需要改变怎么办" class="headerlink" title="开发过程中表的schema需要改变怎么办?"></a>开发过程中表的schema需要改变怎么办?</h3><p>开发过程中表的schema也可能是经常变的, 怎么去做版本的管理?</p>
+<p>有如下两种方法</p>
+<ol>
+<li>手动删除db文件, 这样每次运行时, 会创建新的db文件</li>
+<li>每更新一次schema就改变一次版本, 并在onUpgrade中删除旧表, 重新创建新表</li>
+</ol>
+<p>表中的数据怎么办?</p>
+<p>这个问题其实不用担心, 因为是开发过程中, 所有的数据应该是test数据, 并且是使用程序自动填充的, 所以不需要考虑数据的保留问题</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://stackoverflow.com/questions/21881992/when-is-sqliteopenhelper-oncreate-onupgrade-run" target="_blank" rel="noopener">When is SQLiteOpenHelper onCreate() / onUpgrade() run?</a></li>
+<li><a href="http://www.cnblogs.com/vir56k/archive/2013/04/18/3028688.html" target="_blank" rel="noopener">使用SQLiteOpenHelper的onUpgrade实现数据库版本升级</a></li>
+<li><a href="http://guoh.org/lifelog/2011/04/how-to-use-sqliteopenhelper/" target="_blank" rel="noopener">如何使用SQLiteOpenHelper</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/20/string-utils/" rel="next" title="String常用函数">
+                <i class="fa fa-chevron-left"></i> String常用函数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/27/client-server-model-using-service/" rel="prev" title="Service实现客户端-服务器模型的三种方式">
+                Service实现客户端-服务器模型的三种方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-数据的CRUD操作以及相应的抽象"><span class="nav-text">一 数据的CRUD操作以及相应的抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-SQLiteOpenHelper"><span class="nav-text">1. SQLiteOpenHelper</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-SQLiteDatabase"><span class="nav-text">2. SQLiteDatabase</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-封装SQL语句的类"><span class="nav-text">3. 封装SQL语句的类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Contract类"><span class="nav-text">4. Contract类</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#二-数据库的版本管理"><span class="nav-text">二 数据库的版本管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库的版本指的是什么"><span class="nav-text">数据库的版本指的是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是数据库的版本管理"><span class="nav-text">什么是数据库的版本管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于版本管理的两个方法"><span class="nav-text">关于版本管理的两个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一个实例"><span class="nav-text">一个实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开发过程中表的schema需要改变怎么办"><span class="nav-text">开发过程中表的schema需要改变怎么办?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

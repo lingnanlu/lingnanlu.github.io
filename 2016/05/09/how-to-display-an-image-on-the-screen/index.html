@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="涉及到三个部分  GPU 内存 显示器  绘制过程首先GPU将要显示的画面写入到内存的一块区域, 然后, 显示器将内存区域的内容读出, 并利用逐行扫描来显示该画面. 由以上叙述可知, 这是一个生产者消费者的模型,   生产者-&amp;gt;GPU 消息者-&amp;gt;显示器 产品-&amp;gt;画面, 也称为帧  帧速率, 刷新率帧速率: GPU每秒往内存中写的帧数刷新率: 显示器每秒从内存中读出并逐行刷新显示出">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机是如何将一个画面显示到屏幕上的?">
+<meta property="og:url" content="http://asanelder.me/2016/05/09/how-to-display-an-image-on-the-screen/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="涉及到三个部分  GPU 内存 显示器  绘制过程首先GPU将要显示的画面写入到内存的一块区域, 然后, 显示器将内存区域的内容读出, 并利用逐行扫描来显示该画面. 由以上叙述可知, 这是一个生产者消费者的模型,   生产者-&amp;gt;GPU 消息者-&amp;gt;显示器 产品-&amp;gt;画面, 也称为帧  帧速率, 刷新率帧速率: GPU每秒往内存中写的帧数刷新率: 显示器每秒从内存中读出并逐行刷新显示出">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/vsync_1.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/vsync_2.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/vsync_3.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计算机是如何将一个画面显示到屏幕上的?">
+<meta name="twitter:description" content="涉及到三个部分  GPU 内存 显示器  绘制过程首先GPU将要显示的画面写入到内存的一块区域, 然后, 显示器将内存区域的内容读出, 并利用逐行扫描来显示该画面. 由以上叙述可知, 这是一个生产者消费者的模型,   生产者-&amp;gt;GPU 消息者-&amp;gt;显示器 产品-&amp;gt;画面, 也称为帧  帧速率, 刷新率帧速率: GPU每秒往内存中写的帧数刷新率: 显示器每秒从内存中读出并逐行刷新显示出">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/vsync_1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/05/09/how-to-display-an-image-on-the-screen/">
+
+
+
+
+
+  <title>计算机是如何将一个画面显示到屏幕上的? | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/how-to-display-an-image-on-the-screen/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">计算机是如何将一个画面显示到屏幕上的?</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-09T00:00:00+08:00">
+                2016-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>涉及到三个部分</p>
+<ol>
+<li>GPU</li>
+<li>内存</li>
+<li>显示器</li>
+</ol>
+<h3 id="绘制过程"><a href="#绘制过程" class="headerlink" title="绘制过程"></a>绘制过程</h3><p>首先GPU将要显示的画面写入到内存的一块区域, 然后, 显示器将内存区域的内容读出, 并利用逐行扫描来显示该画面.</p>
+<p>由以上叙述可知, 这是一个生产者消费者的模型, </p>
+<ol>
+<li>生产者-&gt;GPU</li>
+<li>消息者-&gt;显示器</li>
+<li>产品-&gt;画面, 也称为帧</li>
+</ol>
+<h3 id="帧速率-刷新率"><a href="#帧速率-刷新率" class="headerlink" title="帧速率, 刷新率"></a>帧速率, 刷新率</h3><p>帧速率: GPU每秒往内存中写的帧数<br>刷新率: 显示器每秒从内存中读出并逐行刷新显示出来的帧数</p>
+<p>当两者相同时, 显示出来的画面是稳定的, 流畅的, 如图一</p>
+<p><img src="/assets/pics/vsync_1.jpg" alt></p>
+<p>当帧速率大于刷新率时, 假如说帧速率是刷新率的2倍, 那么当显示器是读内存的下半部分时, 其实已被写入了下一帧的内容, 导致的结果就是一个画面上显示了两帧的东西, 这叫做<strong>画面撕裂</strong>.如图2所示</p>
+<p><img src="/assets/pics/vsync_2.jpg" alt></p>
+<p>当刷新率大于帧速率时, 假如刷新率是帧速率的2倍, 这会导致同一帧显示两次, 其实, 如果一直这样也没啥, 画面给人感觉也是很流畅的, 但是如果一开始刷新率与帧速率相等, 之后帧速率下降, 这给人的感觉就是一个画面的显示时间相比之前变长了, 直观的感觉就是卡了(卡就是长期不变)</p>
+<h3 id="如何解决"><a href="#如何解决" class="headerlink" title="如何解决"></a>如何解决</h3><h4 id="撕裂问题"><a href="#撕裂问题" class="headerlink" title="撕裂问题"></a>撕裂问题</h4><p>可以利用两个缓冲区, 一个为帧缓冲, 一个为后缓冲, GPU将帧写入后缓冲, 而显示器只从帧缓冲中读帧, 将读完一帧后, 通知GPU将后缓冲中的帧复制到帧缓冲中, 这样, GPU可以继续往后缓冲中写帧, 而显示器可以从帧缓冲中读帧. 因为是显示器读完帧后发信号通知GPU, 所以最终的画面的流畅度取决于刷新率. 如图三</p>
+<p><img src="/assets/pics/vsync_3.jpg" alt></p>
+<h4 id="卡顿问题"><a href="#卡顿问题" class="headerlink" title="卡顿问题"></a>卡顿问题</h4><p>卡顿是由帧速率下降导致, 而帧速率下降是由于某一画面过于复杂, GPU计算生成该画面过长所致.</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://www.androidperformance.com/2015/04/19/Android-Performance-Patterns-3.html" target="_blank" rel="noopener">Android-Performance-Patterns</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/09/block-and-unblock-sync/" rel="next" title="阻塞同步(互斥同步)与非阻塞同步">
+                <i class="fa fa-chevron-left"></i> 阻塞同步(互斥同步)与非阻塞同步
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/09/huffman-tree/" rel="prev" title="huffman树基础知识">
+                huffman树基础知识 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制过程"><span class="nav-text">绘制过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#帧速率-刷新率"><span class="nav-text">帧速率, 刷新率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何解决"><span class="nav-text">如何解决</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#撕裂问题"><span class="nav-text">撕裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卡顿问题"><span class="nav-text">卡顿问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背景知识 JNI: JAVA基础之理解JNI原理 Stub在软件开发中的含义 client-server模型:见CSAPP中网络编程一章 事务: 事务就是client-server模型中,client与server的一次通信过程的抽象表述, 详见CSAPP中网络编程一章 远程过程调用: 一个进程调用另一个进程中对象的方法,这就称为远程过程调用,其中另一个进程中对象的方法称为远端方法.其实现机制利用">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android Binder相关知识">
+<meta property="og:url" content="http://asanelder.me/2016/02/25/android-binder/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="背景知识 JNI: JAVA基础之理解JNI原理 Stub在软件开发中的含义 client-server模型:见CSAPP中网络编程一章 事务: 事务就是client-server模型中,client与server的一次通信过程的抽象表述, 详见CSAPP中网络编程一章 远程过程调用: 一个进程调用另一个进程中对象的方法,这就称为远程过程调用,其中另一个进程中对象的方法称为远端方法.其实现机制利用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/BinderUML.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/ServiceUML.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/ServiceManagerUML.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="android Binder相关知识">
+<meta name="twitter:description" content="背景知识 JNI: JAVA基础之理解JNI原理 Stub在软件开发中的含义 client-server模型:见CSAPP中网络编程一章 事务: 事务就是client-server模型中,client与server的一次通信过程的抽象表述, 详见CSAPP中网络编程一章 远程过程调用: 一个进程调用另一个进程中对象的方法,这就称为远程过程调用,其中另一个进程中对象的方法称为远端方法.其实现机制利用">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/BinderUML.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/02/25/android-binder/">
+
+
+
+
+
+  <title>android Binder相关知识 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/02/25/android-binder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">android Binder相关知识</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-25T00:00:00+08:00">
+                2016-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h3><ol>
+<li>JNI: <a href="http://www.cnblogs.com/mandroid/archive/2011/06/15/2081093.html" target="_blank" rel="noopener">JAVA基础之理解JNI原理</a></li>
+<li><a href="http://stackoverflow.com/questions/4029313/what-is-a-stub-routine" target="_blank" rel="noopener">Stub在软件开发中的含义</a></li>
+<li><strong>client-server模型</strong>:见CSAPP中网络编程一章</li>
+<li><strong>事务</strong>: 事务就是client-server模型中,client与server的一次通信过程的抽象表述, 详见CSAPP中网络编程一章</li>
+<li>远程过程调用: 一个进程调用另一个进程中对象的方法,这就称为远程过程调用,其中另一个进程中对象的方法称为远端方法.其实现机制利用的是进程间通信的原理,比如说A进程通过socket将方法所需要的参数传给B进程,然后B进程得到参数后执行,然后将结果通过socket再返回给A,看起来A就像能直接调用B中对象方法似的.</li>
+<li>一个进程向另一个进程发送消息: 类似与一个对象向另一个对象发送消息,代码中表现为一个对象调用的了另一个对象的方法.</li>
+<li>进程间通信: 在Android上下文可以看作远程过程调用.</li>
+</ol>
+<h3 id="Binder机制及概念模型"><a href="#Binder机制及概念模型" class="headerlink" title="Binder机制及概念模型"></a>Binder机制及概念模型</h3><p>Binder就是一种方便进程间进行通信的机制,其作用就类似于socket,只是因为Android中存在大量的client-server设计,为了方便进程间的通信,所以才设计了此机制.</p>
+<p>在该模型中,有以下几个实体的存在,Server, Client, ServiceManger, Binder驱动. 其可以与互联网进行类比: Server就是服务器, Client就是客户终端, ServiceManager是DNS服务器(Client为了找到Server,需要向ServiceManager进行查询), Binder驱动类似于路由器(其是实现数据从Client到Server间传输的关键,因为路由器在网络编程中是对程序员透明,程序员不应该考虑的,同理,Binder驱动也应该在Client-server开发中是透明的).</p>
+<p>另外,Server需要向ServiceManager注册,在这个过程中Server就是Client,而ServiceManager就是Server.</p>
+<p>Binder可以看成是Client与Server之间的粘合剂,或者可以看成两者之间的一种管道,其有两端, 在Server端是一个Binder实体,而在Client是一个对该实体的引用,也可以称为代理(Proxy), 当Server端有了实体并且Client有了代理之后,相当于在Server与Client打通了数据通道(其实现依赖于底层了Binder驱动),于是就可以进行远程过程调用了.</p>
+<p>Binder模糊了进程的边界,当整个系统的各个Server与Client之间通过Binder粘合之后,整个系统似乎就是一个大的进程,各个Server与Client则是这个大进程中的一个个组件.</p>
+<p>可知,Binder是一种简化进程间通信的概念模型.</p>
+<h3 id="编写系统Server的流程"><a href="#编写系统Server的流程" class="headerlink" title="编写系统Server的流程"></a>编写系统Server的流程</h3><p><strong>参考文章</strong></p>
+<ol>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/6575988" target="_blank" rel="noopener">在Android系统中编写JNI方法在应用程序框架层提供Java接口访问硬件</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/6578352" target="_blank" rel="noopener">在Android系统的应用程序框架层增加硬件服务接口</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/6580267" target="_blank" rel="noopener">在Android系统中编写APP通过应用程序框架层访问硬件服务</a></li>
+</ol>
+<p><strong>具体流程</strong></p>
+<ol>
+<li>编写IXXXService.aidl定义所要实现的服务接口</li>
+<li>根据IXXXService.aidl生成IXXXService.java,其中包含IXXXService.Stub用于Server端,包含IXXXService.Stub.Proxy用于Client访问服务的代理.</li>
+<li>编写XXXService继承IXXXService.Stub,声明native api.</li>
+<li>利用JNI和C/C++语言实现3中定义的native api,这里是真正实现Server功能的代码, 而Java只是对底层的Server, Client以及Binder机制进行包装而已.</li>
+<li>将4中实现的Server注册到相应的文件中,这样,当Android系统初始化时,就包含了定义了JNI方法</li>
+<li>在Java层,在SystemServer.java中通过ServiceManager.addService(new XXXService())来注册服务(之后就可以通过ServiceManager.getService来得到服务, 实现上得到的是一个Proxy)</li>
+<li>重新打包system.img,这样在系统启动时就会自动加载XXXService了</li>
+<li>利用ServiceManager.getService()得到服务(实际上得到的是BinderProxy对象)</li>
+<li>利用IXXXService.Stub.asInterface()将8中得到的BinderProxy对象转换成IXXXService.Stub.Proxy对象,这是一个代理,可供Client端使用来访问服务</li>
+<li>因为IXXXService.Stub.Proxy实现了IXXXService接口,所以可以利用该对象请求服务.</li>
+</ol>
+<h3 id="Binder机制在应用程序框架层的Java接口体现"><a href="#Binder机制在应用程序框架层的Java接口体现" class="headerlink" title="Binder机制在应用程序框架层的Java接口体现"></a>Binder机制在应用程序框架层的Java接口体现</h3><p>参考文章:</p>
+<p><a href="http://blog.csdn.net/luoshengyang/article/details/6642463" target="_blank" rel="noopener">Android系统进程间通信Binder机制在应用程序框架层的Java接口源代码分析</a></p>
+<p>Binder机制在应用程序框架层涉及到的相应实体如下:</p>
+<ol>
+<li>IInterface</li>
+<li>IXXXService</li>
+<li>IXXXService.Stub.Proxy</li>
+<li>IXXXService.Stub</li>
+<li>IBinder</li>
+<li>BinderProxy</li>
+<li>Binder</li>
+<li>IServiceManager</li>
+<li>ServiceManagerProxy</li>
+<li>ServiceManagerNative</li>
+<li>SystemServer</li>
+<li>ServiceManager</li>
+</ol>
+<p>以上各类以及相应之间的关系如下图</p>
+<p>图1</p>
+<p><img src="/assets/pics/BinderUML.jpg" alt></p>
+<p>图2</p>
+<p><img src="/assets/pics/ServiceUML.jpg" alt></p>
+<p>由图2可知IXXXService是由IXXXService.aidl生成的接口,实现该接口的一共有两个类,一个是IXXXService.Stub.Proxy,从名字可以知道,这是一个代理类,是Client访问Service的入口, 另一个是IXXXService.Stub,由<strong>具体流程</strong>的3, 4步可知,该类将由XXXService继承,并利用JNI来具体实现服务的代码,所以该类是服务端所使用的类.另外这两个类都与一个IBinder相关联,IXXXService.Stub.Proxy是包含一个IBinder成员,而IXXXService.Stub是继承自Binder,其本身就是一个IBinder.</p>
+<p>那么为什么都两个类都要和一个IBinder相关联呢? 因为虽然这两个类一个供Client使用,一个供Server使用,这只是上层的抽象,但是要想使Client与Server进行通信,必须要有底层的实现,即使用某种进程间通信的机制,而由以上可知,这种通信机制就是Binder机制,所以Proxy和Stub都与一个Binder相关联就是为了使Proxy与Stub利用Binder机制进行通信.</p>
+<p>其中Proxy关联的IBinder就是一个BinderProxy(从名字可以看出其用在Client端), 而Stub继承自Binder,所以使用的就是Binder. IBinder, Binder, BinderProxy的关系如图一所示.</p>
+<p>因为Proxy和Stub都关联着一个IBinder对象,这里就可以解释IInterface了,该接口仅有的函数就是返回Proxy和Stub中关联的IBinder对象</p>
+<p>图3</p>
+<p><img src="/assets/pics/ServiceManagerUML.jpg" alt></p>
+<p>图3的结构与图2是一样的, 这是因为ServiceManager也是一种Service, 只是这种Service比较特殊罢了,对应与图2中的类,都有一个名称不同但角色相似的类.其中IServiceManager.getService返回的是一个BinderProxy对象,再利用ServiceManagerNative.asInterace()从BinderProxy对象得到一个ServiceManagerProxy对象.</p>
+<p>至于ServiceManager和SystemServer这两个类并不在以上的继承结构中,这两个类可以看作是辅助工具类,为了更方便的使用以上各个类所设.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/20/java-inner-class/" rel="next" title="final关键字与匿名内部类">
+                <i class="fa fa-chevron-left"></i> final关键字与匿名内部类
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/25/compilesdkversion-minsdkversion-targetsdkversion/" rel="prev" title="compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略">
+                compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景知识"><span class="nav-text">背景知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder机制及概念模型"><span class="nav-text">Binder机制及概念模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编写系统Server的流程"><span class="nav-text">编写系统Server的流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder机制在应用程序框架层的Java接口体现"><span class="nav-text">Binder机制在应用程序框架层的Java接口体现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

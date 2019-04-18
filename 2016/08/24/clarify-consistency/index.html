@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0 前言最近在和同学讨论分布式事务以及分布式一致性时产生了分歧. 我的疑问是  2PC这种算法有没有保证数据的一致性呢? 如果保证了保证的是什么样的一致性呢?  而同学的回答是  2PC是一种事务提交协议, 是用来保证分布式事务的原子性的, 和数据的一致性没有关系  这样的回答并不能认我满意, 我不知道自己为什么会认为2PC与数据的一致性有关系, 我总感觉它们之间是有关系的. 而同学也说不清为什么">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="澄清数据库一致性概念">
+<meta property="og:url" content="http://asanelder.me/2016/08/24/clarify-consistency/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="0 前言最近在和同学讨论分布式事务以及分布式一致性时产生了分歧. 我的疑问是  2PC这种算法有没有保证数据的一致性呢? 如果保证了保证的是什么样的一致性呢?  而同学的回答是  2PC是一种事务提交协议, 是用来保证分布式事务的原子性的, 和数据的一致性没有关系  这样的回答并不能认我满意, 我不知道自己为什么会认为2PC与数据的一致性有关系, 我总感觉它们之间是有关系的. 而同学也说不清为什么">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="澄清数据库一致性概念">
+<meta name="twitter:description" content="0 前言最近在和同学讨论分布式事务以及分布式一致性时产生了分歧. 我的疑问是  2PC这种算法有没有保证数据的一致性呢? 如果保证了保证的是什么样的一致性呢?  而同学的回答是  2PC是一种事务提交协议, 是用来保证分布式事务的原子性的, 和数据的一致性没有关系  这样的回答并不能认我满意, 我不知道自己为什么会认为2PC与数据的一致性有关系, 我总感觉它们之间是有关系的. 而同学也说不清为什么">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/08/24/clarify-consistency/">
+
+
+
+
+
+  <title>澄清数据库一致性概念 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/24/clarify-consistency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">澄清数据库一致性概念</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-24T00:00:00+08:00">
+                2016-08-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="0-前言"><a href="#0-前言" class="headerlink" title="0 前言"></a>0 前言</h3><p>最近在和同学讨论分布式事务以及分布式一致性时产生了分歧. 我的疑问是</p>
+<blockquote>
+<p>2PC这种算法有没有保证数据的一致性呢? 如果保证了保证的是什么样的一致性呢?</p>
+</blockquote>
+<p>而同学的回答是</p>
+<blockquote>
+<p>2PC是一种事务提交协议, 是用来保证分布式事务的原子性的, 和数据的一致性没有关系</p>
+</blockquote>
+<p>这样的回答并不能认我满意, 我不知道自己为什么会认为2PC与数据的一致性有关系, 我总感觉它们之间是有关系的.</p>
+<p>而同学也说不清为什么两者之间没有关系.</p>
+<p>冷静下来想一想, 发现, 其实两个人对<strong>数据的一致性</strong>这个概念的理解是片面和模糊的. </p>
+<p>本文的目的是澄清这个概念, 进而开头的问题也可以做出回答了.</p>
+<h3 id="1-一致性是什么"><a href="#1-一致性是什么" class="headerlink" title="1 一致性是什么?"></a>1 一致性是什么?</h3><p>一致性这个概念在不同的上下文中含义是不同的, 这里只是说明在数据库这个上下文中的含义, 再细分一下, 就是<strong>单机数据库</strong>与<strong>分布式数据库</strong>上下文中的含义</p>
+<h3 id="2-单机数据库下一致性的含义"><a href="#2-单机数据库下一致性的含义" class="headerlink" title="2 单机数据库下一致性的含义"></a>2 单机数据库下一致性的含义</h3><p>在单机数据库下, 事务有ACID的性质. 其中C就是一致性, 而这里说的一致性, 有两种含义</p>
+<p><strong>原子一致性</strong>: 拿最经典的转账举例, 一个事务是A向B转100块钱, <strong>事务的原子性</strong>保证了要么全部执行, 要么全部不执行, 不存在A扣了钱, B没有加钱的情况. 这里, 谈讨原子一致性时有个前提, 即只有一个事务, 当涉及到并发时, 仅仅有原子性是无法保证一致性的.</p>
+<p><strong>并发一致性</strong>: 当有并发事务的情况下, 事务之间的操作可能产生互相影响, 如两个事务同时修改一份数据, 可能导致一个事务的修改覆盖了另一个事务的修改. <strong>事务的隔离性</strong>保证了并发的一致性, 但事务有四种隔离级别, 而不同隔离级别的选择对一致性的保证程度是不同的, 如Read Uncommited下, 一个事务可能读到另一个事务还未提交的数据.</p>
+<p>所以, 谈到一致性时, 需要明确一下, 是指的<strong>原子一致性</strong>, 还是<strong>并发一致性</strong>.</p>
+<h3 id="3-分布式数据库下一致性的含义"><a href="#3-分布式数据库下一致性的含义" class="headerlink" title="3 分布式数据库下一致性的含义"></a>3 分布式数据库下一致性的含义</h3><p>在说分布式数据库下一致性含义时, 先解释一下为什么需要分布式数据库. 主要有两点考虑</p>
+<ol>
+<li>性能问题: 一台数据库服务器性能不行了, 需要多台</li>
+<li>容灾问题: 防止一台数据库挂了之后不能提供服务了.</li>
+</ol>
+<p>针对以上两个问题, 可以使用三种思想来处理</p>
+<ol>
+<li>数据分区: 不同的数据放在不同的服务器上, 这样可以解决性能问题</li>
+<li>数据镜像: 同一数据有多个备份</li>
+<li>数据分区与数据分区结合使用</li>
+</ol>
+<p>而无论是数据分区还是数据镜像, 在新的环境下, 会产生新的一致性问题</p>
+<p>还是以A向B转账为例.</p>
+<p>对于数据分区来说, 如果A, B的数据放在两台不同服务器上, 即一个事务操作涉及多台服务器的修改, 这时就需要有一种算法来保证要不两台服务器上的数据都正确修改了, 要不都没有修改.</p>
+<p>对于数据镜像来说, 如果一台服务器发生了修改, 这种修改也要想办法同步到其它镜像上, 否则镜像上的数据就不一致了.</p>
+<p>上面提出了三种思想, 而基于这三种思想可以衍生出很多很多的具体的实施方案, 由以上讨论可知, 不同的实施方案都要去解决一致性问题. 只是不同方案的难度不一样(这里忽略了性能问题, 性能也是一个很重要的权衡因素), 而以下文章中讨论了几种方案, 以及这几种方案是如何解决一致性问题的.</p>
+<p><a href="http://coolshell.cn/articles/10910.html" target="_blank" rel="noopener">分布式系统的事务处理</a></p>
+<p>以上面讨论知道, 单机情况下可以分为<strong>原子一致性</strong>和<strong>并发一致性</strong>, 原子一致性由原子性来解决, 并发一致性由隔离性来解决. 那么文章中解决的一致性又是哪一种一致性呢? </p>
+<p>其实, 文章中讨论一致性时只是假设只有一个事务, 比如对于Master-slave来说, 对Master的修改如何保证其它slave上的修改与回滚, 对于2PC来说, 如何保证在多个服务器上执行的Global Transaction要么全部执行, 要么全部不执行. 这其实类似于实现<strong>多机情况下的原子一致性</strong>. <em>而对于分布式存储下的并发事务可能导致的一致性问题并没有涉及.(TODO)</em></p>
+<p>至此也可以回答开头的那么问题了</p>
+<blockquote>
+<p>2PC这种算法有没有保证数据的一致性呢? 如果保证了保证的是什么样的一致性呢?</p>
+</blockquote>
+<p>2PC算法只是保证了分布式事务的原子性, 可以说是保证了<strong>原子一致性</strong>, 和<strong>并发一致性</strong>无关, 所以算是部分保证了, 当然它和一致性也是有关系了.</p>
+<h3 id="4-分布式数据库的方案设计"><a href="#4-分布式数据库的方案设计" class="headerlink" title="4 分布式数据库的方案设计"></a>4 分布式数据库的方案设计</h3><p>自己感觉当要使用分布式数据库时, 到底使用哪一种方案, 需要结合具体的业务要求, 考虑如下几点</p>
+<ol>
+<li>对性能的要求</li>
+<li>对可用度的要求</li>
+<li>对一致性的要求</li>
+</ol>
+<p>如银行系统可能对一致性要求很高,性能要求不是那么高, 而对于互联网业务, 可能对一致性要求低, 但性能要求比较高.</p>
+<p>如果现有的方案无法满足, 就需要自己去创造新方案了.</p>
+<h3 id="5-CAP原理与分布式存储的关系"><a href="#5-CAP原理与分布式存储的关系" class="headerlink" title="5 CAP原理与分布式存储的关系"></a>5 CAP原理与分布式存储的关系</h3><p>CAP原理是说明了分布式存储的一个客观性质. 这里的C指的是强一致性, 对于分布式存储P是一定有的, 所以就在CA之间二选一, 而为了可用性, 一般选择A, 但这里并不是放弃了强一致性, 可以选择最终一致性, 使得经过一个时间窗口后, 数据回到正确的状态.</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://www.zhihu.com/question/30272728" target="_blank" rel="noopener">数据库事务原子性、一致性是怎样实现的？</a></li>
+<li><a href="http://coolshell.cn/articles/10910.html" target="_blank" rel="noopener">分布式系统的事务处理</a></li>
+<li><a href="http://blog.csdn.net/jewes/article/details/43495639" target="_blank" rel="noopener">谈谈对CAP定理的理解</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/16/netty-handler-ctx--pipeline-uml/" rel="next" title="Netty Handler CTX & Pipeline UML">
+                <i class="fa fa-chevron-left"></i> Netty Handler CTX & Pipeline UML
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/01/finally-and-return/" rel="prev" title="finally与return执行的时机">
+                finally与return执行的时机 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-前言"><span class="nav-text">0 前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-一致性是什么"><span class="nav-text">1 一致性是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-单机数据库下一致性的含义"><span class="nav-text">2 单机数据库下一致性的含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-分布式数据库下一致性的含义"><span class="nav-text">3 分布式数据库下一致性的含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-分布式数据库的方案设计"><span class="nav-text">4 分布式数据库的方案设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-CAP原理与分布式存储的关系"><span class="nav-text">5 CAP原理与分布式存储的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="错误的使用通配符首先先举出一种错误的用法. 下面文章中提到了两个例子,然后解释了例子编译错误的原因.而实际上其举例子就是对通配符的错误理解和使用. java 通配符解惑 代码中所用到的继承层次如下: public class Animal {} public class Cat extends Animal {} public class Bird extends Animal {} public">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java通配符的使用">
+<meta property="og:url" content="http://asanelder.me/2016/03/10/right-use-of-java-generics-wildcards/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="错误的使用通配符首先先举出一种错误的用法. 下面文章中提到了两个例子,然后解释了例子编译错误的原因.而实际上其举例子就是对通配符的错误理解和使用. java 通配符解惑 代码中所用到的继承层次如下: public class Animal {} public class Cat extends Animal {} public class Bird extends Animal {} public">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java通配符的使用">
+<meta name="twitter:description" content="错误的使用通配符首先先举出一种错误的用法. 下面文章中提到了两个例子,然后解释了例子编译错误的原因.而实际上其举例子就是对通配符的错误理解和使用. java 通配符解惑 代码中所用到的继承层次如下: public class Animal {} public class Cat extends Animal {} public class Bird extends Animal {} public">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/03/10/right-use-of-java-generics-wildcards/">
+
+
+
+
+
+  <title>Java通配符的使用 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/10/right-use-of-java-generics-wildcards/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java通配符的使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-10T00:00:00+08:00">
+                2016-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="错误的使用通配符"><a href="#错误的使用通配符" class="headerlink" title="错误的使用通配符"></a>错误的使用通配符</h3><p>首先先举出一种错误的用法.</p>
+<p>下面文章中提到了两个例子,然后解释了例子编译错误的原因.而实际上其举例子就是对通配符的错误理解和使用.</p>
+<p><a href="http://peiquan.blog.51cto.com/7518552/1303768" target="_blank" rel="noopener">java 通配符解惑</a></p>
+<p>代码中所用到的继承层次如下:</p>
+<pre><code>public class Animal {}
+public class Cat extends Animal {}
+public class Bird extends Animal {}
+public class Magpie extends Bird {}
+</code></pre><p>测试代码一(\&lt;? extends Animal>):</p>
+<pre><code>List&lt;? extends Animal&gt; list = new ArrayList&lt;Animal&gt;();
+
+list.add(new Animal());    //错误
+list.add(new Bird()); //错误
+list.add(new Cat()); //错误
+
+for(Animal animal : list) {
+    //对每个animal进行操作
+}
+</code></pre><p>上面的add操作会导致编译错误,为什么呢?</p>
+<p>因为list可能指向的实际对象是<code>new ArrayList&lt;Cat&gt;()</code>,所以往里<code>add(new Animal())</code>或<code>add(new Bird())</code>时,都是错误的,因为不知道list真正指向的实际对象,所以任何add都是违法的.</p>
+<p>测试代码二(\&lt;? super Animal>)</p>
+<pre><code>List&lt;? super Bird&gt; list = new ArrayList&lt;Animal&gt;();
+
+list.add(new Bird(&quot;bird&quot;));
+list.add(new Magpie(&quot;magpie&quot;));
+list.add(new Animal(&quot;animal&quot;)); //错误
+</code></pre><p>上面第一个与第二个add可以编译通过,而第三个却无法编译通过,为什么呢?</p>
+<p>因为list指向的实际容器中的元素只可能是Bird的父类,往该容器中添加Bird的子类是没问题的,因为在该实际容器中的元素都可以当做Bird使用,而添加父类却不可以,因为不知道list真正指向的实际对象中保存的是Bird的哪一个父类,所以添加父类会导致类型的不匹配.如</p>
+<pre><code>List&lt;? super Magpie&gt; list = new ArrayList&lt;Bird&gt;();
+list.add(new Animal()); //错误
+</code></pre><p>实际上,无论是测试代码一与测试代码二,虽然指出了其语法上错误的原因,但依然存在<strong>语意上的错误</strong>, 什么是<strong>语意上的错误? 就是指使用错误的技术来实现所想到表达的编程意图,换句话说,就是没理解某一技术的含义,将之用在了错误的地方.</strong>具体到这里就是,<strong>没有理解通配符的真正作用,将之用错了</strong>.</p>
+<p>即然使用通配符是对其的误用,那么我们来看为了实现程序的意图,正确的用法是什么.</p>
+<h4 id="代码的意图"><a href="#代码的意图" class="headerlink" title="代码的意图"></a>代码的意图</h4><p>首先看测试代码一.</p>
+<p>由代码可知,其意图如下:</p>
+<blockquote>
+<p>创建一个容器,可以保存某一类型及其子类,并且当遍历该容器时,将其元素当做继承层次的顶层来使用.</p>
+</blockquote>
+<p>而表达其意图的正确代码其实很简单,不必使用通配符</p>
+<pre><code>List&lt;Animal&gt; list = new ArrayList&lt;Animal&gt;();
+
+list.add(new Animal());
+list.add(new Bird());
+list.add(new Cat());
+
+for(Animal animal : list) {
+    //对每个animal进行操作
+}
+</code></pre><p>以上代码完全没问题,简洁,干净</p>
+<p>再看测试代码二.</p>
+<p>其意图如何?</p>
+<blockquote>
+<p>创建一个容器,可以保存某一类型及其父类,并且当遍历该容器时,….</p>
+</blockquote>
+<p><strong>当遍历容器时怎么样? 保存某一类型的父类是为了什么? 为了将其中的元素当做子类来使用吗? 这符合多态的思想吗? 我们知道多态是将子类当做父类,而将父类当子类的想法,你在编程中见过吗?</strong></p>
+<p>所以说,其实这段代码没什么意图,唯一的意图估计就是钻牛角尖吧.</p>
+<h3 id="通配符的正确使用"><a href="#通配符的正确使用" class="headerlink" title="通配符的正确使用"></a>通配符的正确使用</h3><p>好了,上面说的通配符的错误使用,那么通配符的正确使用是什么呢? 在什么情况下才需要通配符呢?</p>
+<p>而正是从其字面意义,才能了解到通配符的使用场景.</p>
+<p><strong>其实这里的通配符的作用与Linux中,正则表达式中,搜索查找中的概念是一致的. 都是为了匹配某一模式.仅此而已.</strong></p>
+<p>可通过使用通配符，一般可以扩大方法的适用范围。下面举几个例子</p>
+<p><strong>简单情况</strong></p>
+<p><code>List&lt;? extends Animal&gt;</code> :这是一个通配符,和它匹配的有哪些呢?如List\&lt;Animal>, List\&lt;Bird>, List\&lt;Cat>(当然,使用时,还得使用具体容器,如ArrayList)</p>
+<p><code>List&lt;? super Magpie&gt;</code>: 和它匹配的有, List\&lt;Magpie>, List\&lt;Bird>, List\&lt;Animal></p>
+<p>以上两个是简单的情况,下面来几个复杂的.</p>
+<p><strong>复杂情况一</strong></p>
+<pre><code>public static &lt;T&gt; boolean addAll(Collection&lt;? super T&gt; c, T... elements) {...}
+</code></pre><p>该方法是Collections的一个方法， 用来将多个T元素添加到Collection中。假如说,T取Bird,那么与第一个参数匹配的就是<code>Collection&lt;? super Bird&gt;</code>, 即可以是</p>
+<ul>
+<li>List<animal> </animal></li>
+<li>List<bird></bird></li>
+</ul>
+<p>等等， 而将Bird放入装有Animal的容器中， 也是合情合理的。</p>
+<p>这里考虑一下,如果不使用通配符,会有什么不同</p>
+<pre><code>public static &lt;T&gt; boolean addAll(Collection&lt;T&gt; c, T... elements) {...}
+</code></pre><p>假如说,T取Bird,那么与第一个参数匹配的就只能是<code>Collection&lt;Bird&gt;</code>,所以限制了其参数的选择范围,也就是该函数的应用范围减弱了.</p>
+<p><strong>复杂情况二</strong></p>
+<pre><code>public static &lt;T extends Comparable&lt;? super T&gt;&gt; T max(Collection&lt;T&gt; coll)
+</code></pre><p>Comparable中类型参数的含义是,可以与之比较的类型,这里使用了通配符, 这里的含义是说, 该函数接收一个T类型,该类型继承了一个实现了其Comparable接口的类型, 如下面这个例子</p>
+<p>java中有如下继承</p>
+<pre><code>class java.util.Date implements Comparable&lt;java.util.Date&gt;
+class java.sql.Date extends java.util.Date
+</code></pre><p>而如果一个方法是</p>
+<pre><code>public static &lt;T extends Comparable&lt;T&gt;&gt; T max(Collection&lt;T&gt; coll)
+</code></pre><p>则只能转入java.util.Date, 因为java.sql.Date并没有实现Comparable&lt;java.sql.Date&gt;</p>
+<p>而以下方法就可以</p>
+<pre><code>public static &lt;T extends Comparable&lt;? super T&gt;&gt; T max(Collection&lt;T&gt; coll)
+</code></pre><p>另一个使用&lt;? super T&gt;的地方就是</p>
+<pre><code>Arrays.sort(T[] a, Comparator&lt;? super T&gt;)
+</code></pre><p>综上所述,<strong>通配符扩大了方法的适用性范围</strong>,使其从只能接收单一类型扩大到接收符合某一匹配规则的模型,这就是<strong>通配符的正确使用</strong>.</p>
+<p>关于以上例子的详细解释,参见下面的文章</p>
+<p><a href="http://docs.oracle.com/javase/tutorial/extra/generics/morefun.html" target="_blank" rel="noopener">More Fun with Wildcards</a></p>
+<p>对于通配符的使用,要区分以上所说的误用和正确使用的情况,要想对其灵活使用,还需要大量的应用与练习,从实践中总结出其场景.</p>
+<p>补充:</p>
+<ol>
+<li><p>通配符不能生成对象,因为从概念上说,通配符是抽象的,如下面代码是错误的.</p>
+<pre><code>List&lt;? extends A&gt; list = new List&lt;? extends A&gt;();
+</code></pre></li>
+<li><p>List&lt;?&gt; 只是List&lt;? extends Object&gt;的简写</p>
+</li>
+<li><p>泛型中不使用通配符还有一种情况， 如</p>
+<p>public static <t extends animal> void foobar(List<t> animals)</t></t></p>
+<p>该方法只能作用在装有Animal的子类的List中， 如</p>
+<ul>
+<li>List<animal></animal></li>
+<li>List<bird></bird></li>
+</ul>
+<p>如果是以下这样</p>
+<p>public static <t> void foobar(List<t> animals)</t></t></p>
+<p>则可以作用在装有任意类型的List中，而如果是以下这样</p>
+<p>public static void foobar(List<animal> animals)</animal></p>
+<p>则只能作用在装有Animal的List中</p>
+</li>
+</ol>
+<h3 id="PECS原则producer-extends-consumer-super"><a href="#PECS原则producer-extends-consumer-super" class="headerlink" title="PECS原则producer-extends, consumer-super"></a>PECS原则producer-extends, consumer-super</h3><p>这句话的含义是, 如果参数化类型表示一个T生产者, 就使用&lt;? extends T&gt;, 如果表示一个T消费者, 就使用&lt;? super T&gt;.</p>
+<p>在容器上下文环境中, 生产者指的是, 容器作为生产者， 生产对象， 即对容器的使用是从中取对象。 消费者指的是, 容器作为消费者， 消费对象， 即对容器的使用是向容器中存放对象.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/04/singleton/" rel="next" title="Singleton从简单到完善">
+                <i class="fa fa-chevron-left"></i> Singleton从简单到完善
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/11/java-sugar/" rel="prev" title="Java中的语法糖">
+                Java中的语法糖 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#错误的使用通配符"><span class="nav-text">错误的使用通配符</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#代码的意图"><span class="nav-text">代码的意图</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通配符的正确使用"><span class="nav-text">通配符的正确使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PECS原则producer-extends-consumer-super"><span class="nav-text">PECS原则producer-extends, consumer-super</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

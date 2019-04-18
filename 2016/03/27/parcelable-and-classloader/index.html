@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="利用Messenger, 向远端Service传递自定义Parcelable对象时, 代码如下 自定义Parcelable类 public class Person implements Parcelable{} 客户端 Bundle bundle = new Bundle(); bundle.putParcelable(&amp;quot;Test&amp;quot;, new Person(&amp;quot;don">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Parcelable与ClassLoader">
+<meta property="og:url" content="http://asanelder.me/2016/03/27/parcelable-and-classloader/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="利用Messenger, 向远端Service传递自定义Parcelable对象时, 代码如下 自定义Parcelable类 public class Person implements Parcelable{} 客户端 Bundle bundle = new Bundle(); bundle.putParcelable(&amp;quot;Test&amp;quot;, new Person(&amp;quot;don">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Parcelable与ClassLoader">
+<meta name="twitter:description" content="利用Messenger, 向远端Service传递自定义Parcelable对象时, 代码如下 自定义Parcelable类 public class Person implements Parcelable{} 客户端 Bundle bundle = new Bundle(); bundle.putParcelable(&amp;quot;Test&amp;quot;, new Person(&amp;quot;don">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/03/27/parcelable-and-classloader/">
+
+
+
+
+
+  <title>Parcelable与ClassLoader | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/27/parcelable-and-classloader/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Parcelable与ClassLoader</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-27T00:00:00+08:00">
+                2016-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>利用Messenger, 向远端Service传递自定义Parcelable对象时, 代码如下</p>
+<p>自定义Parcelable类</p>
+<pre><code>public class Person implements Parcelable{}
+</code></pre><p>客户端</p>
+<pre><code>Bundle bundle = new Bundle();
+bundle.putParcelable(&quot;Test&quot;, new Person(&quot;dongpuo&quot; , &quot;su&quot;));
+msg.setData(bundle);
+mService.send(msg);
+</code></pre><p>服务端</p>
+<pre><code>Bundle bundle = msg.getData();
+Person person = bundle.getParcelable(&quot;Test&quot;);
+</code></pre><p>在运行到<code>bundle.getParcelable(&quot;Test&quot;)</code>时会报如下错误</p>
+<pre><code>android.os.BadParcelableException: ClassNotFoundException when unmarshalling: io.github.lingnanlu.clientserverdemo.Person
+</code></pre><p>即当unmarshalling时, 找不到Person类, 这是什么原因呢?</p>
+<p>找不到Person类, 说明Person.class对象没有生成, 而Person.class对象又是由ClassLoader生成的, 所以这样牵扯到了Android中的ClassLoader机制.</p>
+<p>经过Google, 了解到Android的ClassLoader机制大概如下</p>
+<blockquote>
+<p>Android has two different classloaders: the framework classloader (which knows how to load Android classes) and the APK classloader (which knows how to load your code). The APK classloader has the framework classloader set as its parent, meaning it can also load Android classes.</p>
+</blockquote>
+<p>即, 有两类Classloader, 一类是framework classloader(BootClassLoader), 该classloader主要是负责加载framework中的类, 另一类是APK classLoader(具体名称是PathClassLoader, 下面会介绍怎么知道的), 负责加载APK中定义的类.</p>
+<p>查看Bundle的源代码, Bundle中包含着一个ClassLoader, 当调用Bundle的get方法时, 会利用该ClassLoader加载需要unmarshalling的类, 进而再组装成对象.</p>
+<p>由于可以推断, 通过msg.getData()取出来的bundle中的ClassLoader, 并不是APK classLoader, 所以无法加载Person.</p>
+<p>我们可以通过输出ClassLoader来进一步观察. 修改以上代码如下</p>
+<p>客户端</p>
+<pre><code>Bundle bundle = new Bundle();
+Log.i(TAG, bundle.getClassLoader());
+Log.i(TAG, Message.class.getClassLoader());
+Log.i(TAG, Bundle.class.getClassLoader());
+bundle.putParcelable(&quot;Test&quot;, new Person(&quot;dongpuo&quot; , &quot;su&quot;));
+msg.setData(bundle);
+mService.send(msg);
+</code></pre><p>服务端</p>
+<pre><code>Bundle bundle = msg.getData();
+Person person = bundle.getParcelable(&quot;Test&quot;);
+Log.i(TAG, bundle.getClassLoader());
+</code></pre><p>运行程序后, 客户端打印出来的都是</p>
+<pre><code>java.lang.BootClassLoader
+</code></pre><p>而服务端打印出来的为</p>
+<pre><code>null
+</code></pre><p>以上可以说明Person类找不到的原因. 还说明Bundle和Message, 都是由BootClassLoader加载的, 因为这两个类是Framework类.</p>
+<p>客户端的第三个Log也是输出java.lang.BootClassLoader, 可这里, 我们并没有为其显示的指定其ClassLoader, 查看基类的构造函数, 可以看出原因.</p>
+<pre><code>mClassLoader = loader == null ? getClass().getClassLoader() : loader;
+</code></pre><p>我们知道, 跨越进程传输数据, 要不是基本类型, 要不就是Parceble, 在这里Message与Bundle对象也是跨进程进行传输的, 查看这两个类定义的文件, 发现这两个类都是Parceble的, 又因为这两个类的ClassLoader是BootClassLoader, 所以在服务器端组装这两个类对象没有问题.</p>
+<p>那么为什么bundle本来有一个BootClassLoader, 在传输到了服务端之后就为null了呢?</p>
+<p>我猜想是这样的.</p>
+<blockquote>
+<p>ClassLoader并不是一个Parceble, 所以无法传输到服务端, 所以为null.</p>
+</blockquote>
+<p>现在好了, 知道原因了, 因为bundle缺乏PathClassLoader, 所以无法加载类, 解决方法就是在getParcelable之前, 显示的设置PathClassLoader. 如</p>
+<pre><code>bundle.setClassLoader(自定义的一个类.class.getClassLoader());
+</code></pre><p><em>注, ClassLoader加载类的机制是首先委托给父ClassLoader加载, 如果父ClassLoader加载不了, 再由子ClassLoader加载. 这样的限制避免了用户自己的代码冒充核心类库的类访问核心类库包可见成员的情况。这也好理解，一些系统层级的类会在系统初始化的时候被加载，比如java.lang.String，如果在一个应用里面能够简单地用自定义的String类把这个系统的String类给替换掉，那将会有严重的安全问题。</em></p>
+<p>参考</p>
+<ol>
+<li><a href="https://segmentfault.com/a/1190000004062880" target="_blank" rel="noopener">Android动态加载基础 ClassLoader工作机制</a></li>
+<li><a href="http://stackoverflow.com/questions/13997550/unmarshalling-errors-in-android-app-with-custom-parcelable-classes" target="_blank" rel="noopener">Unmarshalling errors in Android app with custom parcelable classes</a></li>
+</ol>
+<p>代码</p>
+<p><a href="https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo" target="_blank" rel="noopener">https://github.com/lingnanlu/Android_repo/tree/master/ClientServerDemo</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/27/client-server-model-using-service/" rel="next" title="Service实现客户端-服务器模型的三种方式">
+                <i class="fa fa-chevron-left"></i> Service实现客户端-服务器模型的三种方式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/27/toast-show-in-remote-service/" rel="prev" title="toast show in remote service[TBD]">
+                toast show in remote service[TBD] <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

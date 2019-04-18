@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言每一章的总结思路  从设计的角度去考虑编码 这一章讨论的是什么编程问题，它们为什么会成为问题，Java是如何解决这种问题的  第1章 对象导论 设计对象时，将对象想象成”服务提供者” 参数化类型：在JavaSE5之前，容器中只能存放Object对象，所以将其它对象存入容器之前，都将向上转型为Object对象，即具体的类型信息将丢失，那么，当从容器中取回对象时，就需要向下转型，那么，Java如何">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thinking in java 笔记">
+<meta property="og:url" content="http://asanelder.me/2015/09/18/thinking-in-java-notes/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="前言每一章的总结思路  从设计的角度去考虑编码 这一章讨论的是什么编程问题，它们为什么会成为问题，Java是如何解决这种问题的  第1章 对象导论 设计对象时，将对象想象成”服务提供者” 参数化类型：在JavaSE5之前，容器中只能存放Object对象，所以将其它对象存入容器之前，都将向上转型为Object对象，即具体的类型信息将丢失，那么，当从容器中取回对象时，就需要向下转型，那么，Java如何">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/Exception-Hierarchy-Diagram.jpeg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/thread_states">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.858Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thinking in java 笔记">
+<meta name="twitter:description" content="前言每一章的总结思路  从设计的角度去考虑编码 这一章讨论的是什么编程问题，它们为什么会成为问题，Java是如何解决这种问题的  第1章 对象导论 设计对象时，将对象想象成”服务提供者” 参数化类型：在JavaSE5之前，容器中只能存放Object对象，所以将其它对象存入容器之前，都将向上转型为Object对象，即具体的类型信息将丢失，那么，当从容器中取回对象时，就需要向下转型，那么，Java如何">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/Exception-Hierarchy-Diagram.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2015/09/18/thinking-in-java-notes/">
+
+
+
+
+
+  <title>Thinking in java 笔记 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/09/18/thinking-in-java-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Thinking in java 笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-09-18T00:00:00+08:00">
+                2015-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>每一章的总结思路</p>
+<ol>
+<li>从设计的角度去考虑编码</li>
+<li>这一章讨论的是什么编程问题，它们为什么会成为问题，Java是如何解决这种问题的</li>
+</ol>
+<h2 id="第1章-对象导论"><a href="#第1章-对象导论" class="headerlink" title="第1章 对象导论"></a>第1章 对象导论</h2><ol>
+<li>设计对象时，将对象想象成”服务提供者”</li>
+<li>参数化类型：在JavaSE5之前，容器中只能存放Object对象，所以将其它对象存入容器之前，都将向上转型为Object对象，即具体的类型信息将丢失，那么，当从容器中取回对象时，就需要向下转型，那么，Java如何知道向下转型为哪一种具体类型呢？这就需要程序员在将类型放入容器之前记下所放类型，取出来时，显示的向下转型为需要的类型。JavaSE5中引入了参数化类型机制，Java中称它为泛型。这样可以让容器知道自己所保存对象的类型，从而不需要向下转型以及消除由此可能引发的错误。</li>
+<li>.NET平台大致相当于JVM，而C#对应于Java</li>
+<li>Java没有sizeof：在C中，需要使用sizeof的最大原因是为了”移值”. 不同的数据类型在不同的机器上可能有不同的大小。而Java中所有数据类型在所有机器中的大小都是相同的。所以就不需要考虑移植问题。</li>
+<li>数组也是对象</li>
+</ol>
+<h2 id="第5章-初始化与清理"><a href="#第5章-初始化与清理" class="headerlink" title="第5章 初始化与清理"></a>第5章 初始化与清理</h2><h3 id="一、finalize-的使用"><a href="#一、finalize-的使用" class="headerlink" title="一、finalize()的使用"></a>一、finalize()的使用</h3><h4 id="1-关于垃圾回收的一些常识"><a href="#1-关于垃圾回收的一些常识" class="headerlink" title="1. 关于垃圾回收的一些常识"></a>1. 关于垃圾回收的一些常识</h4><ul>
+<li><p>对象可能不被垃圾回收</p>
+<p>即当对象不再被使用时，该对象可能不会马上被回收，也就是说不能判断对象被回收的时机。</p>
+</li>
+<li><p>垃圾回收并不等于”析构”</p>
+</li>
+<li><p>垃圾回收只与内存有关</p>
+<p>C++中的析构指的是做一些清理工作，不仅仅指内存回收，如关闭文件等。而Java中的垃圾回收只是与内存有关。所以，其不等于”析构”</p>
+</li>
+</ul>
+<h4 id="2-finalize的调用时机"><a href="#2-finalize的调用时机" class="headerlink" title="2. finalize的调用时机"></a>2. finalize的调用时机</h4><p><strong>一旦垃圾回收动作准备好释放对象占用的存储空间，将首先调用finalize方法, 这里finalize的作用有些类似与观察者</strong></p>
+<p>因为垃圾回收的时机不确定，所以finalize的调用时机也是不确定的，不能依赖于finalize去做某些与内存回收无关的行为(如，关于打开的文件，因为文件不会如你所想的那样马上关闭)。finalize只能做与内存回收有关的清理操作。</p>
+<p>但只要对象是以<code>new</code>来创建的，那么垃圾回收器都会负责释放对象所占用的内存，那么什么情况下的内存释放需要finalize？</p>
+<p>即通过非<code>new</code>的方式来为对象分配了存储空间。如使用类似于C语言中的做法，这种情况发生在使用”本地方法”的情况下。</p>
+<h4 id="3-普通的清理工作应该在哪里执行？"><a href="#3-普通的清理工作应该在哪里执行？" class="headerlink" title="3. 普通的清理工作应该在哪里执行？"></a>3. 普通的清理工作应该在哪里执行？</h4><p>既然finalize只能执行与内存操作相关的清理操作，那么普通的清理工作应该在哪里执行？</p>
+<p>这需要明确调用某个恰当的方法。或者使用try finally这样无论如何都可以释放资源了，这就等同于做了析构函数的某些工作，只是没有析构函数方便。</p>
+<h4 id="4-finalize的使用情况"><a href="#4-finalize的使用情况" class="headerlink" title="4. finalize的使用情况"></a>4. finalize的使用情况</h4><ol>
+<li>释放内存空间</li>
+<li>验证”终结条件“（见TIJ，p88）</li>
+<li>在对象被回收前， 做一些操作。</li>
+</ol>
+<h4 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h4><ol>
+<li>只做和内存回收有关的</li>
+<li>资源回收交给finally</li>
+</ol>
+<h3 id="二、对象创造过程及初始化（注意和类的初始化做区别）"><a href="#二、对象创造过程及初始化（注意和类的初始化做区别）" class="headerlink" title="二、对象创造过程及初始化（注意和类的初始化做区别）"></a>二、对象创造过程及初始化（注意和类的初始化做区别）</h3><p>假设有一个类Dog</p>
+<ol>
+<li>当首次产生Dog对象，或第一次引用Dog的静态成员时（main也是静态的）。Java解释器会查找类路径，定位相关class文件</li>
+<li>之后载入class文件（这将创建一个class对象），初始化所有静态成员，因此静态成员的初始化只在class首次加载的时候进行一次(这是因为类的\&lt;cinit>函数只被执行一次)</li>
+<li>当使用new Dog()创建对象时，在堆上分配足够的内存空间，并将该空间清零，这样，Dog对象中的所有基本类型数据被设置为默认值。引用被设置为null</li>
+<li>执行所有出现在成员定义处的初始化操作</li>
+<li>执行构造器</li>
+</ol>
+<h3 id="三、枚举Enum"><a href="#三、枚举Enum" class="headerlink" title="三、枚举Enum"></a>三、枚举Enum</h3><p>枚举是一种类型，其实例为常量。并且，创建枚举这种类型时，为了方便起见，编译器会自动添加一些有用的特性。如</p>
+<ol>
+<li>创建toString()方法</li>
+<li>创建ordinal()方法，获得某个特定常量的声明顺序</li>
+<li>static values()方法，获得常量值构成的数组。</li>
+</ol>
+<h2 id="第6章-访问权限控制"><a href="#第6章-访问权限控制" class="headerlink" title="第6章 访问权限控制"></a>第6章 访问权限控制</h2><ol>
+<li>包是组织类的方式，将类放在了单一的名字空间下</li>
+<li>每个Java源代码文件(编译单元)有且只有一个public类</li>
+<li>相同目录下的所有不具有明确package声明的文件，都被视作是该目录下默认包的一部分。但是，如果该类的某个static成员是public的话，则客户端程序员仍旧可以调用该static成员，尽管他们并不能生成该类的对象。</li>
+<li>访问权限控制专注于类库创建者和该类库的外部使用者之间的关系。</li>
+</ol>
+<h3 id="如何找到一个类-import-如何定位到类，-这是classloader的工作"><a href="#如何找到一个类-import-如何定位到类，-这是classloader的工作" class="headerlink" title="如何找到一个类(import 如何定位到类， 这是classloader的工作)"></a>如何找到一个类(import 如何定位到类， 这是classloader的工作)</h3><ol>
+<li>class文件时：CLASSPATH+包路径</li>
+<li>当类被包含在jar文件内时，需要把jar文件的绝对路径放到CLASSPATH中。</li>
+</ol>
+<h3 id="利用Import模拟C的调试开关-这种方式不好，-因为要维护两份代码，-更好的方式是使用AOP"><a href="#利用Import模拟C的调试开关-这种方式不好，-因为要维护两份代码，-更好的方式是使用AOP" class="headerlink" title="利用Import模拟C的调试开关(这种方式不好， 因为要维护两份代码， 更好的方式是使用AOP)"></a>利用Import模拟C的调试开关(这种方式不好， 因为要维护两份代码， 更好的方式是使用AOP)</h3><p>创建两个包debug和debugoff，两个包中的类除了一个输出调试信息，另一个不输出外，其它完全一样。利用import导入不同的包来模拟调试开关。</p>
+<h3 id="访问权限控制大小"><a href="#访问权限控制大小" class="headerlink" title="访问权限控制大小"></a>访问权限控制大小</h3><p>这四者开放性由大到小为</p>
+<p>public &gt; protected &gt; default &gt; private</p>
+<p>其开放性涉及四个层面, 如下表格所示</p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>当前类</th>
+<th>同包中其它类</th>
+<th>子类</th>
+<th>其他包中的类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>public</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>protected</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>default</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>private</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>可以这样记,由先记住四者的大小关系,然后public对所有的都是开放的,default是包访问权限,即不管是不是子类,只要是同一包中的就可以访问,而protected比default更开放,开放的范围包括default,而且还包括其它包中的子类， protected的访问权限是跨包的，所以其大于default.</p>
+<h2 id="第7章-复用类"><a href="#第7章-复用类" class="headerlink" title="第7章 复用类"></a>第7章 复用类</h2><ol>
+<li>惰性初始化：使用对象的时候才初始化，一开始并不初始化引用，当使用该引用时，判断其是否为null，如果是null，再进行初始化。</li>
+<li>利用main方法对类进行单元测试，每一个类中设置一个main方法，可方便的对该类进行单元测试</li>
+</ol>
+<h3 id="包访问权限类中的public方法"><a href="#包访问权限类中的public方法" class="headerlink" title="包访问权限类中的public方法"></a>包访问权限类中的public方法</h3><p>适用情况</p>
+<pre><code>public interface SomeInterface{
+   public void mymeth();
+}
+
+class MyClass implements SomeInterface{
+
+   public void mymeth(){}
+}
+
+//is in the same package as MyClass
+public MyClassFactory{
+   public SomeInterface create(/*parameters*/){
+       //create instance from parameters
+       //For your case
+       MyClass instanceOfAnyClassThatImplementsSomeInterface = new MyClass(/*pass the parameters*/);
+       return instanceOfAnyClassThatImplementsSomeInterface;
+   }
+}
+</code></pre><p>将该类中的public方法定义为接口，包访问权限中的类去实现该接口。然后通过一个工厂类来返回该类的一个实例(将其向上转型为接口类型)，通过这种方法将接口与实现相分离，而且保证了实现的安全性（其它包中的类无法访问到MyClass，只能通过工厂类来得到其接口）。</p>
+<h3 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h3><p><s>将一个成员对象置于所要构造的类中(就像组合)， 但与此同时，在新类中暴露了该成员对象的所有方法(就像继承)，所以说，代理就像是组合与继承的某种折中。</s></p>
+<h3 id="override与overload（结合方法的分派来看）"><a href="#override与overload（结合方法的分派来看）" class="headerlink" title="override与overload（结合方法的分派来看）"></a>override与overload（结合方法的分派来看）</h3><p>overload（静态分派， 根据变量的静态类型来确定方法）<br>: 如果类中某一方法与另一方法同名(无论其是否来自基类)，但参数不同，则该方法重载了另一方法。至于为什么不能根据返回类型区别， 因为调用时， 无法根据返回类型区别不同的函数。</p>
+<p>override（动态分派， 根据变量的实际类型确定方法）<br>: 将子类的方法签名与基类的完全相同时，则子类的方法覆盖基类的。覆盖只有在某方法是基类的接口的一部分时才会出现，如果某方法为private的，同时子类定义了一个具有相同签名和返回类型的public方法，这种情况并不存在覆盖一说。这是实现多态性的基础。</p>
+<p>为了防止本想覆盖基类方法，但不小心写成重载的错误，可以使用@override注解，这样，当写成重载时，会导致编译错误。@override防止你不想重载时意外地进行了重载</p>
+<h3 id="final关键字"><a href="#final关键字" class="headerlink" title="final关键字"></a>final关键字</h3><h4 id="一、final数据"><a href="#一、final数据" class="headerlink" title="一、final数据"></a>一、final数据</h4><ol>
+<li>当final修饰内置类型变量时，该内置类型变量的值不能改变</li>
+<li>当final修饰引用时，只是不能改变所引用的对象，但是对象本身是可以变的</li>
+<li><p>不能因为某数据是final的就认为在编译时可以知道它的值。如以下这种情况：</p>
+<pre><code>final int a = rand.nextInt(20);
+</code></pre></li>
+<li><p>空白final：指被声明为final但又未给定初值的域。在使用前，一定要对其进行初始化。该方式为final的使用提供了更大的灵活性，一个类中的final域就可以做到根据对象的不同而不同，同时保持其恒定不变的特性。</p>
+</li>
+<li>方法参数使用final修饰：意味着在方法内部无法改变final所修饰的变量(对于内部类型，无法改变其值，对于引用，无法引用另一个对象，但对象本身是可以改变的)</li>
+</ol>
+<h4 id="二、final方法"><a href="#二、final方法" class="headerlink" title="二、final方法"></a>二、final方法</h4><p>对于基类中的接口(public方法)，如果使用final修饰，那么子类就不能覆盖基类的方法。<br>对于基类的private方法，因为不属于接口的一部分，所以就不存在覆盖的问题，使不使用final修饰没什么效果。</p>
+<h4 id="三、final类"><a href="#三、final类" class="headerlink" title="三、final类"></a>三、final类</h4><p>当final修饰类时，该类无法被继承。</p>
+<h2 id="第8章-多态"><a href="#第8章-多态" class="headerlink" title="第8章 多态"></a>第8章 多态</h2><p>参见方法分派</p>
+<p><s>### 前期绑定和后期绑定</s></p>
+<p>绑定<br>: 将一个方法调用同一个方法主体关联起来叫做绑定。</p>
+<p>前期绑定(静态绑定)<br>: 在程序执行前进行绑定</p>
+<p>后期绑定(动态绑定，运行时绑定)<br>: 在运行时根据对象的类型进行绑定。Java中除了static方法和final方法(private方法属于final方法)外，其它所有方法都是后期绑定。</p>
+<p>对于static和final,private方法都是在前期进行绑定的</p>
+<p>分析最终会调用哪一个方法的关键是，对于方法的绑定是在前期还是后期。</p>
+<h3 id="再谈初始化"><a href="#再谈初始化" class="headerlink" title="再谈初始化"></a>再谈初始化</h3><p>当一个类包含了继承和组合后，其初始化顺序为</p>
+<ol start="0">
+<li>将分配给对象的存储空间初始化为二进制的0</li>
+<li>调用基类构造器</li>
+<li>按声明顺序调用成员的初始化方法</li>
+<li>调用导出类构造器的主体</li>
+</ol>
+<h3 id="协变返回类型（协变可以看成协同变化）"><a href="#协变返回类型（协变可以看成协同变化）" class="headerlink" title="协变返回类型（协变可以看成协同变化）"></a>协变返回类型（协变可以看成协同变化）</h3><p>子类的一个方法覆盖了基类的一个方法。<br>基类的方法返回的是某一个类型A<br>子类的方法可以返回A的子类的类型。</p>
+<h3 id="is-a-与-is-like-a"><a href="#is-a-与-is-like-a" class="headerlink" title="is-a 与 is-like-a"></a>is-a 与 is-like-a</h3><p>is-a是一种纯替代的关系，子类与父类的接口完全一样<br>is-like-a是一种扩展的关系，子类的接口要比父类的多</p>
+<p>当is-like-a的子类向上转型为父类时，其扩展的接口便不能访问，如果需要访问的话，需要使用向下转型，为了保证转型的正确，需要在运行期间对引用的具体类型进行识别，这叫做RTTI</p>
+<h2 id="第9章-接口"><a href="#第9章-接口" class="headerlink" title="第9章 接口"></a>第9章 接口</h2><h3 id="抽象类和抽象方法"><a href="#抽象类和抽象方法" class="headerlink" title="抽象类和抽象方法"></a>抽象类和抽象方法</h3><ol>
+<li>包含抽象方法的类为抽象类</li>
+<li>抽象类也可以包含非抽象方法</li>
+<li>抽象类不能生成对象</li>
+<li>抽象类可以有构造函数，其目的是为了在其子类的初始化过程中，初始化基类部分</li>
+</ol>
+<h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><ol>
+<li><strong>接口中的方法只能且默认都是public的（这和接口本身的含义是相符和的，就是要暴露给外界）</strong>，且这些方法都是抽象方法</li>
+<li>一个接口可以继承多个接口(使用extends)</li>
+<li><strong>接口可以包含域，这些域隐含都是static和final的</strong>。因为域是static和final，所以有时接口就成为了一种很便捷的用来创建常量组的工具。(该用法已被enum所取代)</li>
+<li>接口中的域不能是”空final”，因为接口不能生成对象，但是，可以被非常量表达代进行初始化。</li>
+</ol>
+<h2 id="第10章-内部类"><a href="#第10章-内部类" class="headerlink" title="第10章 内部类"></a>第10章 内部类</h2><h3 id="为什么要使用内部类-一个例子，-为一个类提供多种遍历方式"><a href="#为什么要使用内部类-一个例子，-为一个类提供多种遍历方式" class="headerlink" title="为什么要使用内部类(一个例子， 为一个类提供多种遍历方式)"></a>为什么要使用内部类(一个例子， 为一个类提供多种遍历方式)</h3><ul>
+<li><p>内部类提供了更好的内聚性：比如说经典的迭代器设计模式，有一个类A，同时需要对类A中的内容进行遍历。此时有三种方法可以实现。</p>
+<ol>
+<li>在类A中提供相关的遍历方法(如，next(), end(), current())， 但这种方法会造成程序中涉及到类A遍历的代码与类A的耦合度太高，这样的遍历代码复用性低，当需要遍历的时候，需要指定具体的类。（指遍历的方法可以作用与接口，而不必作用于具体类）</li>
+<li>对1可以进行改进，把相关的遍历方法放到一个接口当中，凡是可以遍历的类都去实现这个接口。这样就降低了程序中与遍历相关的代码与具体类之间的耦合度。</li>
+<li>同2，把相关的遍历方法放到一个接口当中。在需要进行遍历的类内提供一个内部类，该内部类实现了这个接口。并且在外部类提供一个方法以返回这个内部类的一个引用。</li>
+</ol>
+</li>
+<li><p>内部类允许继承多个非接口类型</p>
+</li>
+<li>外部类只能有一个接口的一种具体实现，使用内部类，可以使得一个类有一个接口的多种实现。</li>
+</ul>
+<h3 id="内部类的细节-暂时记住这些细节，目前想不清楚为什么是这样的规定"><a href="#内部类的细节-暂时记住这些细节，目前想不清楚为什么是这样的规定" class="headerlink" title="内部类的细节(暂时记住这些细节，目前想不清楚为什么是这样的规定)"></a>内部类的细节(暂时记住这些细节，目前想不清楚为什么是这样的规定)</h3><ol>
+<li>内部类自动拥有对其外围类所有成员的访问权，当某个外围类的对象创建了一个内部类对象时，此内部类对象必定会秘密地捕获一个指向外围类对象的引用。该引用为OuterClass.this。可以使用反射将内部类的所有构造器打印出来，这样看的会很明白。</li>
+<li>非static内部类的对象只能在外部类对象存在的情况下才能被创建。</li>
+<li>内部类引用外部类：OuterClass.this</li>
+<li>外部类不能直接访问内部类的private成员，但是可以通过生成一个内部类对象，再访问内部类的private成员。</li>
+<li>局部内部类：定义在方法体内和任意作用域内的内部类，因为方法体和作用域具有可见性，所以该方式进一步隐藏了内部类的实现。</li>
+<li><strong>内部类不能有static的fields和method，也不能包含嵌套类(TODO 这个在网上看了一下， 没找到满意的答案)</strong></li>
+<li>无论嵌套多少层，内部类都能透明访问所有它所嵌入的外围类的所有成员。</li>
+</ol>
+<h3 id="匿名内部类"><a href="#匿名内部类" class="headerlink" title="匿名内部类"></a>匿名内部类</h3><ol>
+<li>因为没有名字，所以不能向下转型为具体类型，只能与接口或基类进行通信，更好的隐藏了实现。</li>
+<li>因为没有名字，所以没有命名构造器，对其进行初始化可使用实例初始化的方法(将初始化的语句放在一对中括号中)。但这样有一个限制，不能重载实例初始化方法。</li>
+<li>匿名内部类可以扩展类，也可以实现接口，但是不能两者兼备。而且接口也只能实现一个。</li>
+<li><p>匿名内部类如果使用一个在其外部定义的对象，那么编译器会要求其参数引用是final的。(关于要求参数是final的原因见另一篇文章。在java-1.8.0-openjdk中不再需要这个final限定，似乎是将参数复制了一份传入了内部类中)</p>
+<p><s>内部类通常都含有回调，引用那个匿名内部类的函数执行完了就没了，所以内部类中引用外面的局部变量需要是final的，这样在回调的时候才能找到那个变量，而如果是外围类的成员变量就不需要是final的，因为内部类本身都会含有一个外围了的引用（外围类.this），所以回调的时候一定可以访问到。</s></p>
+<p>例如下面：</p>
+<pre><code>private Animator createAnimatorView(final View view, final int position) {
+     MyAnimator animator = new MyAnimator();
+     animator.addListener(new AnimatorListener() {
+         @Override
+         public void onAnimationEnd(Animator arg0) {
+             Log.d(TAG, &quot;position=&quot; + position);
+         }
+     });
+     return animator;
+ }
+</code></pre><p>内部类回调里访问position的时候createAnimatorView()早就执行完了，position如果不是final的，回调的时候肯定就无法拿到它的值了，因为局部变量在函数执行完了以后就被回收了。</p>
+</li>
+</ol>
+<h3 id="嵌套类"><a href="#嵌套类" class="headerlink" title="嵌套类"></a>嵌套类</h3><p>嵌套内实际只是利用外部类做为命令空间。</p>
+<p>嵌套类并不隐式地保存一个外部对象的引用，所以</p>
+<ol>
+<li>创建嵌套类对象并不需要其外部类对象。</li>
+<li>嵌套类对象不能访问非静态的外部类对象</li>
+<li>嵌套类依然可以访问外围类的private成员， 似乎private对内部类（无论是不是static的）都不起作用</li>
+</ol>
+<p><strong>嵌套类的用途</strong></p>
+<p>可以放在接口当中，如果想要创建某些公用代码，该代码被所有接口的实现类所共用，那么可以使用嵌套类(接口中的成员都是public和static的)</p>
+<h2 id="第11章-持有对象"><a href="#第11章-持有对象" class="headerlink" title="第11章 持有对象"></a>第11章 持有对象</h2><h3 id="Collection-vs-Iterator"><a href="#Collection-vs-Iterator" class="headerlink" title="Collection vs Iterator"></a>Collection vs Iterator</h3><p>如果想对某一对象进行遍历，可以使用</p>
+<ol>
+<li>实现Collective</li>
+<li>继承该对象的类并提供迭代器</li>
+<li>继承AbstractCollection类</li>
+</ol>
+<p>其中1并不灵活，因为实现Collective接口需要实现其所有方法。而对于3，如果该类继承了其它类，那么就不能再继承AbstractCollection类了。</p>
+<h3 id="foreach-与-Iterable接口"><a href="#foreach-与-Iterable接口" class="headerlink" title="foreach 与 Iterable接口"></a>foreach 与 Iterable接口</h3><p>任何实现了Iterable接口的类都可以使用foreach语句。foreach语句可以用于数组或其他任何Iterable的类。</p>
+<p>注意Iterable不是Iterator</p>
+<p>一个类可以通过返回不同行为的Iterator，来提供其在foreach语句中不同的遍历方法，例子见p244</p>
+<h3 id="Arrays-asList"><a href="#Arrays-asList" class="headerlink" title="Arrays.asList()"></a>Arrays.asList()</h3><p>如果直接使用<code>Arrays.asList()</code>生成的List，当操作修改这个List时，会修改其底层的数组，所以，如果不想修改底层数组，需要在另一个容器中创建一个副本。（从名称上也可以看出， 其并不存在一个副本， 只是将array当做list）</p>
+<h2 id="第12章-异常"><a href="#第12章-异常" class="headerlink" title="第12章 异常"></a>第12章 异常</h2><p>异常将正常代码与处理错误的代码相分离，保证的代码的易读性</p>
+<h3 id="异常处理的两种方式——终止和恢复"><a href="#异常处理的两种方式——终止和恢复" class="headerlink" title="异常处理的两种方式——终止和恢复"></a>异常处理的两种方式——终止和恢复</h3><p>恢复模型就是把会产生异常的代码放到while语句中，不断的去测试。恢复模型不是很实用，因为其代码比较复杂，导致维护的困难，所以对于异常处理程序，往往只是给出错误信息并终止程序。</p>
+<p>如下代码为恢复模型的一个例子</p>
+<pre><code>while(true) {
+
+    try {
+        //产生异常的语句
+        //其它执行
+        break; //如果不产生异常,退出循环
+    } catch(Exception e) {
+        //捕获异常,并对异常进行修复
+        //修复后,返回try中继承执行
+    }
+
+}
+
+public static void main(String[] args) {
+
+    int[] a = {1, 2};
+
+    int i = 3;
+    while(true) {
+        try {
+            System.out.println(a[i]);
+            break;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            i--;
+        }
+    }
+    System.out.println(&quot;we&apos;ve done&quot;);
+}
+</code></pre><h3 id="异常说明"><a href="#异常说明" class="headerlink" title="异常说明"></a>异常说明</h3><p>异常说明放在参数列表之后，说明本方法可能抛出的异常。<br>没有异常说明的方法也可以抛出异常，如RuntimeException</p>
+<h3 id="两类异常"><a href="#两类异常" class="headerlink" title="两类异常"></a>两类异常</h3><ul>
+<li><strong>被检查的异常</strong>：被编译器进行检查,这种异常必须被<code>try...catch</code>处理或在方法签名中声明throws.</li>
+<li><strong>RuntimeException</strong>： 不受编译器检查的异常,不需要进行<code>try...catch</code>处理,如算术运算错误,数组越界等.</li>
+</ul>
+<p>两类异常的继承图</p>
+<p><img src="/assets/pics/Exception-Hierarchy-Diagram.jpeg" alt></p>
+<p>error类异常主要是运行时逻辑错误导致，一个正确程序中是不应该出现error的。当出现error一般jvm会终止。</p>
+<p>exception表示可恢复异常，包括检查异常和运行时异常。 检查异常是最常见异常比如io异常，sql异常，都发生在编译阶段。这类需要通过try…catch显示捕捉<br>而运行时异常，编译器没有强制对其进行捕捉和处理。一般都会把异常向上抛出，直到遇到处理代码位置，若没有处理块就会抛到最上层，多线程用thread.run()抛出，单线程用main()抛出。</p>
+<p>当然， 这里的RuntimeException也是可以被捕捉的。</p>
+<h3 id="关于以上两类异常的使用方式"><a href="#关于以上两类异常的使用方式" class="headerlink" title="关于以上两类异常的使用方式"></a>关于以上两类异常的使用方式</h3><blockquote>
+<p>Red colored are checked exceptions. Any checked exceptions that may be thrown in a method must either be caught or declared in the method’s throws clause. Checked exceptions must be caught at compile time. Checked exceptions are so called because both the Java compiler and the Java virtual machine check to make sure this rule is obeyed. Green colored are uncheck exceptions. They are exceptions that are not expected to be recovered, such as null pointer, divide by 0, etc.</p>
+</blockquote>
+<blockquote>
+<p>从上得知，checked exceptions，之所以显示捕获，是因为， 一般这种异常可以去做recover， 所以需要捕获处理，比如说文件找不到， 此时軚给用户一个提示， 然后让用户输入新的文件地址。 这种情况下是不需要停止程序的。</p>
+<p>而RuntimeException异常是那些并不期待recover的异常， 比如说指针越界， 算术处理， 当出现这种情况时，一般说明程序出错了， 而不是什么异常情况。此时应该停止程序（默认的就是将异常传到控制台， 然后停止程序），不做捕获处理（当然也可以捕获处理， 但这与其本意相违背了。</p>
+<p>当然使用何种异常以及如何对异常进行处理还是需要很多经验的。</p>
+</blockquote>
+<h3 id="使用finally的时机"><a href="#使用finally的时机" class="headerlink" title="使用finally的时机"></a>使用finally的时机</h3><p>因为内存的回收有垃圾回收机制，所以finally来处理内存回收之外的一些事情，如</p>
+<ul>
+<li>关闭文件或网络链接</li>
+<li>清除屏幕上画的图像</li>
+</ul>
+<p>finally语句总是会执行，哪怕有<code>break</code>, <code>continue</code>, <code>return</code>等语句(至于具体finally与return的关系，参考另一篇文章)。</p>
+<h3 id="异常的限制"><a href="#异常的限制" class="headerlink" title="异常的限制"></a>异常的限制</h3><p>当派生类的方法覆盖基类的方法时，派生类的方法只能声明抛出基类方法声明中的异常，或其派生类，或不抛出任何异常。</p>
+<p>这样限制的原因是，让那些与基类一起工作的代码，可以不经修改的与其派生类一起工作。</p>
+<p>注：该限制对构造器不起作用，派生类的构造器可以抛出任何异常，而不理会基类构造器所抛出的异常。</p>
+<h3 id="异常与构造器"><a href="#异常与构造器" class="headerlink" title="异常与构造器"></a>异常与构造器</h3><p>当构造器中有异常时，说明该对象有可能生成失败，如果此时该对象又是一个需要被清理的对象(即除内存回收之外的处理)，那么就需要精心构造<code>try……catch……finally</code>语句来保证所有可能的情况都会被正确处理。而这种代码往往增加了程序了复杂度，所以创建不能失败的构造器可能是更好的选择(这么做并非总是可行)</p>
+<p>对于创建需要清理的对象，一条基本规则就是，在创建对象之后，立即进入<code>try……finally</code>语句。</p>
+<h3 id="关于Java中”被检查的异常”思考"><a href="#关于Java中”被检查的异常”思考" class="headerlink" title="关于Java中”被检查的异常”思考"></a>关于Java中”被检查的异常”思考</h3><p>因为对于异常的处理的一条原则是，只有在知道该如何处理的情况下才捕获异常。而Java中的”被检查的异常”迫使客户端程序员即使不知道如何处理，也要去处理。而客户端程序员往往会忽略这些异常，导致这些异常被”吞食”。这显然没有达到其初衷。</p>
+<p>另一方面，对于大项目来说，过多的被检查的异常也会导致代码的混乱而却没有为代码的质量做出贡献(因为客户端程序员不知道怎么去处理，仅仅是忽略了)</p>
+<p>为了对付这些被检查的异常，可以使用以下两种方法</p>
+<ul>
+<li>把异常传递给控制台：在main函数声明中添加异常声明<code>throws Exception</code></li>
+<li>把被检查的异常转换为RuntimeException并重新抛出(这样就不需要客户端程序员显示的处理异常了)。</li>
+</ul>
+<h2 id="第13章String"><a href="#第13章String" class="headerlink" title="第13章String"></a>第13章String</h2><h3 id="不可变String"><a href="#不可变String" class="headerlink" title="不可变String"></a>不可变String</h3><p>每次修改String时，实际上都是创建了一个全新的String对象，以包含修改后的字符串，而原对象并没有改变。如：</p>
+<pre><code>String s = &quot;abc&quot; + &quot;mango&quot; + &quot;def&quot; + 47;
+</code></pre><p>在生成s的过程中，会产生一大堆需要垃圾回收的中间对象。</p>
+<p>所以为了避免产生过多中间对象，当构造字符串时，可以使用StringBuilder</p>
+<h3 id="StringBuilder与StringBuffer"><a href="#StringBuilder与StringBuffer" class="headerlink" title="StringBuilder与StringBuffer"></a>StringBuilder与StringBuffer</h3><p>StringBuilder是非线程安全的<br>StringBuffer是线程安全</p>
+<p>这两者都是为了避免使用String时产生大量的临时对象, 其底层机制就是一个char[]</p>
+<p>StringBuilder的使用是为了避免使用String时产生大量的临时对象， 即，程序的目的是最终字符串， 中间过程中的字符串是不需要保留的， 如果保留会占用过多常量池空间</p>
+<h3 id="String-intern"><a href="#String-intern" class="headerlink" title="String.intern()"></a>String.intern()</h3><p>String.intern()的目的是减少非心要的String对象(指heap区的对象)</p>
+<p>String.intern()是先看一个常量池中有没有， 如果有， 就返回常量池中的引用， 如果没有， 就将该字符串放入常量池中， 你可能有疑问， 生成String对象时， 已经把常量放入常量池了， 为什么还有如果没有的情况呢？看如下代码</p>
+<pre><code>String s = new String(&quot;1&quot;) + new String(&quot;2&quot;);    此时常量池中并没有“12”
+s.intern()    //此时常量池中有“12”
+</code></pre><p>而像如下代码可大大减少String对象的数量</p>
+<pre><code>Integer[] DB_DATA = new Integer[10];
+Random random = new Random(10 * 10000);
+for (int i = 0; i &lt; DB_DATA.length; i++) {
+    DB_DATA[i] = random.nextInt();
+}
+
+for (int i = 0; i &lt; 10000; i++) {
+    //arr[i] = new String(String.valueOf(DB_DATA[i % DB_DATA.length]));
+
+    //虽然这个过程中生成大量String临时对象， 但因为没有引用这些对象， 所以会所回收
+     arr[i] = new String(String.valueOf(DB_DATA[i % DB_DATA.length])).intern();
+}
+</code></pre><p>另外， 常量池是以HashTable的形式保存的， 在JDK6中是固定大小， 在JDK7中是可以调节的， 所以当常用很多时， 使用String.intern()会有查找效率的问题</p>
+<p>另外， JDK6, 7中的intern()有一点不同， 详见</p>
+<p><a href="http://tech.meituan.com/in_depth_understanding_string_intern.html" target="_blank" rel="noopener">深入解析String#intern</a></p>
+<h3 id="无意识的递归-，打印对象地址"><a href="#无意识的递归-，打印对象地址" class="headerlink" title="无意识的递归 ，打印对象地址"></a>无意识的递归 ，打印对象地址</h3><p>当想在toString()方法中打印对象地址时，容易犯以下错误</p>
+<pre><code>String toString(){
+    return &quot;address&quot; + this;
+}
+</code></pre><p>这里this所被转换为String类型，而转换的方法为toString(),这样就导致了递归。</p>
+<p>正确的作法是调用<code>super.toString()</code>方法</p>
+<h3 id="格式化输出"><a href="#格式化输出" class="headerlink" title="格式化输出"></a>格式化输出</h3><ul>
+<li>System.out.format()</li>
+<li>使用Formatter类的format()方法，构造器中传递的信息决定最终结果的去处</li>
+<li>使用String.format()，返回格式化后的字符串。</li>
+</ul>
+<p>以上三者的用法基本同C中的printf();</p>
+<h3 id="正则表达式的使用方式"><a href="#正则表达式的使用方式" class="headerlink" title="正则表达式的使用方式"></a>正则表达式的使用方式</h3><h4 id="简单的情况-使用String类的方法"><a href="#简单的情况-使用String类的方法" class="headerlink" title="简单的情况:使用String类的方法"></a>简单的情况:使用String类的方法</h4><p>对于简单的情况,可以直接使用String类的方法,相关方法如下</p>
+<ul>
+<li>matchs(String regex): 字符串是否匹配regex</li>
+<li>split(String regex): 以匹配的子串位置进行分割, 返回的是分割的数组</li>
+<li>replaceFirst(regex, string): 替换第一个匹配的子串</li>
+<li>replaceAll(regex, string): 替换所有匹配的子串</li>
+</ul>
+<h4 id="一般的情况-使用Pattern与Matcher"><a href="#一般的情况-使用Pattern与Matcher" class="headerlink" title="一般的情况:使用Pattern与Matcher"></a>一般的情况:使用Pattern与Matcher</h4><p>Pattern<br>: A compiled representation of a regular expression.</p>
+<p>Pattern有一些便捷的static方法,如下</p>
+<ul>
+<li>split(CharSequence input):以匹配的子串位置进行分割, 返回的是分割的数组</li>
+<li>matches(String regex,CharSequence input):是一个静态方法,用来判断整个input是否与regex匹配,作用等同与String的matchs方法</li>
+<li>matcher(CharSequence input):返回一个Mathcer对象,进行更一般的正则匹配操作,见下面</li>
+</ul>
+<p>Matcher<br>: An engine that performs match operations on a character sequence by interpreting a Pattern.</p>
+<p>使用Pattern与Matcher的一般步骤如下:</p>
+<ol>
+<li>利用Pattern.compile(regex)得到编译后的代表正则表达式的对象<strong>p</strong>(为了性能的考虑,所以使用编译后的regex)</li>
+<li>利用p.matcher(CharSequence input)得到一个Matcher对象<strong>m</strong>,其中input是需要进行匹配的字符串</li>
+<li><p>在第二步中得到m后,可以利用matches(), lookingAt(), find()方法进行下一步操作, 这三个方法都返回boolean型, 如果匹配成功,这三个方法会影响m的状态,进而影响第4步中3个函数的结果</p>
+<ul>
+<li>matches():对整个字符串进行匹配,只有整个字符串都匹配了才返回true</li>
+<li>lookingAt():对字符串的开头进行匹配,如果匹配到的字符串在最前面,返回true</li>
+<li>find():对字符串的任意位置进行匹配,发现下一个与regex匹配的子串, find就像在input上的迭代器。每调用一次，matcher就移动到下一个匹配的子序列上。</li>
+</ul>
+</li>
+<li><p>在利用第3步中的函数进行操作后,可以利用Mathcer的start, end, group三个函数来得到更详细的信息.</p>
+<ul>
+<li>int start():返回匹配到的子字符串的第一个字符在字符串中的索引位置</li>
+<li>int end():返回匹配到的子字符串的最后一个字符在字符串中的索引位置</li>
+<li>String group():返回匹配到的子字符串</li>
+</ul>
+<p>另外,以上三个函数还有一个带参数的版本,在讲解参数前,首先了解一个概念<strong>捕获组</strong></p>
+<p>捕获组可以通过从左到右计算其开括号来编号，编号是从1 开始的。例如，在表达式 ((A)(B(C)))中，存在四个这样的组：</p>
+<p>1 ((A)(B(C)))<br>2 (A)<br>3 (B(C))<br>4 (C)</p>
+<p>另外,0组始终代表整个正则表达式,捕获组出现在regex中</p>
+<p>为了理解组的概念, 先看如下代码</p>
+<pre><code>Pattern p=Pattern.compile(&quot;([a-z]+)(\\d+)&quot;);
+Matcher m=p.matcher(&quot;aaa2223bb&quot;);
+m.find();   //匹配aaa2223
+m.groupCount();   //返回2,因为有2组
+m.start(1);   //返回0 返回第一组匹配到的子字符串在字符串中的索引号
+m.start(2);   //返回3
+m.end(1);   //返回3        返回第一组匹配到的子字符串的最后一个字符在字符串中的索引位置.
+m.end(2);   //返回7
+m.group(1);   //返回aaa,返回第一组匹配到的子字符串
+m.group(2);
+</code></pre><p>由上可知start, end, group中的参数就是组的序号.</p>
+</li>
+</ol>
+<p>另外,Matcher还有一个reset(input)方法：可将Matcher用于新的input. 如果没有参数，则重置matcher，用于当前input</p>
+<p>关于正则表达式的详细例子,请参照</p>
+<p><a href="http://www.cnblogs.com/ggjucheng/p/3423731.html" target="_blank" rel="noopener">JAVA正则表达式：Pattern类与Matcher类详解(转)</a></p>
+<h3 id="Scanner-扫描输入"><a href="#Scanner-扫描输入" class="headerlink" title="Scanner 扫描输入"></a>Scanner 扫描输入</h3><p>用来方便的从文件或标准输入中读取数据，保存到Java内置的变量类型中。</p>
+<p>Scanner类的工作方法类似于迭代器，每调用一次相关的方法，就返回下一个分词。分词与分词之间的分隔符可以自定义，可以使用正则表达式。</p>
+<ul>
+<li>scanner.next(pattern): 将scanner移动到下一个匹配pattern的分词上</li>
+<li>scanner.match(): 获得相关的匹配器，之后就可以使用matcher的一些方法了。</li>
+</ul>
+<p>因为scanner仅仅对下一个分词进行匹配，如果pattern中含有定界符，那永远不可能匹配成功。</p>
+<p>如：假设分词定界符为空格，那么scanner所找到的分词中就一定不包含空格，如果pattern中有空格，那么此pattern就不可能匹配到分词。</p>
+<h2 id="第14章-类型信息"><a href="#第14章-类型信息" class="headerlink" title="第14章 类型信息"></a>第14章 类型信息</h2><h3 id="Class类和Class对象"><a href="#Class类和Class对象" class="headerlink" title="Class类和Class对象"></a>Class类和Class对象</h3><p>Class类在Java中是一种特殊的类，至此可以把Java中的类分为两类：</p>
+<ol>
+<li>常规类</li>
+<li>Class类</li>
+</ol>
+<p>将两者做对比，常规类的实例是常规的对象，那么Class类的实例是什么？Class类的实例当然是Class对象，但是Class对象具体指什么呢？指是的常规类。即，Class类的实例就是常规类。</p>
+<h4 id="如何生成Class类对象呢？"><a href="#如何生成Class类对象呢？" class="headerlink" title="如何生成Class类对象呢？"></a>如何生成Class类对象呢？</h4><p>Class类对象一般对保存在同名的Class文件中，当程序运行时，由JVM使用类加载器的子系统将该对象加载到内存。而加载的时机是第一次对其使用时，如调用常规类的静态方法或使用构造器生成常规对象(可以看出，构造器也是一种静态方法)。当加载Class类对象(常规类)时，会执行Class类对象(常规类)的static子句。</p>
+<h4 id="Class类对象的意义"><a href="#Class类对象的意义" class="headerlink" title="Class类对象的意义"></a>Class类对象的意义</h4><p>因为Class类对象就是某一常规类，所以，如果有一个Class类对象的引用就相当于对常规类的各方面信息进行了掌握，如常规类的名字，方法，字段等等。从这个角度来说，Class类对象就像是常规对象的元数据。所以取得Class类对象的引用很关键。以下方法可以取得一个Class类对象的引用。</p>
+<ul>
+<li><strong>Class.forName(常规类名)：这个方法使用了Class类(非Class类对象)的静态方法，且常规类名必须使用全名(包括包名)。该方法将对类进行初始化</strong></li>
+<li>常规对象.getClass(): 这说明，在每一个常规对象中，都保存了生成这个常规对象的常规类的类信息。</li>
+<li><p><strong>类名.class(基本类型也有.class，如int.class)：使用这种方法时，不会自动地初始化该类，初始化被延迟到对静态方法或者非常数静态域进行首次引用时执行。这里所谓的非常数静态域是</strong></p>
+<p>如</p>
+<pre><code>static final int a = rand.nextInt(10)
+</code></pre><p>而</p>
+<pre><code>static final int a = 10
+</code></pre><p>或</p>
+<pre><code>static int a = rand.nextInt(10)
+</code></pre><p>或</p>
+<pre><code>static int a = 10
+</code></pre><p>都不是非常数静态域。</p>
+</li>
+</ul>
+<h4 id="Class类的一些常用方法"><a href="#Class类的一些常用方法" class="headerlink" title="Class类的一些常用方法"></a>Class类的一些常用方法</h4><ul>
+<li>getName()</li>
+<li>isInterface()</li>
+<li>getSimpleName()</li>
+<li>getCanonicalName()</li>
+<li>getSuperclass()</li>
+<li>getInterfaces()</li>
+<li><p>newInstance()</p>
+<p><strong>如果是平凡的Class对象，其调用newInstance()后，返回的是Object。因为平凡的Class对象可以指向任何类，所以当调用newInstance后，并不能确定生成的具体对象类型。<br>而如果将泛型用于Class对象，因为此时限定了Class对象所能指向的类型的范围，所以调用newInstance()后，可以生成具体对象。</strong></p>
+</li>
+</ul>
+<h3 id="RTTI-和-反射的区别-这里的解释比较模糊"><a href="#RTTI-和-反射的区别-这里的解释比较模糊" class="headerlink" title="RTTI 和 反射的区别(这里的解释比较模糊)"></a>RTTI 和 反射的区别(这里的解释比较模糊)</h3><p>RTTI虽然可以在运行时知道对象的类型，但是其对象类型的.class在编译时必须是被编译器已知的</p>
+<p>如下情况为RTTI</p>
+<ol>
+<li><p>向下转型</p>
+<pre><code>Object obj;
+Toy toy = Toy(obj)
+</code></pre></li>
+<li><p>instanceof或isInstance()</p>
+<pre><code>pet instanceof Manx;
+Class&lt;?&gt; Manx = Manx.class;
+Manx.isInstance(pet)
+</code></pre></li>
+</ol>
+<p>由上可知，虽然不知道obj和pet的类型，但是在调用其方法时，需要知道其具体类型，而知道其具体类型，需要了解其类型的.class文件。</p>
+<p>而对于反射，如果拿到一个对象不知道是什么类型，并没有关系，可以在不知其具体类型的情况下就能调用其方法。此时可以内省对象，检查对象本身，从中找出其所包含的域和方法。</p>
+<p>无论是传统的RTTI和反射，要想知道一个对象的类信息，必须加载该类的Class对象，因些，这个类的.class文件对于JVM来说必须是可获取的：要么在本地，要么在网络上。所以RTTI和反射之间真正的区别是，对RTTI来说，是在编译时打开和检查.class文件。而对于反射来说，是在运行时打开和检查.class文件。</p>
+<h2 id="第18章-Java-I-O系统"><a href="#第18章-Java-I-O系统" class="headerlink" title="第18章 Java I/O系统"></a>第18章 Java I/O系统</h2><h3 id="流和装饰器"><a href="#流和装饰器" class="headerlink" title="流和装饰器"></a>流和装饰器</h3><p>流<br>: 流表示能产生数据的数据源对象和能接收数据的接收源的一种抽象。</p>
+<p>装饰器<br>: 流只表示数据源或接收源。但是如何读取数据源中的数据和如何向接收源写数据则没有规定，此时就需要装饰器类来定义具体的读取和写入行为。</p>
+<h3 id="Java的流体系"><a href="#Java的流体系" class="headerlink" title="Java的流体系"></a>Java的流体系</h3><p>Java分<strong>字节流</strong>与<strong>字符流</strong>,一种是面向字节的,一种是面向字符的.每一种体系都包括<strong>数据源</strong>对象与<strong>装饰者</strong>对象,基中装饰者对象<strong>也是一种数据源</strong>,所以装饰者可以被另一种装饰者装饰.</p>
+<h3 id="字节流体系"><a href="#字节流体系" class="headerlink" title="字节流体系"></a>字节流体系</h3><p>该体系数据源对象为InputStream，接收源对象为OutputStream。这两个都是抽象类，根据具体数据源来接收源的不同，有不同的子类继承这两个类，如下：</p>
+<p>InputStream</p>
+<ul>
+<li>ByteArrayInputStream:字节数组作为数据源</li>
+<li>StringBufferInputStream:字符串</li>
+<li>FileInputStream：文件</li>
+<li>PipedInputStream：管道</li>
+<li>SequenceInputStream：将多个数据源组成一个。</li>
+<li>FilterInputStream: 所以所有的装饰器类也是InputStream的子类</li>
+<li>还有网络</li>
+</ul>
+<p>OutputStream</p>
+<ul>
+<li>ByteArrayOutputStream:</li>
+<li>FileOutputStream</li>
+<li>PipedOutputStream</li>
+</ul>
+<p>该体系装饰器分两类，一类是装饰数据源的，其父类是FilterInputStream，针对不同的装饰功能有不同的子类。一类是装饰接收源的，其父类是FilterOutputStream. 继承层次如下</p>
+<p>FilterInputStream</p>
+<ul>
+<li>DataInputStream:用来读取基本数据类型</li>
+<li>BufferedInputStream:为输入添加缓存功能</li>
+<li>LineNumberInputStream</li>
+</ul>
+<p>FilterOutputStream</p>
+<ul>
+<li>DataOutputStream：用来写入基本数据类型</li>
+<li>PrintStream:用于产生格式化输出，即方便人类阅读。</li>
+<li>BufferedOutputStream：输出添加缓存功能</li>
+</ul>
+<p>注：PrintStream和DataOutputStream的作用不同，DataOutputStream只是为了以可移植方式向流中写入基本类型，而PrintStream为了产生格式化输出，方便人类阅读。</p>
+<h3 id="字符流体系"><a href="#字符流体系" class="headerlink" title="字符流体系"></a>字符流体系</h3><p>Reader和Writer是另一套I/O体系，Reader相当于InputStream，Writer相当于OutputStream,FilterReader相当于FilterInputStream，FilterWriter相当于FilterOutputStream(这样说不准确)。其相应子类也能找到所对应的类。</p>
+<p>关于该体系中与字节流体系中相对应的类可以参照<em>Thinking in Java</em>(p538)</p>
+<p><strong>为什么需要另一套I/O呢？</strong></p>
+<p>因为InputStream/OutputStream是面向字节的体系，Reader/Writer是面向字符和兼容Unicode的体系，而且新类库的操作更快。</p>
+<h3 id="将字节流与字符流相结合"><a href="#将字节流与字符流相结合" class="headerlink" title="将字节流与字符流相结合"></a>将字节流与字符流相结合</h3><p>有时需要把”字节体系”和”字符体系”中的类结合使用，此时就需要使用适配器了，InputStreamReader可以把InputStream转换为Reader，OutputStreamWriter可以把OutputStream转换为Writer.可以说，这两个类是字节与字符的桥梁。</p>
+<h3 id="当使用I-O系统时，主要考虑这两个问题"><a href="#当使用I-O系统时，主要考虑这两个问题" class="headerlink" title="当使用I/O系统时，主要考虑这两个问题"></a>当使用I/O系统时，主要考虑这两个问题</h3><ol>
+<li><strong>输出到哪里(或从哪里输入)</strong>：这个问题解决的是数据源或接收源类的问题</li>
+<li><strong>以什么方式输入和输出</strong>：如何选择装饰类。</li>
+</ol>
+<h3 id="java-nio-新I-O"><a href="#java-nio-新I-O" class="headerlink" title="java.nio 新I/O"></a>java.nio 新I/O</h3><ol>
+<li>新I/O是为了提高I/O操作的速度，实际上旧的I/O已经使用新I/O重新实现过。</li>
+<li><strong>新I/O之所以速度快是因为其结构更接近与操作系统执行I/O的方式，通道和缓冲器。</strong></li>
+<li>通道：是数据的来源和接收源，只有三个类可以产生通道，FileInputStream, FiliOutputStream, RandomAccessFile，这些都是字节流。</li>
+<li>缓冲器ByteBuffer是唯一直接与通道打交道的工具，所谓打交道，即将通道中的数据读入缓冲器中，或将缓冲器中的数据写入通道中。</li>
+<li>为了方便对基本数据类型的操作，ByteBuffer为各种基本类型提供了相应的视图，所谓视图就是底层的ByteBuffer与上层的视图的内容是一致的，即改变一个的同时这种变化也反应在另一个上面。</li>
+<li>理解缓冲器关键是理解：标记，位置，界限与容量这四个缓冲器的属性，以及对缓冲器操作后，对以上四个属性的影响。</li>
+<li><strong>内存映射文件（其原理应该是利用的操作系统的缺页机制，如果不使用缺页机制，需要将磁盘的数据先读入到内核缓冲区， 然后才是应用缓冲区）是利用通道和缓冲器将文件内容映射到内存，其用途是用来处理那些很大的不能放入内存的文件。并且可以将文件当做很大的数据来访问。</strong></li>
+</ol>
+<h3 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h3><ol>
+<li>序列化是一种将对象进行持久化的方法，一种典型应用是将RMI(远程方法调用)，在调用远程方法时，将参数对象进行序列化，然后通过网络传递给远程方法。</li>
+<li><p>什么对象可以进行序列化？</p>
+<p>包括基本数据类型及其封装器，容器类，Class对象，以及实现了Serializable接口的类</p>
+</li>
+<li><p><strong>如果想反序列化一个对象，JVM必须能找到相应类的.class文件。</strong></p>
+</li>
+<li><p>一般情况下，使用Serializable即可，但是，如果想对序列化的过程进行控制，可选择以下三种方法</p>
+<ul>
+<li>实现Externalizable接口，通过实现该接口，可以选择对哪些成员进行序列化，哪些不进行序列化，注意，实现Externalizable接口后，当反序列化时，需要调用对象的默认构造函数，而实现Serializable，反序列化时，不会调用默认构造函数。</li>
+<li>使用transient关键字：结合使用Serializable，可排除某些对象不被序列化，这一般适用于敏感信息，如密码等。</li>
+<li>添加writeObject()和readObject()方法(这里是添加方法，而不是覆盖)， 这是一种代替Externalizable接口的方案。</li>
+</ul>
+</li>
+<li><p>当序列化的对象包括静态成员时，该静态成员并不会被序列化，因为静态成员实际上是不需要某一个对象的，虽然静态成员是属于Class对象的，静态成员之于Class对象似乎相当于实例成员之于实例对象，然而，其依然不能被自动的序列化，要想序列化静态成员，必须手动序列化。</p>
+</li>
+</ol>
+<h3 id="Preferences"><a href="#Preferences" class="headerlink" title="Preferences"></a>Preferences</h3><p>Preferences是用来存储来读取用户偏好以及程序配置项的，当程序退出时，保存用户偏好，程序运行时，恢复用户偏好。</p>
+<h2 id="第20章-注解"><a href="#第20章-注解" class="headerlink" title="第20章 注解"></a>第20章 注解</h2><h3 id="注解的作用"><a href="#注解的作用" class="headerlink" title="注解的作用"></a>注解的作用</h3><p>注解可以使用在域，方法和类上，为以上这些对象提供一些额外的信息，如可以注解某一方法是一个测试方法，注解某一个类将对应数据库中的一个表等。</p>
+<p>使用注解的例子：</p>
+<ol>
+<li>为类和类中的域添加注解，从而可以利用程序(注解处理器)，自动的生成相应的SQL语句</li>
+<li>为方法添加注解，再利用反射的技术，编写一个测试框架。</li>
+</ol>
+<h3 id="如何使用注解"><a href="#如何使用注解" class="headerlink" title="如何使用注解"></a>如何使用注解</h3><ol>
+<li>编写相应的注解类</li>
+<li>编写注解处理器</li>
+</ol>
+<h2 id="第19章-枚举"><a href="#第19章-枚举" class="headerlink" title="第19章 枚举"></a>第19章 枚举</h2><h3 id="关于枚举需要注意的几点"><a href="#关于枚举需要注意的几点" class="headerlink" title="关于枚举需要注意的几点"></a>关于枚举需要注意的几点</h3><ol>
+<li>枚举其实是另一种类，每一个枚举实例就是一个类实例，可以利用javap命令来查看生成的枚举类的内容。既然枚举也是一种类，自然可以有其自己的域和方法。</li>
+<li>因为枚举默认继承java.lang.Enum，所以枚举不能再继承其他的类。</li>
+<li>枚举的一个特性是，对于每一个枚举实例都可定义其相关的方法，即，同一方法名，对不同的实例可以有不同的行为，这有点类似与多态。</li>
+</ol>
+<h3 id="枚举的几种用途"><a href="#枚举的几种用途" class="headerlink" title="枚举的几种用途"></a>枚举的几种用途</h3><ol>
+<li>使用EnumSet来替代标志：EnumSet的底层由long来实现，Enum的实例都有一个位序，如果该实例在EnumSet中，则long的该位序的值为1，所有对EnumSet的做的操作实际上都是对long所做的位操作</li>
+<li>使用EnumMap或常量相关方法来实现命令模式：EnumMap来常量相关方法相比，前者的内聚性更差，即，命令(键-Enum实例，命令时相应的值)，更换Enum实例时，需要同时更换相应的命令，而对于常量相关方法，则更换实例后，相应的行为也发生改变了。</li>
+<li>利用枚举实现职责链模式：邮件递送例子java编程思想</li>
+<li>利用枚举实现状态机：自动售货机。</li>
+<li>利用枚举实现多路分发：石头-剪刀-布的例子</li>
+</ol>
+<h2 id="第21章-并发"><a href="#第21章-并发" class="headerlink" title="第21章 并发"></a>第21章 并发</h2><h3 id="使用并发的目的"><a href="#使用并发的目的" class="headerlink" title="使用并发的目的"></a>使用并发的目的</h3><ol>
+<li><strong>速度上的考虑</strong>：在多处理器上，并发比顺序执行更快，这是显然的，而在单处理器上，并发有时也比顺序执行更快，这是由于阻塞的存在。常用的应用是创建 <strong>可响应的用户界面</strong></li>
+<li><p><strong>改进代码设计</strong>：有些问题，需要使用并发的模型，这样写出的代码更清晰，更易读，如</p>
+<ul>
+<li>仿真</li>
+<li>消息系统</li>
+</ul>
+</li>
+</ol>
+<h3 id="线程状态转换图"><a href="#线程状态转换图" class="headerlink" title="线程状态转换图"></a>线程状态转换图</h3><p><img src="/assets/pics/thread_states" alt></p>
+<h3 id="线程操作中常用的几个函数sleep-yield-wait-notify-join"><a href="#线程操作中常用的几个函数sleep-yield-wait-notify-join" class="headerlink" title="线程操作中常用的几个函数sleep, yield, wait, notify, join"></a>线程操作中常用的几个函数sleep, yield, wait, notify, join</h3><p>这几个方法可以分成两大类</p>
+<h4 id="1-sleep-yield-join"><a href="#1-sleep-yield-join" class="headerlink" title="1. sleep,yield,join"></a>1. sleep,yield,join</h4><p>是Thread的成员方法,这两个方法主要是通知scheduler进行线程调度的.</p>
+<p><strong>sleep</strong>:让当前执行线程休眠,如果当前线程持有对象锁则并不释放,线程由运行状态变为阻塞状态</p>
+<p><strong>yield</strong>:线程让步,当前线程让步给同优先级的线程,当这只是给scheduler的一个hint,并不一定能让步成功,如果成功,当前线程由运行状态变为就绪状态.同样,yield也不会释放锁.</p>
+<p><strong>join</strong>:让“主线程”等待“子线程”结束之后才能继续运行.这句话是什么意思呢?来看源码.</p>
+<pre><code>public final void join() throws InterruptedException {
+    join(0);
+}
+
+public final synchronized void join(long millis)
+throws InterruptedException {
+    long base = System.currentTimeMillis();
+    long now = 0;
+
+    if (millis &lt; 0) {
+        throw new IllegalArgumentException(&quot;timeout value is negative&quot;);
+    }
+
+    if (millis == 0) {
+        while (isAlive()) {
+            wait(0);
+        }
+    } else {
+        while (isAlive()) {
+            long delay = millis - now;
+            if (delay &lt;= 0) {
+                break;
+            }
+            wait(delay);
+            now = System.currentTimeMillis() - base;
+        }
+    }
+}
+</code></pre><p>可见join最终调用的是wait(0)方法,即让当前线程在某一对象上等待,而这个对象是什么呢?首先来看join平时是怎么使用的.</p>
+<pre><code>// 主线程
+public class Father extends Thread {
+    public void run() {
+        Son s = new Son();
+        s.start();
+        s.join();
+        ...
+    }
+}
+// 子线程
+public class Son extends Thread {
+    public void run() {
+        ...
+    }
+}
+</code></pre><p>由上可见,join的接收者为s,即father在son上等待,这就造成了一个线程等待另一个线程的效果. Father会处于等待状态，这里并没有显示的调用son的notify来唤醒father，猜测是由JVM来隐式的唤醒</p>
+<h4 id="2-wait-notify"><a href="#2-wait-notify" class="headerlink" title="2. wait,notify"></a>2. wait,notify</h4><p>是Object的成员方法,这几个方法主要用来进行多线程同步协作问题,即多个线程配合完成一项任务</p>
+<p><strong>wait&amp;notify</strong>:wait是让当前线程在某一对象上等待(记得wait是Object的方法),同时释放当前线程所持有的对象锁(该对象<s>不一定</s>一定是等待对象，否则会编译错误),而notify则是唤醒在某一对象上等待的某一个线程.</p>
+<p><em>注意wait有一个wait(timeout)版本,当timeout到时时,会自动唤醒,如果timeout为0,则是永远等待,即wait(0)与wait()是一样的(从源码中可以看出)</em></p>
+<pre><code>public final void wait() throws InterruptedException {
+        wait(0);
+}
+</code></pre><h3 id="共享受限资源"><a href="#共享受限资源" class="headerlink" title="共享受限资源"></a>共享受限资源</h3><p>当多个任务访问同一资源时(这里的资源可以是一个对象，或是一个文件，打印机等等)，如多个任务使用同一个打印机打印文件，如果前一个任务才打印了一部分，另一个任务就接着打印，那么打印的结果就会出错。这时，需要使用某种机制保障在这种情况下不会出错。</p>
+<h4 id="可使用的方案"><a href="#可使用的方案" class="headerlink" title="可使用的方案"></a>可使用的方案</h4><ol>
+<li><p>使用锁机制，又称为互斥量(mutex)</p>
+<p>为共享的资源设置一把锁，任务要想使用该资源就必须获取该锁，如果锁已被其它任务所占用的话，该任务必须等待，当任务使用完资源后，就释放锁。这样，对该共享资源的访问实际上就是一种序列化访问。</p>
+<p>具体到java中，共享资源可以是一个对象，对该资源的访问就是调用其成员方法。所以为其方法加上synchronized关键字，当任务要调用该方法时(即访问该对象时)就会去获取该对象的锁(注意，锁是属于对象的，而不是方法)，注意，如果一个对象的多个方法都能改变该对象的状态，一定要把其field设置成private，并且把方法都加上synchronized，因为如果不是private或不加synchronzied的话，就不受锁机制的控制，任务可以自由的对该对象进行访问。</p>
+<p>上面说的是对象的锁，还有一种是类级别的锁(实际也是对象的锁，只不过该对象是class对象)，这种锁来控制对static数据的并发访问。</p>
+</li>
+<li><p>显示的Lock对象(更详细的参考Synchronized与ReentrantLock的区别)</p>
+<p>synchronized是使用的隐式锁，而可以选择使用显示锁。使用隐式锁虽然其代码量更少，但有一些特殊情况使用显示锁更方便，如</p>
+<ul>
+<li>尝试获取锁并失败</li>
+<li>尝试获取一段时间并放弃它</li>
+</ul>
+</li>
+<li><p>线程本地存储(原理与使用参考ThreadLocal原理)</p>
+<p>别一个方法是根除对变量的共享，使得每一个线程都有自己的本地存储，不同线程之前的本地存储互相隔离，因此就不会有同步问题了。</p>
+<p>创建和管理线程本地存储由java.lang.ThreadLocal来实现。</p>
+</li>
+</ol>
+<h4 id="原子性，可见性，Volatility（参考JMM来理解）"><a href="#原子性，可见性，Volatility（参考JMM来理解）" class="headerlink" title="原子性，可见性，Volatility（参考JMM来理解）"></a>原子性，可见性，Volatility（参考JMM来理解）</h4><p>原子性：</p>
+<ol>
+<li>如果一个操作是原子的，说明该操作是不可中断的，要么执行完，要么不执行，这种行为和锁机制是类似的。</li>
+<li>原子性可以应用于除long和double之外的所有基本类型之上的”简单操作”,即读，写操作，为什么除long和double之外呢？这是因为long，double是用64位保存的，而JVM可以将其读写操作当作两个分离的32位操作来执行。这就可能导致不同的任务可能看到不正确的结果。(但这不是绝对的，不同的JVM实现可能有不同的行为)</li>
+</ol>
+<p>可见性：</p>
+<ol>
+<li>一个任务所做的修改是否对其它任务是可见的。可见性的问题发生在多处理器或多核CPU上。因为内存是多处理器或多核CPU所共享，假如一个核上运行一个任务，对内存中某一变量进行了修改，但是并未把变量写会内存，而是保存在该核的cache中，所以其修改对其它任务是不可见的。</li>
+<li>注意，一个操作即使是原子性的，也不一定是可见的，因为原子性只涉及其是可以的被中断，并不涉及是否必须要写回内存之类的。所以依赖于原子性的同步机制是有危险的，如果该操作不俱有可见性，依然有各任务所看到的状态不一致的问题。</li>
+<li>同样，保证了可见性并不能保证其原子性，可见性只是保证了修改会写内存，但不保证操作是不可中断的。</li>
+<li>为了保证可见性，需要对所要修改的域使用volatile修饰。这样一个任务所做的写操作，其它任务的读操作都可以看到。</li>
+<li>如果使用synchronized等同步机制，同样可以保证其操作的可见性，因为同步机制会导致向主存中刷新，因些如果一个域完全由synchronized方法或语句块来防护，那就不必将其设置为volatile</li>
+<li>一个任务所作的任何写操作对本任务都是可见的，所以在本任务内，不存在可见性问题</li>
+</ol>
+<p>由上所述，为了保证同步，还是优先使用synchronized，这种方式虽然性能上稍有损失，但简单易懂，不容易出错。</p>
+<h4 id="临界区-Critical-Section"><a href="#临界区-Critical-Section" class="headerlink" title="临界区(Critical Section)"></a>临界区(Critical Section)</h4><p>相比于为整个方法添加synchronized，可以为某一段代码添加thread-safe功能，语法如下</p>
+<pre><code>synchronized(syncObject){
+    do some stuff    //Critical Section
+}
+</code></pre><p>当thread 执行到这段代码时，thread会获得syncObject对象的锁，这样，当其它thread再执行到这段代码时，就会等待锁的释放。</p>
+<p>通常syncObject为this对象。</p>
+<p>使用这种方法其实是更细粒度的对代码的同步进行控制，当为整个方法添加synchronized时，只要是某一线程在调用该方法，其它线程就不能进入，而如果是对方法部分代码进行synchronize，则只要是不在critical section，其它线程依然可以进入。</p>
+<p>造成的结果就是，在单位时间内，可以有更多的thread来访问对象。</p>
+<h3 id="中断"><a href="#中断" class="headerlink" title="中断"></a>中断</h3><p>Java中断机制是一种协作机制，也就是说通过中断并不能直接终止另一个线程，而需要被中断的线程自己处理中断。当调用Thread.interrupt()时，只是设置了一个标志，而真正的中断需要线程本身去检查这个标志并作处理。</p>
+<p>从run中中断有两种方式</p>
+<ol>
+<li>首先在线程上调用interrupt()设置中断标志，然后，当任务要进入到阻塞操作或已经在阻塞操作内部时，会抛出InterruptException异常(并不是所有的阻塞操作会抛出异常，所以该方法只对部分阻塞操作有效，Object::wait、Thread::sleep)，抛出异常后，线程会离开阻塞状态。</li>
+<li>如果是run中代码没有阻塞，或者阻塞操作不会抛出InterruptException异常，那么可通过interrupted()或isInterrupted来检查中断标志，从而决定是否从run()中退出。</li>
+</ol>
+<h4 id="如何处理InterruptException"><a href="#如何处理InterruptException" class="headerlink" title="如何处理InterruptException"></a>如何处理InterruptException</h4><p>一般的代码中，尤其是作为一个基础类库时，绝不应当吞掉中断，即捕获到InterruptedException后在catch里什么也不做，清除中断状态后又不重设中断状态也不抛出InterruptedException等。因为吞掉中断状态会导致方法调用栈的上层得不到这些信息。(比如一个任务中A调B,B调C，如果当被中断时，A，B需要做一些清理工作，但如果C吞掉中断，则，A,B的清理工作无法进行下去)</p>
+<p>当然，凡事总有例外的时候，当你完全清楚自己的方法会被谁调用，而调用者也不会因为中断被吞掉了而遇到麻烦，就可以这么做。</p>
+<p>总得来说，就是要让方法调用栈的上层获知中断的发生。假设你写了一个类库，类库里有个方法amethod，在amethod中检测并清除了中断状态，而没有抛出InterruptedException，作为amethod的用户来说，他并不知道里面的细节，如果用户在调用amethod后也要使用中断来做些事情(如检测到中断后关闭文件)，那么在调用amethod之后他将永远也检测不到中断了，因为中断信息已经被amethod清除掉了。如果作为用户，遇到这样有问题的类库，又不能修改代码，那该怎么处理？只好在自己的类里设置一个自己的中断状态，在调用interrupt方法的时候，同时设置该状态，这实在是无路可走时才使用的方法。</p>
+<h3 id="线程之间的协作"><a href="#线程之间的协作" class="headerlink" title="线程之间的协作"></a>线程之间的协作</h3><p><strong>线程之间的协作</strong>指的是多个线程共同完成一项任务，A完成一部分，B完成另一部分，但是由于完成该任务的步骤必须有先后顺序，如B在A完成前不能执行等。这时就需要一种机制来保证其完成的顺序。</p>
+<p>而<strong>同步</strong>指的是多个任务间互斥的访问资源，强调的是一个任务访问资源期间，另一项任务不能访问，强调的是互斥性，而协作强调的是协作性。</p>
+<p>实现线程之间的协作时，也使用了一些同步的技术。</p>
+<h4 id="1-低级别的抽象-隐式的notify-wait-notifyAll"><a href="#1-低级别的抽象-隐式的notify-wait-notifyAll" class="headerlink" title="1. 低级别的抽象, 隐式的notify, wait, notifyAll"></a>1. 低级别的抽象, 隐式的notify, wait, notifyAll</h4><p>关于wait函数， jdk文档中有如下说明</p>
+<blockquote>
+<p>The current thread must own this object’s monitor.This method causes the current thread (call it T) to place itself in the wait set for this object and then to relinquish any and all synchronization claims on this object</p>
+</blockquote>
+<p>这句话的含义是， 当调用wait时，线程必须持有该对象的monitor， 即持有该对象的同步锁。这样在调用wait()时， 线程会在wait对象上等待并放弃在该对象上的同步锁，如下段代码</p>
+<pre><code>synchronized(this) {
+     while(condition Is not met)
+        wait();
+}
+</code></pre><p>会释放锁，这样其它线程就可以修改条件了。而如果在调用前没有持有该对象的同步锁。</p>
+<p>如</p>
+<pre><code>while(condition Is not met)
+    wait();
+</code></pre><p>或持有其它对象的同步锁</p>
+<pre><code>synchronized(anotherObj) {
+     while(condition Is not met)
+        wait();
+}
+</code></pre><p>会报错IllegalMonitorStateException</p>
+<p>另外， 这三个方法一般和synchronized一起使用， 而对于Lock, 则和Condition一起使用， 如</p>
+<pre><code>Lock lock = new ReentrantLock();
+Condition condition = lock.newCondition();
+
+//method 1
+lock.lock();
+try{
+    while(条件不满足)
+        condition.await();
+} finally {
+    lock.unlock();
+}
+
+//method 2
+lock.lock();
+try{
+    修改条件
+    condition.signalAll();
+} finally {
+    lock.unlock();
+}
+</code></pre><p>即await(), signal(), signalAll和Condition与Lock一起使用。</p>
+<p>这三个方法提供一种非常低级的方式来实现线程之间的协作(当然还有更高级的方式，这里的低级和高级指的是抽象层面)</p>
+<p>使用这三个方法时，有一个非常重要的一点，就是必须把它们放到synchronized方法或synchronized控制块中。这是为什么呢？</p>
+<p>首先从抽象意义上来理解，系统是如何实现任务之间的先后执行顺序的。假如B就在A完成后才能执行。也就是说，B来检查某一条件是否满足，如果不满足就等待，如果满足就执行。而A就是改变该条件，使其从不满足到满足。所以写成程序可以是这样的。</p>
+<p>B：</p>
+<pre><code>while(condition Is not met)
+    wait()
+</code></pre><p>A：</p>
+<pre><code>change condition
+notify()
+</code></pre><p>好，此时，并没有把代码放到synchronized语句中，那么会有什么问呢？</p>
+<p>假如B执行完while(condition Is not met)后，切换到了A，然后A执行了以上两条语句，之后再切换回B，此时B执行wait()，可是A永远不会再唤醒B了。</p>
+<p>这里，A,B会对condition产生竞争，而为了避免竞争，就需要使用synchronized。</p>
+<p><s>具体到实际代码中，condition往往是一个对象的某个标志，如汽车是否上蜡了，餐桌是否是空等等。所以synchronized(obj)中的obj，往往就是该condition所处的对象本身。但这也不绝对，使用synchronized的目的只是为了使其互斥的访问condition，所以，完全可以使用一个显示的lock来达到此一目的。</s></p>
+<p>另外，将wait()和notify()放到synchronized语句中(或显示的Lock)也解释了，线程是在锁上排队，并等待被唤醒。</p>
+<p>另外，条件也可以抽象出来去显示的声明一个Condition，让线程的等待与唤醒都在该Condition上，具体的例子见(TIJ4使用显示的Lock和Condition对象,p711)，我觉得，使用显示的Condition与Lock会使代码的逻辑更加清晰。</p>
+<h4 id="2-更高级别的抽象"><a href="#2-更高级别的抽象" class="headerlink" title="2. 更高级别的抽象"></a>2. 更高级别的抽象</h4><p>wait()和notifyAll()以一种非常低级的方式解决线程协作问题，使用此方式，必须显示的去处理同步等问题，而java提供了另两种高级工具来实现线程协作，通过这两种工具，可以不显示的处理同步，从而使代码更清晰和简洁。</p>
+<ol>
+<li><p>BlockingQueue：这是一个接口，该队列自带阻塞功能，可方便的处理生产者-消费者问题，有如下几个实现</p>
+<ul>
+<li>LinkedBlockQueue：这是一种容量无限制的队列</li>
+<li>ArrayBlockingQueue：这是一种容量有限制的队列</li>
+<li>SynchronousQueue：这是一种容量为1的队列</li>
+</ul>
+</li>
+<li><p>仿照I/O的任务间I/O，即管道，管道也自带阻塞功能，当从管道取东西，而管道无东西时，则阻塞任务。</p>
+</li>
+</ol>
+<h3 id="新类库中的构件-更方便的执行线程同步任务"><a href="#新类库中的构件-更方便的执行线程同步任务" class="headerlink" title="新类库中的构件-更方便的执行线程同步任务"></a>新类库中的构件-更方便的执行线程同步任务</h3><h4 id="1-CountDownLatch"><a href="#1-CountDownLatch" class="headerlink" title="1 CountDownLatch"></a>1 CountDownLatch</h4><p>使用场景<br>: 它被用来同步一个或多个任务，强制它们等待由其他任务执行的操作完成。其典型用法是将一个程序分为n个互相独立的可解决任务，并创建值为n的CountDownLatch。(注意，使用的前提是n个任务互相独立)</p>
+<p>用法<br>: 每一个CountDownLatch都需要使用一个计数值来初始化，如果该计数值为n，则表示有n个任务要执行。每一个执行的任务都持有一个CountDownLatch，当任务执行完后，调用该对象的countDown()方法，此时，计数值减1，直到减到0为至。</p>
+<p>  同时，还有另一个任务也持有CountDownLatch对象，并调用该对象的await()方法，如果CountDownLatch的计数值不为0，则阻塞该任务，如果为0，就唤醒。</p>
+<p>实际例子<br>: 如一个公园有多个入口，这个公园需要统计进入公园的总人数，那么，每一个入口就是一个任务，另有一个任务用来将各入口人数进行总和。</p>
+<h4 id="2-CyclicBarrier"><a href="#2-CyclicBarrier" class="headerlink" title="2 CyclicBarrier"></a>2 CyclicBarrier</h4><p>使用场景<br>: 想象着有多个任务在执行，前面有一个Barrier，有的任务先到，有的后到，到达Barrier之后就停下来，等所有任务都到达之后，可以执行一个Barrier操作(该操作是可选的，生成CyclicBarrier时，传入一个Runnable对象)，之后Barrier开启，多个任务被唤醒，继承执行直到下一Barrier，如此反复。</p>
+<p>  与CountDownLatch的区别，CountDownLatch就像是CyclicBarrier的一次性版本。</p>
+<p>用法<br>: 要执行的任务都持有一个CyclicBarrier对象，然后调用await()在barrier等待，当最后一个任务调用await()后，会执行Barrier操作(可选)，然后Barrier打开，如此反复。注意与CountDownLatch的不同是，没有countDown()函数。</p>
+<p>实例<br>: TIJ4中的赛马例子。</p>
+<h4 id="3-DelayQueue"><a href="#3-DelayQueue" class="headerlink" title="3 DelayQueue"></a>3 DelayQueue</h4><p>使用场景<br>: 这是一个无界的BlockingQueue，并且是有序的，其顺序为：排在队头的元素的延迟到期时间最长，只有延迟到期了，才能从队列中取走(这句话的意思是，比如有n个元素，都在未来的某个时间点到期，有的时间点近，有的时间点远，那么时间点最近的那个排在队头，当时间到达该时间点时，说明到期了，这时该元素才能被取走，如果没到期而试图去取元素，则阻塞)</p>
+<p>  另：关于这里的延迟到期实际上是人为定义的，getDelay()和compareTo()最终定义了具体行为。</p>
+<p>用法<br>: DelayQueue中的元素需要实现Delayed接口，该接口需要实现两个方法</p>
+<ol>
+<li>getDelay()用来判断一个元素到没到期，每次从队头取元素时，都要使用该方法来判断是否到期了。</li>
+<li>compareTo()，因为DelayQueue是排序的，所以要比较元素之间的大小，所以需要实现这个方法。DelayQueue中的元素顺序由此方法唯一确实，小的在队前，大的在队后</li>
+</ol>
+<p>实例<br>： 用来执行定期任务</p>
+<h4 id="4-PriorityBlockingQueue"><a href="#4-PriorityBlockingQueue" class="headerlink" title="4 PriorityBlockingQueue"></a>4 PriorityBlockingQueue</h4><p>就是带优先级的BlockingQueue</p>
+<h4 id="5-ScheduledExecutor"><a href="#5-ScheduledExecutor" class="headerlink" title="5 ScheduledExecutor"></a>5 ScheduledExecutor</h4><p>用来执行计划任务，schedule()用来执行一次行计划，scheduleAtFixedRate()用来执行重复任务。</p>
+<h4 id="6-Semaphore"><a href="#6-Semaphore" class="headerlink" title="6 Semaphore"></a>6 Semaphore</h4><p>正常的锁一次只允许一个任务访问一项资源，而计数信号量允许n个任务同时访问这个资源。可以将信号量看作是向外分发使用资源的”许可证”。</p>
+<p>一个实例为 利用信号量来实现 <strong>对象池</strong>， 见TIJ，p733</p>
+<h4 id="7-Exchanger"><a href="#7-Exchanger" class="headerlink" title="7 Exchanger"></a>7 Exchanger</h4><p>Exchanger是用来在两个任务间交换对象的栅栏，设想有两个任务，各持有一个对象，当其中某一个任务到达栅栏处而另一个没到达，就阻塞(实际就是调用了Exchanger对象的exchange()方法，如果另一个还没调用，就阻塞)。当另一个到过时，就交换所持有的对象(依然是调用exchange()方法，形式类似：<code>holder = exchanger.exchange(holder)</code> 两个任务都调用该方法，当只有一个任务调用时，会阻塞，都调用时会交换对象，该方法的返回值为另一个任务所持有的对象。)</p>
+<p>这东西有点类似双向的SynchronousQueue，A任务把对象放入队列，B来取，B把对象放入队列，A来取，从而实现交换的目的。</p>
+<p>可以做到一个任务在创建对象的同时，另一个任务在消费对象。</p>
+<h3 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h3><p>测试表明，通常Lock会比synchronized高效很多，但为什么还要使用synchronized呢？这是由于</p>
+<ol>
+<li>有时进入和互斥的开销远小于其它地方的开销，所以在这方面的优化并不明显</li>
+<li>易读性：使用Lock的话，代码中会充斥着try finally语句，而synchronized的代码则简单，高效许多。</li>
+</ol>
+<p><s>另外，Atomic对象只有在非常简单的情况下才有用，这些情况通常是只有一个要被修改的Atomic对象，并且这个对象独立于其他所有的对象。所以通常并不使用Atomic来保证互斥。</s></p>
+<h4 id="CopyOnWrite容器"><a href="#CopyOnWrite容器" class="headerlink" title="CopyOnWrite容器"></a>CopyOnWrite容器</h4><p>CopyOnWrite容器通用的策略是：对容器的修改可以与读操作同时进行，修改是发生在容器的一个复本上，在修改过程中，读者是看不到修改的结果的，只有当修改完成后，其结果与原始的容器进行交换，读者才能看到其修改的内容。</p>
+<p>由以上可知，读者并不能马上看到修改的结果，即不能保证数据的实时一致性，而Blocking容器就可以(读者在能读取之前，必须等待写者写完毕)，那么有如下问题</p>
+<ol>
+<li><p>CopyOnWrite容器能完全替代Blocking容器吗？</p>
+<p>这个得看情况， 在不需要实时一致性的情况下， 就没问题</p>
+</li>
+</ol>
+<h4 id="乐观加锁"><a href="#乐观加锁" class="headerlink" title="乐观加锁"></a>乐观加锁</h4><p>当一个任务修改一个对象时，对该对象并不上锁，而是”乐观”的认为没有其它任务同时修改它，利用compareAndSet(oldvalue, newvalue)检查对象的旧值是否与对象的当前值一样，如果一样，说明并没有其它任务修改它，所以可以更新该对象，如果不一样，就不能更新，否则会造成对象状态的不一致。</p>
+<p>如果compareAndSet失败怎么办？</p>
+<ol>
+<li>可以执行某些恢复操作</li>
+<li>可以进行第二次尝试去修改操作</li>
+<li>可以忽略失败。</li>
+</ol>
+<p>以上选择要根据你的具体问题。</p>
+<h3 id="活动对象-另一种并发编程模型"><a href="#活动对象-另一种并发编程模型" class="headerlink" title="活动对象-另一种并发编程模型"></a>活动对象-另一种并发编程模型</h3><p>使用多线程模型时，会发现为了保证程序的正确性，每个细节都很重要。所以处理起来很复杂，那么为了编写并行程序，有没有其它的模型呢？</p>
+<p>有，活动对象就是这样一种模型。这种对象维护着它自己的工作线程和消息对列，并且所有对这种对象的请求都将进入队列排队，任何时刻都只能运行其中一个。</p>
+<p>利用活动对象如何编写并行程序呢？有没有好的实践呢？</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/16/dive-into-yii---request_flow/" rel="next" title="深入学习Yii笔记 - Request处理流程">
+                <i class="fa fa-chevron-left"></i> 深入学习Yii笔记 - Request处理流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/29/qa/" rel="prev" title="Q&A">
+                Q&A <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第1章-对象导论"><span class="nav-text">第1章 对象导论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第5章-初始化与清理"><span class="nav-text">第5章 初始化与清理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、finalize-的使用"><span class="nav-text">一、finalize()的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-关于垃圾回收的一些常识"><span class="nav-text">1. 关于垃圾回收的一些常识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-finalize的调用时机"><span class="nav-text">2. finalize的调用时机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-普通的清理工作应该在哪里执行？"><span class="nav-text">3. 普通的清理工作应该在哪里执行？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-finalize的使用情况"><span class="nav-text">4. finalize的使用情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-总结"><span class="nav-text">5. 总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、对象创造过程及初始化（注意和类的初始化做区别）"><span class="nav-text">二、对象创造过程及初始化（注意和类的初始化做区别）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、枚举Enum"><span class="nav-text">三、枚举Enum</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第6章-访问权限控制"><span class="nav-text">第6章 访问权限控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#如何找到一个类-import-如何定位到类，-这是classloader的工作"><span class="nav-text">如何找到一个类(import 如何定位到类， 这是classloader的工作)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用Import模拟C的调试开关-这种方式不好，-因为要维护两份代码，-更好的方式是使用AOP"><span class="nav-text">利用Import模拟C的调试开关(这种方式不好， 因为要维护两份代码， 更好的方式是使用AOP)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问权限控制大小"><span class="nav-text">访问权限控制大小</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第7章-复用类"><span class="nav-text">第7章 复用类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#包访问权限类中的public方法"><span class="nav-text">包访问权限类中的public方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理"><span class="nav-text">代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#override与overload（结合方法的分派来看）"><span class="nav-text">override与overload（结合方法的分派来看）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#final关键字"><span class="nav-text">final关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、final数据"><span class="nav-text">一、final数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、final方法"><span class="nav-text">二、final方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、final类"><span class="nav-text">三、final类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第8章-多态"><span class="nav-text">第8章 多态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#再谈初始化"><span class="nav-text">再谈初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协变返回类型（协变可以看成协同变化）"><span class="nav-text">协变返回类型（协变可以看成协同变化）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#is-a-与-is-like-a"><span class="nav-text">is-a 与 is-like-a</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第9章-接口"><span class="nav-text">第9章 接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类和抽象方法"><span class="nav-text">抽象类和抽象方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口"><span class="nav-text">接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第10章-内部类"><span class="nav-text">第10章 内部类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要使用内部类-一个例子，-为一个类提供多种遍历方式"><span class="nav-text">为什么要使用内部类(一个例子， 为一个类提供多种遍历方式)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类的细节-暂时记住这些细节，目前想不清楚为什么是这样的规定"><span class="nav-text">内部类的细节(暂时记住这些细节，目前想不清楚为什么是这样的规定)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名内部类"><span class="nav-text">匿名内部类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套类"><span class="nav-text">嵌套类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第11章-持有对象"><span class="nav-text">第11章 持有对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Collection-vs-Iterator"><span class="nav-text">Collection vs Iterator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#foreach-与-Iterable接口"><span class="nav-text">foreach 与 Iterable接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Arrays-asList"><span class="nav-text">Arrays.asList()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第12章-异常"><span class="nav-text">第12章 异常</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异常处理的两种方式——终止和恢复"><span class="nav-text">异常处理的两种方式——终止和恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常说明"><span class="nav-text">异常说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两类异常"><span class="nav-text">两类异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于以上两类异常的使用方式"><span class="nav-text">关于以上两类异常的使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用finally的时机"><span class="nav-text">使用finally的时机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常的限制"><span class="nav-text">异常的限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常与构造器"><span class="nav-text">异常与构造器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于Java中”被检查的异常”思考"><span class="nav-text">关于Java中”被检查的异常”思考</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第13章String"><span class="nav-text">第13章String</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#不可变String"><span class="nav-text">不可变String</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StringBuilder与StringBuffer"><span class="nav-text">StringBuilder与StringBuffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String-intern"><span class="nav-text">String.intern()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无意识的递归-，打印对象地址"><span class="nav-text">无意识的递归 ，打印对象地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#格式化输出"><span class="nav-text">格式化输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式的使用方式"><span class="nav-text">正则表达式的使用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#简单的情况-使用String类的方法"><span class="nav-text">简单的情况:使用String类的方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一般的情况-使用Pattern与Matcher"><span class="nav-text">一般的情况:使用Pattern与Matcher</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scanner-扫描输入"><span class="nav-text">Scanner 扫描输入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第14章-类型信息"><span class="nav-text">第14章 类型信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Class类和Class对象"><span class="nav-text">Class类和Class对象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何生成Class类对象呢？"><span class="nav-text">如何生成Class类对象呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Class类对象的意义"><span class="nav-text">Class类对象的意义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Class类的一些常用方法"><span class="nav-text">Class类的一些常用方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RTTI-和-反射的区别-这里的解释比较模糊"><span class="nav-text">RTTI 和 反射的区别(这里的解释比较模糊)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第18章-Java-I-O系统"><span class="nav-text">第18章 Java I/O系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#流和装饰器"><span class="nav-text">流和装饰器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java的流体系"><span class="nav-text">Java的流体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字节流体系"><span class="nav-text">字节流体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符流体系"><span class="nav-text">字符流体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将字节流与字符流相结合"><span class="nav-text">将字节流与字符流相结合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#当使用I-O系统时，主要考虑这两个问题"><span class="nav-text">当使用I/O系统时，主要考虑这两个问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java-nio-新I-O"><span class="nav-text">java.nio 新I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#序列化"><span class="nav-text">序列化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Preferences"><span class="nav-text">Preferences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第20章-注解"><span class="nav-text">第20章 注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注解的作用"><span class="nav-text">注解的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用注解"><span class="nav-text">如何使用注解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第19章-枚举"><span class="nav-text">第19章 枚举</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#关于枚举需要注意的几点"><span class="nav-text">关于枚举需要注意的几点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#枚举的几种用途"><span class="nav-text">枚举的几种用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第21章-并发"><span class="nav-text">第21章 并发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用并发的目的"><span class="nav-text">使用并发的目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程状态转换图"><span class="nav-text">线程状态转换图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程操作中常用的几个函数sleep-yield-wait-notify-join"><span class="nav-text">线程操作中常用的几个函数sleep, yield, wait, notify, join</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-sleep-yield-join"><span class="nav-text">1. sleep,yield,join</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-wait-notify"><span class="nav-text">2. wait,notify</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共享受限资源"><span class="nav-text">共享受限资源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#可使用的方案"><span class="nav-text">可使用的方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性，可见性，Volatility（参考JMM来理解）"><span class="nav-text">原子性，可见性，Volatility（参考JMM来理解）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#临界区-Critical-Section"><span class="nav-text">临界区(Critical Section)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中断"><span class="nav-text">中断</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何处理InterruptException"><span class="nav-text">如何处理InterruptException</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程之间的协作"><span class="nav-text">线程之间的协作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-低级别的抽象-隐式的notify-wait-notifyAll"><span class="nav-text">1. 低级别的抽象, 隐式的notify, wait, notifyAll</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-更高级别的抽象"><span class="nav-text">2. 更高级别的抽象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新类库中的构件-更方便的执行线程同步任务"><span class="nav-text">新类库中的构件-更方便的执行线程同步任务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-CountDownLatch"><span class="nav-text">1 CountDownLatch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-CyclicBarrier"><span class="nav-text">2 CyclicBarrier</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-DelayQueue"><span class="nav-text">3 DelayQueue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-PriorityBlockingQueue"><span class="nav-text">4 PriorityBlockingQueue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-ScheduledExecutor"><span class="nav-text">5 ScheduledExecutor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-Semaphore"><span class="nav-text">6 Semaphore</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-Exchanger"><span class="nav-text">7 Exchanger</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能调优"><span class="nav-text">性能调优</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CopyOnWrite容器"><span class="nav-text">CopyOnWrite容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#乐观加锁"><span class="nav-text">乐观加锁</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#活动对象-另一种并发编程模型"><span class="nav-text">活动对象-另一种并发编程模型</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

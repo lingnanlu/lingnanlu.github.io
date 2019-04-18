@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文目的有二  讲解以上各个概念的含义 各个概念之间的关系与区别  一 框架框架是什么？ 网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）  框架是解决一类问题的一种抽象， 可用来解决特殊性问题。   以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。 一个简单的例子假如说， 我们现在想解决这样一个问题  假如有一个文件保存着一个电影">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)">
+<meta property="og:url" content="http://asanelder.me/2016/08/07/framework-dip-ioc-di/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="本文目的有二  讲解以上各个概念的含义 各个概念之间的关系与区别  一 框架框架是什么？ 网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）  框架是解决一类问题的一种抽象， 可用来解决特殊性问题。   以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。 一个简单的例子假如说， 我们现在想解决这样一个问题  假如有一个文件保存着一个电影">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T12:09:51.053Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)">
+<meta name="twitter:description" content="本文目的有二  讲解以上各个概念的含义 各个概念之间的关系与区别  一 框架框架是什么？ 网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）  框架是解决一类问题的一种抽象， 可用来解决特殊性问题。   以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。 一个简单的例子假如说， 我们现在想解决这样一个问题  假如有一个文件保存着一个电影">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/08/07/framework-dip-ioc-di/">
+
+
+
+
+
+  <title>理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入) | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/framework-dip-ioc-di/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-07T00:00:00+08:00">
+                2016-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文目的有二</p>
+<ol>
+<li>讲解以上各个概念的含义</li>
+<li>各个概念之间的关系与区别</li>
+</ol>
+<h3 id="一-框架"><a href="#一-框架" class="headerlink" title="一 框架"></a>一 框架</h3><p>框架是什么？</p>
+<p>网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。 </p>
+</blockquote>
+<p>以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。</p>
+<h4 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h4><p>假如说， 我们现在想解决这样一个问题</p>
+<blockquote>
+<p>假如有一个文件保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        FileBasedMovieFinder finder = <span class="keyword">new</span> FileBasedMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileBasedMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 我们有一个新的问题</p>
+<blockquote>
+<p>假如数据库保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        DatabaseMovieFinder finder = <span class="keyword">new</span> DatabaseMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 又有新的需求了</p>
+<blockquote>
+<p>假如从网络得到一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码不写了， 应该和前面是类似的。</p>
+<p>于是， 每有一个新的需求， 那么， 除了添加新的Finder外(这是不可避免的)， 还要去修改MovieListPrinter。</p>
+<p>有人说， 虽然修改MovieListPrinter， 但每次只修改了一行， 大部分的代码还是可以重用的， 其实不然</p>
+<ol>
+<li>本例很简单， 所以只修改了一行</li>
+<li>重用的概念是针对某一程序中的实体来说，最小实体可用是一个函数， 大一点是一个类， 再大一点是一个包， 而且重用要求不对实体进行修改，而上面的重用只是重用了几行代码， 这和从其它地方复制粘贴几行代码有什么区别， 难道复制粘贴也叫重用？</li>
+</ol>
+<p>所以说， 当问题变化时， 我们的代码就相当于推到重来。之前的代码一点也不能重用。</p>
+<p>如果仔细考虑一下以上三个问题， 可以发现他们是一组类似的问题， 抽象一下可以得到如下表述</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>如果我们对照着这个更一般的问题来写代码， 就是这样子的了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    MovieFinder finder;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MovieListPrinter</span><span class="params">(MovieFinder finder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.finder = finder;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> <span class="keyword">implements</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到， MovieListPrinter中没有再和具体finder相关的代码了， 所以说MovieListPrinter就是可以重用的, 只要我们针对不同的具体问题传入不同的MovieFinder即可， 而MovieListPrinter本身则一点也不需要修改， 所以可以是重用的。</p>
+<p>现在， MovieListPrinter就可以称为了一最最简单的框架了， 它解决的是如下问题</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>再对比开始的定义， 应该明白了不少吧。</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。</p>
+</blockquote>
+<h3 id="二-DIP-依赖倒置"><a href="#二-DIP-依赖倒置" class="headerlink" title="二 DIP(依赖倒置)"></a>二 DIP(依赖倒置)</h3><p>依赖倒置是软件设计模式的一种原则， 它是什么含义呢？</p>
+<p>其解释出现在《敏捷软件开发》的第11章</p>
+<ol>
+<li>高层模块不应该依赖于低层模块， 二者都应该依赖于抽象</li>
+<li>抽象不应该依赖于细节，细节应该依赖于抽象。</li>
+</ol>
+<p>这里提到的<strong>高层模块</strong>， <strong>低层模块</strong>， <strong>抽象</strong>， <strong>细节</strong>到底指的是什么呢， <strong>依赖倒置</strong>又是什么含义呢？</p>
+<p>书中的一句话指明了回答以上问题的线索</p>
+<blockquote>
+<p>该原则是框架设计的核心原则</p>
+</blockquote>
+<p>而之前已经介绍了框架， 并设计了一个简单的框架， 也就是说， 在设计的过程中， 已经不知不觉的应用了该原则。 那么结束以上我们的设计过程， 就可以解释以上几个概念的含义了。</p>
+<p><strong>高层模块</strong>：对应的是MovieListPrinter, 它表示的是解决问题的一般思路, 它表示的是策略</p>
+<p><strong>低层模块</strong>：对应的是每一种MovieFinder， 其只能解决某一具体问题</p>
+<p>从各种MovieFinder中抽象出来的MovieFinder接口就是<strong>抽象</strong>， 而具体的MovieFinder就是<strong>细节</strong></p>
+<p>在设计框架之前</p>
+<blockquote>
+<p>MovieListPrinter（高层模块）依赖于各种MovieFinder(低层模块)， </p>
+</blockquote>
+<p>使用了框架后</p>
+<blockquote>
+<p>MovieListPrinter(高层模块)依赖于MovieFinder接口（抽象）， 同时， MovieFinder实现(细节）也依赖于MovieFinder接口（抽象）（这不就是开头的两句话吗）</p>
+</blockquote>
+<p>对比框架使用前后， 依赖关系发生了倒置（更形象的可以参考《敏捷软件开发》的第11章)</p>
+<p>所以不知不觉的， 在我们设计MovieListPrinter框架中就使用了DIP原则。</p>
+<p><em>注：高层模块和低层模块并不是绝对的， 在一个复杂的系统中可以有好多层， 某一层对上来说是低层模块， 对下来说又可以是高层模块</em></p>
+<h3 id="三-IoC和DI"><a href="#三-IoC和DI" class="headerlink" title="三 IoC和DI"></a>三 IoC和DI</h3><p>在谈这两个概念之前， 先回到开始的MovieListPrinter框架。</p>
+<p>假如应用程序中要使用这个框架，那么我们需要在其构造函数中传入一个具体的MovieFinder. 如我们的程序要从文件中读入电影列表，那么传入一个FileBasedMovieFinder即可。</p>
+<p>现在需求改了， 要从网络去读了， 那么需要修改应用程序。</p>
+<p>如果修改一个地方还好， 假如要有多个地方需要修改呢？ 假如这多个地方分布在几百的文件中呢？</p>
+<p>还有一种情况，现在我们的框架很小， 复杂的框架可能有复杂的依赖关系， 如A-&gt;B-&gt;C-&gt;…..-&gt;G</p>
+<p>可以， 如果我们要在应用程序中去人工的去处理这种依赖， 则很麻烦， 容易出错。</p>
+<p>如果有以下这样一种方法就好了。</p>
+<blockquote>
+<p>不是通过编程来注入某些依赖， 而是通知声明式来注入。 框架使用者只需要声明一个A需要B,那么就自动的为A注入一个B</p>
+</blockquote>
+<p>而以上这种机制实际上是有的。</p>
+<p>以下举两个例子（其实现来自于本人猜测， 不保证正确）</p>
+<ol>
+<li>Spring：在XML中声明依赖关系， 通过分析XML文件构建图来表示依赖关系，由Spring来负责提供一个类所需要的依赖。</li>
+<li>Dagger: Android的依赖注入库， 利用注解来声明依赖关系， 同样是需要构建某种图</li>
+</ol>
+<p>现在可以说一下这两个概念了。</p>
+<p><strong>IoC</strong>：是将由应用程序负责定位某种依赖转移到由某种外部机制来定位某种依赖（为什么叫反转呢？我也不知道）</p>
+<p><strong>DI</strong>: 上面说了由某种外部机制来定位， DI就是一种外部机制， 具体的例子见Spring和Dagger. 还有一种方式叫到<strong>Service Locator</strong>这是另一种定位某种依赖的机制</p>
+<h3 id="四-Spring"><a href="#四-Spring" class="headerlink" title="四 Spring"></a>四 Spring</h3><p>Spring的功能之一就是实现DI， 从这个意义来说， 其并不能算是一种框架， 当然如果把解决DI问题看作一般问题的话， 也可以称其为DI框架。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/21/how-to-improve-system-tps/" rel="next" title="如何提升一个系统的吞吐率">
+                <i class="fa fa-chevron-left"></i> 如何提升一个系统的吞吐率
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/07/java-container-summary/" rel="prev" title="Java容器总结">
+                Java容器总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一-框架"><span class="nav-text">一 框架</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一个简单的例子"><span class="nav-text">一个简单的例子</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二-DIP-依赖倒置"><span class="nav-text">二 DIP(依赖倒置)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三-IoC和DI"><span class="nav-text">三 IoC和DI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四-Spring"><span class="nav-text">四 Spring</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

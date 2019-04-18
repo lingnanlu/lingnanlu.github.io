@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="以下是一步一步写出完善的单例过程 1. 最简单的情况public final class Foo {      private Foo instance = null;      private Foo() {}      public static Foo getInstance() {          if (instance == null) {             instance">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Singleton从简单到完善">
+<meta property="og:url" content="http://asanelder.me/2016/03/04/singleton/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="以下是一步一步写出完善的单例过程 1. 最简单的情况public final class Foo {      private Foo instance = null;      private Foo() {}      public static Foo getInstance() {          if (instance == null) {             instance">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.019Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Singleton从简单到完善">
+<meta name="twitter:description" content="以下是一步一步写出完善的单例过程 1. 最简单的情况public final class Foo {      private Foo instance = null;      private Foo() {}      public static Foo getInstance() {          if (instance == null) {             instance">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/03/04/singleton/">
+
+
+
+
+
+  <title>Singleton从简单到完善 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/04/singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Singleton从简单到完善</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-04T00:00:00+08:00">
+                2016-03-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>以下是一步一步写出完善的单例过程</p>
+<h3 id="1-最简单的情况"><a href="#1-最简单的情况" class="headerlink" title="1. 最简单的情况"></a>1. 最简单的情况</h3><pre><code>public final class Foo {
+
+    private Foo instance = null;
+
+    private Foo() {}
+
+    public static Foo getInstance() {
+
+        if (instance == null) {
+            instance = new Foo();
+        }
+        return instance;
+    }
+}
+</code></pre><p><strong>存在的问题</strong></p>
+<ol>
+<li>非线程安全</li>
+<li><p>可以利用反射机制得到多个实例, 如下代码</p>
+<pre><code>Foo first = Foo.getInstance();
+
+Class c = Class.forName(&quot;Foo&quot;);
+Constructor c = c.getDeclaredConstructor();
+c.setAccessible(true);
+Foo second = c.newInstance();
+
+System.out.println(first);
+System.out.println(second);
+</code></pre></li>
+</ol>
+<h3 id="2-加上线程安全与阻止反射调用私有的构造函数"><a href="#2-加上线程安全与阻止反射调用私有的构造函数" class="headerlink" title="2. 加上线程安全与阻止反射调用私有的构造函数"></a>2. 加上线程安全与阻止反射调用私有的构造函数</h3><pre><code>public final class Foo {
+
+    private Foo instance = null;
+
+    private Foo() {
+        if (instance != null) {
+            throw new IllegalStateException(&quot;Already instantiated&quot;);
+        }
+    }
+
+    public static Foo getInstance() {
+        synchronized(Foo.class) {
+            if (instance == null) {
+                instance = new Foo();
+            }
+        }
+        return instance;
+    }
+}
+</code></pre><p><strong>存在的问题</strong></p>
+<p>不管instance是不是Null,每次调用getInstance()都需要加锁,会带来性能问题,如果instance不为null,可以不加锁,直接返回.修改如下</p>
+<pre><code>public static Foo getInstance() {
+
+       if (instance == null){
+           synchronized(Foo.class) {
+               if (instance == null) {
+                   instance = new Foo();
+               }
+        }
+       }
+    return instance;
+}
+</code></pre><h3 id="3-一种更简洁的写法-无锁写法"><a href="#3-一种更简洁的写法-无锁写法" class="headerlink" title="3. 一种更简洁的写法(无锁写法)"></a>3. 一种更简洁的写法(无锁写法)</h3><p>上面的写法有些繁琐,一种更简洁的写法如下</p>
+<pre><code>public final class Foo {
+
+    private static final Foo instance = new Foo();
+
+    private Foo() {
+        if (instance != null) {
+            throw new IllegalStateException(&quot;Already instantiated&quot;);
+        }
+    }
+
+    public static Foo getInstance() {
+        return instance;
+    }
+}v
+</code></pre><p>当getInstance()第一次被调用时,会导致类的初始化,从而</p>
+<pre><code>private static final Foo instance = new Foo();
+</code></pre><p>会被执行,生成Foo的一个实例,而且,多个线程去调用getInstance()时,类的初始化函数\&lt;clinit>()只会被调用一次,所以只有一个实例.</p>
+<h3 id="4-使用lazy-initialization"><a href="#4-使用lazy-initialization" class="headerlink" title="4. 使用lazy initialization"></a>4. 使用lazy initialization</h3><p>每三种写法中,因为类初始化时,会生成Foo的实例,如果在Foo中还有其它static成员,在引用其它static成员时,依然会执行类的初始化,生成Foo的实例,即使我们此时不需要使用该类的实例.可以使用如下方法,当在真正需要使用类的实例时,才生成类的实例</p>
+<pre><code>public final class Foo {
+
+    private static class FooLoader {
+        private static final Foo instance = new Foo();
+    }
+
+    private Foo() {
+        if (instance != null) {
+            throw new IllegalStateException(&quot;Already instantiated&quot;);
+        }
+    }
+
+    public static Foo getInstance() {
+        return FooLoader.instance;
+    }
+}
+</code></pre><h3 id="5-考虑序列化"><a href="#5-考虑序列化" class="headerlink" title="5. 考虑序列化"></a>5. 考虑序列化</h3><p>类的实例不一定只能从构造函数中生成,还可能通过序列化的方式生成,以下是阻止通过序列化的方式生成类的实例</p>
+<pre><code>public final class Foo implements Serializable {
+
+    private static class FooLoader {
+        private static final Foo instance = new Foo();
+    }
+
+    private Foo() {
+        if (instance != null) {
+            throw new IllegalStateException(&quot;Already instantiated&quot;);
+        }
+    }
+
+    public static Foo getInstance() {
+        return FooLoader.instance;
+    }
+
+    private Foo readResolve() {
+        return FooLoader.instance;
+    }
+}
+</code></pre><h3 id="6-一种更简洁的做法"><a href="#6-一种更简洁的做法" class="headerlink" title="6. 一种更简洁的做法"></a>6. 一种更简洁的做法</h3><pre><code>public enum Foo {
+    INSTANCE;
+}
+</code></pre><h3 id="遗留问题"><a href="#遗留问题" class="headerlink" title="遗留问题"></a>遗留问题</h3><ol>
+<li>readResolve()是序列化中所起的作用</li>
+<li>为什么<em>Effective Java</em>中要求当一个单例可序列化时,要求其所有实例域都是transient的</li>
+<li>因为一个类是由class文件与类加载器唯一确定,以上只是对同一个类加载器来说,不同的类加载器对于同一个class文件都可以生成一个实例.</li>
+<li>为什么Enum是一种更简洁的做法?</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/03/java-key-concepts/" rel="next" title="java关键概念-JMM-类加载-并发">
+                <i class="fa fa-chevron-left"></i> java关键概念-JMM-类加载-并发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/10/right-use-of-java-generics-wildcards/" rel="prev" title="Java通配符的使用">
+                Java通配符的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-最简单的情况"><span class="nav-text">1. 最简单的情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-加上线程安全与阻止反射调用私有的构造函数"><span class="nav-text">2. 加上线程安全与阻止反射调用私有的构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-一种更简洁的写法-无锁写法"><span class="nav-text">3. 一种更简洁的写法(无锁写法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-使用lazy-initialization"><span class="nav-text">4. 使用lazy initialization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-考虑序列化"><span class="nav-text">5. 考虑序列化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-一种更简洁的做法"><span class="nav-text">6. 一种更简洁的做法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遗留问题"><span class="nav-text">遗留问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

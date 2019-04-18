@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="yii,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="学习数据库，需要回答的以下三个问题 如何做到与具体所使用的数据库无关 事件在数据库中的应用 其它的基本概念  抽象类型三个概念 类型映射：指的是类型之前的对应关系，如DBMS某一类型对应到某一抽象类型，再对应到某一PHP类型。 数据转换：如一个String类型的值转换为int类型。 PDO(PHP Data Object)：为PHP访问数据库定义了一个轻量级的一致接口。实现 PDO 接口的每个数据">
+<meta name="keywords" content="yii">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解Yii笔记 - 数据库">
+<meta property="og:url" content="http://asanelder.me/2015/07/16/dive-into-yii---database/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="学习数据库，需要回答的以下三个问题 如何做到与具体所使用的数据库无关 事件在数据库中的应用 其它的基本概念  抽象类型三个概念 类型映射：指的是类型之前的对应关系，如DBMS某一类型对应到某一抽象类型，再对应到某一PHP类型。 数据转换：如一个String类型的值转换为int类型。 PDO(PHP Data Object)：为PHP访问数据库定义了一个轻量级的一致接口。实现 PDO 接口的每个数据">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.031Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解Yii笔记 - 数据库">
+<meta name="twitter:description" content="学习数据库，需要回答的以下三个问题 如何做到与具体所使用的数据库无关 事件在数据库中的应用 其它的基本概念  抽象类型三个概念 类型映射：指的是类型之前的对应关系，如DBMS某一类型对应到某一抽象类型，再对应到某一PHP类型。 数据转换：如一个String类型的值转换为int类型。 PDO(PHP Data Object)：为PHP访问数据库定义了一个轻量级的一致接口。实现 PDO 接口的每个数据">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2015/07/16/dive-into-yii---database/">
+
+
+
+
+
+  <title>深入理解Yii笔记 - 数据库 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/16/dive-into-yii---database/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入理解Yii笔记 - 数据库</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-16T00:00:00+08:00">
+                2015-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="学习数据库，需要回答的以下三个问题"><a href="#学习数据库，需要回答的以下三个问题" class="headerlink" title="学习数据库，需要回答的以下三个问题"></a>学习数据库，需要回答的以下三个问题</h3><ol>
+<li>如何做到与具体所使用的数据库无关</li>
+<li>事件在数据库中的应用</li>
+<li>其它的基本概念</li>
+</ol>
+<h3 id="抽象类型"><a href="#抽象类型" class="headerlink" title="抽象类型"></a>抽象类型</h3><h4 id="三个概念"><a href="#三个概念" class="headerlink" title="三个概念"></a>三个概念</h4><ol>
+<li>类型映射：指的是类型之前的对应关系，如DBMS某一类型对应到某一抽象类型，再对应到某一PHP类型。</li>
+<li>数据转换：如一个String类型的值转换为int类型。</li>
+<li><p>PDO(PHP Data Object)：为PHP访问数据库定义了一个轻量级的一致接口。实现 PDO 接口的每个数据库驱动可以公开具体数据库的特性作为标准扩展功能。注意利用 PDO 扩展自身并不能实现任何数据库功能；必须使用一个具体数据库的 PDO 驱动来访问数据库服务。</p>
+<p>PDO 提供了一个数据访问 抽象层，这意味着，不管使用哪种数据库，都可以用相同的函数（方法）来查询和获取数据。 PDO 不不提供数据库抽象层；它不会重写 SQL，也不会模拟缺失的特性。如果需要的话，应该使用一个成熟的抽象层。</p>
+<p>从 PHP 5.1 开始附带了 PDO，在 PHP 5.0 中是作为一个 PECL 扩展使用。 PDO 需要PHP 5 核心的新 OO 特性，因此不能在较早版本的 PHP 上运行。</p>
+</li>
+</ol>
+<h4 id="操纵数据库为什么要利用抽象类型而不是直接使用pdo"><a href="#操纵数据库为什么要利用抽象类型而不是直接使用pdo" class="headerlink" title="操纵数据库为什么要利用抽象类型而不是直接使用pdo"></a>操纵数据库为什么要利用抽象类型而不是直接使用pdo</h4><p>因为pdo还是更底层，它没有重写SQL，使用它操纵数据库依然不方便，所以要在其之上再构建一层。</p>
+<h4 id="类型映射涉及到的类与方法"><a href="#类型映射涉及到的类与方法" class="headerlink" title="类型映射涉及到的类与方法"></a>类型映射涉及到的类与方法</h4><ol>
+<li>yii\db\Schema: 定义抽象类型</li>
+<li><p>yii\db\QueryBuilder及其子类: 定义了抽象类型到具体DBMS类型的映射，如下函数</p>
+<p>getColumnType($type)：将抽象数据类型映射为对应的DBMS类型</p>
+</li>
+<li><p>yii\db\Schema及其子类：将具体的DBMS类型映射到抽象类型</p>
+<p>loadColumnSchema($info) 利用PDO读入的信息，将数据库的类型信息和其对应的抽象类型信息和该抽象类型信息所对应的PHP类型信息保存到一个ColumnSchema中。该ColumnSchema可用作数据类型转换。</p>
+<p>getColumnType($column)：获得抽象类型所对应的php数据类型，该函数在yii\db\Schema中，罽抽象类型与php数据类型的映射与具体DBMS无关</p>
+</li>
+</ol>
+<h4 id="将数据库table中的一条record读入php过程-数据转换"><a href="#将数据库table中的一条record读入php过程-数据转换" class="headerlink" title="将数据库table中的一条record读入php过程(数据转换)"></a>将数据库table中的一条record读入php过程(数据转换)</h4><ol>
+<li>loadTableSchema 将一个table的schema读入：这实际上是首先利用pdo的SHOW FULL COLUMNS FROM tablename来得到该Table每一个Column的Schema，再利用loadColumnSchema将每一个Columnr Schema信息保存到一个ColumnSchema对象中。</li>
+<li>再用pdo读入一条record，利用1中所得到的ColumnSchema::phpTypeCast($value)将对应用的字段转换为php类型。</li>
+<li>至此，数据库中的值就被读入php程序中，以供使用。</li>
+</ol>
+<h3 id="Yii-数据库架构-由低级抽象到高级抽象"><a href="#Yii-数据库架构-由低级抽象到高级抽象" class="headerlink" title="Yii 数据库架构(由低级抽象到高级抽象)"></a>Yii 数据库架构(由低级抽象到高级抽象)</h3><ol>
+<li><p>PDO(PHP Data Object)</p>
+<ul>
+<li>提供一个数据访问抽象层，即不管使用哪种数据库，都可以使用相同的函数来查询和获取数据</li>
+<li>它不提供数据库抽象层，不会重写SQL，所以使用PDO时，是依赖于特定数据库的。</li>
+<li>本身并不实现任何数据库功能，只是提供了一个接口，必须使用一个具体数据库的PDO驱动来访问数据库服务</li>
+</ul>
+</li>
+<li><p>Yii DAO(Data Access Object)</p>
+<ul>
+<li>Yii DAO为访问数据库提供了一种面向对象的API(说明PDO不是面向对象的)，它是query builder和active record的基础，使用DAO时，依然需要使用原始的SQL语句，这意味着，DAO依然依赖于具体的数据库。</li>
+<li>Connection类：代表与数据库的一个链接<br> Command类：代表要执行的SQL语句，该类有一个$_sql，代表将执行的SQL语句(实际上，生成SQL语句是使用的QueryBuilder，而不是直接手写，这样就可以实现不依赖于具体的数据库)</li>
+</ul>
+</li>
+<li><p>Query&amp;QueryBuilder</p>
+<ul>
+<li><p>通过这两者，可以使得程序员以一种更programmatic和不依赖于具体数据库的方式来操纵数据库，如下</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    $rows = (<span class="keyword">new</span> <span class="string">\yii\db\Query())</span></span><br><span class="line"><span class="function">-&gt;</span>select([<span class="string">'id'</span>, <span class="string">'email'</span>])</span><br><span class="line"><span class="function">-&gt;</span><span class="keyword">from</span>(<span class="string">'user'</span>)</span><br><span class="line"><span class="function">-&gt;</span>where([<span class="string">'last_name'</span> =&gt; <span class="string">'Smith'</span>])</span><br><span class="line"><span class="function">-&gt;</span>limit(<span class="number">10</span>)</span><br><span class="line"><span class="function">-&gt;</span>all();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>通常使用的是Query，而QueryBuilder是其背后的支撑类，QueryBuilder用来构建与具体数据库相关的Query语句，再将该语句传给Command来执行。</li>
+<li><p>Query独立于DBMS的具体实现</p>
+<ul>
+<li>Query利用Connection::getQueryBuilder()来得到与具体DBMS相关的QueryBuilder</li>
+<li>Connection::getQueryBuilder()利用Connection::getSchema()来得到该Connection所链接的DBMS的Schema(指该DBMS的类型信息等)</li>
+<li>Connection::getSchema()返回一个Schema对象，再利用Schema::getQueryBuilder()就可以得到一个和具体DBMS相关的QueryBuilder.</li>
+<li>这样，在Query看来，就和具体的DBMS无关了。</li>
+<li>Connection::getSchema()用到了Schema的各个子类。</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li><p>ActiveRecord</p>
+<ul>
+<li>ActiveRecord提供一种面向对象的接口来访问操作数据库，它更接近问题模型。一个ActiveRecord类对应一个Table，一个ActiveRecord实例对应一个该Table中的一个Record。</li>
+<li>ActiveRecord的背后支撑是QueryBuilder和Command</li>
+<li><p>理解ActiveRecord的关键是理解其事件在上面的应用。通过利用事件可以自动化处理一些事情，如将Record读入某个ActiveRecord实例后，对某些字段进行格式化。对于ActiveRecord的事件，注意以下三个方面</p>
+<ul>
+<li><p>事件与Handler绑定的地方</p>
+<ul>
+<li>可以在ActiveRecord的init()方法中绑定</li>
+<li>也可以利用Behavier绑定，因为ActiveRecord是Component的子类，所以支持Behavior，这样做的好处是可以在ActiveRecord类本身的情况下，为其增加所响应的事件。</li>
+</ul>
+</li>
+<li><p>定义Handler，即如何响应事件。</p>
+</li>
+<li>各个事件(包括自定义和系统定义的)触发时机。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/yii/" rel="tag"># yii</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/14/kramdown-syntax---key-conceptions/" rel="next" title="kramdown syntax - 关键概念">
+                <i class="fa fa-chevron-left"></i> kramdown syntax - 关键概念
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/16/dive-into-yii---request_flow/" rel="prev" title="深入学习Yii笔记 - Request处理流程">
+                深入学习Yii笔记 - Request处理流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#学习数据库，需要回答的以下三个问题"><span class="nav-text">学习数据库，需要回答的以下三个问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类型"><span class="nav-text">抽象类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#三个概念"><span class="nav-text">三个概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#操纵数据库为什么要利用抽象类型而不是直接使用pdo"><span class="nav-text">操纵数据库为什么要利用抽象类型而不是直接使用pdo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型映射涉及到的类与方法"><span class="nav-text">类型映射涉及到的类与方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将数据库table中的一条record读入php过程-数据转换"><span class="nav-text">将数据库table中的一条record读入php过程(数据转换)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Yii-数据库架构-由低级抽象到高级抽象"><span class="nav-text">Yii 数据库架构(由低级抽象到高级抽象)</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

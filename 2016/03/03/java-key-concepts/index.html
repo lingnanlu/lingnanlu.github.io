@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java虚拟机运行时数据区关键是熟悉该数据区分为哪几个区域以及各个区域所存放的内容. 按是否由线程共享可分为两大类 1.线程隔离数据区该类别中包含以下三个区域  程序计数器 Java虚拟机栈:每个方法执行时都会创建一个栈帧, 包括局部变量, 操作数栈, 动态链接, 方法出口. 其中最关键是局部变量, 其存放的是基本类型和引用类型. 本地方法栈:作用与虚拟机栈类似,只是其存放的是Native方法信息">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java关键概念-JMM-类加载-并发">
+<meta property="og:url" content="http://asanelder.me/2016/03/03/java-key-concepts/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="Java虚拟机运行时数据区关键是熟悉该数据区分为哪几个区域以及各个区域所存放的内容. 按是否由线程共享可分为两大类 1.线程隔离数据区该类别中包含以下三个区域  程序计数器 Java虚拟机栈:每个方法执行时都会创建一个栈帧, 包括局部变量, 操作数栈, 动态链接, 方法出口. 其中最关键是局部变量, 其存放的是基本类型和引用类型. 本地方法栈:作用与虚拟机栈类似,只是其存放的是Native方法信息">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/JMM.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java关键概念-JMM-类加载-并发">
+<meta name="twitter:description" content="Java虚拟机运行时数据区关键是熟悉该数据区分为哪几个区域以及各个区域所存放的内容. 按是否由线程共享可分为两大类 1.线程隔离数据区该类别中包含以下三个区域  程序计数器 Java虚拟机栈:每个方法执行时都会创建一个栈帧, 包括局部变量, 操作数栈, 动态链接, 方法出口. 其中最关键是局部变量, 其存放的是基本类型和引用类型. 本地方法栈:作用与虚拟机栈类似,只是其存放的是Native方法信息">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/JMM.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/03/03/java-key-concepts/">
+
+
+
+
+
+  <title>java关键概念-JMM-类加载-并发 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/03/java-key-concepts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java关键概念-JMM-类加载-并发</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-03T00:00:00+08:00">
+                2016-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Java虚拟机运行时数据区"><a href="#Java虚拟机运行时数据区" class="headerlink" title="Java虚拟机运行时数据区"></a>Java虚拟机运行时数据区</h2><p><strong>关键是熟悉该数据区分为哪几个区域以及各个区域所存放的内容.</strong></p>
+<p>按是否由线程共享可分为两大类</p>
+<h4 id="1-线程隔离数据区"><a href="#1-线程隔离数据区" class="headerlink" title="1.线程隔离数据区"></a>1.线程隔离数据区</h4><p>该类别中包含以下三个区域</p>
+<ol>
+<li><strong>程序计数器</strong></li>
+<li><strong>Java虚拟机栈</strong>:每个方法执行时都会创建一个栈帧, 包括<strong>局部变量</strong>, 操作数栈, 动态链接, 方法出口. 其中最关键是<strong>局部变量</strong>, 其存放的是<strong>基本类型</strong>和<strong>引用类型</strong>.</li>
+<li><strong>本地方法栈</strong>:作用与虚拟机栈类似,只是其存放的是Native方法信息.</li>
+</ol>
+<h4 id="2-线程共享数据区"><a href="#2-线程共享数据区" class="headerlink" title="2.线程共享数据区"></a>2.线程共享数据区</h4><ol>
+<li><p><strong>Java堆</strong>: 所有的<strong>对象实例</strong>及<strong>数组</strong>(基本类型数组也是在堆上,但单个的基本类型在栈上)都是在堆上分配的. 垃圾收集器管理的主要是这个区域.</p>
+<p><s>另外,在堆中可以划分出<strong>线程私有的分配缓冲区</strong>, 这应该与ThreadLocal(线程本地存储)有关</s>(这句话不正确， 暂时还不知道线程私有的分配缓冲区是什么， TODO)</p>
+</li>
+<li><p><strong>方法区</strong>: 包含以下</p>
+<ul>
+<li><strong>虚拟机加载的类信息</strong></li>
+<li><strong>常量(字面量)</strong></li>
+<li><strong>静态变量(static)</strong></li>
+<li>编译后的代码</li>
+</ul>
+<p>由上可知,所谓的类的加载就是把.class文件中的信息加载到方法区中. 注意静态变量指使用static修饰的变量,而常量并非指使用final修饰的<strong>变量</strong>,而是如下代码中的5和test字面量.</p>
+<pre><code>class A {
+    final int a = 5;
+    String b = &quot;test&quot;
+}
+</code></pre><p>而以上代码中的a并不是在方法区中,而是在堆中,因为对final修饰的变量,在不同实例中可能有不同的值,如以下代码</p>
+<pre><code>class A {
+    final int a;
+    A(int a) { this.a = a; }
+}
+</code></pre><p>所以只用final修饰的变量并不在方法区,而是在堆中.</p>
+<p>另外要注意的是,<strong>运行时常量池</strong>也是方法区的一部分,其包含的内定有两类,一类是<strong>字面量</strong>(及以上第一段代码所指的两种情况), 另一类是符号引用(不是指引用类型,这里指编译原理里面的概念). 而这两类信息是保存在.class文件中的常量池.</p>
+<p>而且,常量池中的常量并不一定是只有编译期才能产生,即并非预置在.class文件中常量池的内容才能进入运行时常量池,在程序运行期间也可以将新的常量放入池中,如String类的intern()方法.</p>
+<p><strong>因为字符串字面值保存在方法区中,如果程序运行过程中涉及长字符串或大量字符串拷贝,可能耗尽方法区</strong>.</p>
+</li>
+</ol>
+<h2 id="类加载与类的初始化"><a href="#类加载与类的初始化" class="headerlink" title="类加载与类的初始化"></a>类加载与类的初始化</h2><p>类加载的过程如下</p>
+<p><strong>加载</strong> –&gt; 验证 –&gt; 准备 –&gt; 解析 –&gt; <strong>初始化</strong></p>
+<p>java中类的加载,连接和初始化都是在运行期间完成的, 即在程序运行期间可以加载新的类,这就是所谓的动态加载. 如可以编写一个面向接口的应用程序, 等到运行时再指定实际的实现类,或者在运行过程中换掉实现类.</p>
+<h4 id="1-什么是类加载"><a href="#1-什么是类加载" class="headerlink" title="1.什么是类加载?"></a>1.什么是类加载?</h4><p>类的加载指的是将.class文件加载到方法区中.</p>
+<h4 id="2-类加载阶段做了哪些工作"><a href="#2-类加载阶段做了哪些工作" class="headerlink" title="2.类加载阶段做了哪些工作?"></a>2.类加载阶段做了哪些工作?</h4><ol>
+<li>通过一个类的全限定名来获取定义此类的二进制流</li>
+<li>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构.</li>
+<li>在内存中生成一个代表这个类的java.lang.Class对象,作为方法区这个类的各种数据的访问入口</li>
+</ol>
+<p>其中对于第1点来说,如何获取类的二进制流是可以自定义的,如从磁盘,从网络<br>就是<strong>自定义类加载器</strong>所应用场合,从另一个角度说,类加载器只完成了如下的任务:</p>
+<blockquote>
+<p>从哪里来获取定义此类的二进制流</p>
+</blockquote>
+<p>即只有第一点是程序员可以控制的.</p>
+<p>对于第2点java.lang.Class类的对象,虚拟机规范中并没有规定此对象的存储位置,对于HotSpot虚拟机,因其特殊性,所以存放在方法区中.</p>
+<h4 id="3-什么时候会进行类的加载"><a href="#3-什么时候会进行类的加载" class="headerlink" title="3.什么时候会进行类的加载?"></a>3.什么时候会进行类的加载?</h4><p>虚拟机规范中并没有约束类加载的时机,但是严格规定了类初始化的时机.</p>
+<h4 id="4-类的准备阶段做的工作"><a href="#4-类的准备阶段做的工作" class="headerlink" title="4.类的准备阶段做的工作."></a>4.类的准备阶段做的工作.</h4><p>在对类进行初始化前,有一个准备阶段,该阶段主要做两方面工作</p>
+<ol>
+<li>为类变量(即static修饰的变量,在方法区)分配内存</li>
+<li>为类变量设置初始值(这里说的初始值通常情况下指的是数据类型的零值)</li>
+</ol>
+<p>由2可知,在对类变量初始化前,已将其赋值为其类型的零值.但也有特殊情况,如下</p>
+<pre><code>public static final int value = 123;
+</code></pre><p>在准备阶段就会把value赋值为123, value称为ConstantValue属性</p>
+<h4 id="5-类的初始化阶段所做的工作"><a href="#5-类的初始化阶段所做的工作" class="headerlink" title="5.类的初始化阶段所做的工作"></a>5.类的初始化阶段所做的工作</h4><p>在类的初始化阶段,根据程序员制定的主观计划去初始化<strong>类变量</strong>和其他资源.或者说,初始化阶段就是执行<strong>类构造器\&lt;clinit>()</strong>的过程,而该方法是由编译器自动收集类中的所有类变量的赋值动作和静态语句块(static{})合并产生.即\&lt;clinit>()方法包括以下两个内容</p>
+<ol>
+<li>类变量的赋值语句</li>
+<li>静态语句块</li>
+</ol>
+<p>而且虚拟机会保证在了类的\&lt;clinit>()方法执行之前,父类的\&lt;clinit>()方法已经执行完毕.</p>
+<p>另外,关于接口的初始化有些不同,<strong>接口中不能使用静态语句块,但可以有变量初始化的赋值操作</strong>, 执行接口的\&lt;clinit>()方法不需要先执行父接口的\&lt;clinit>()方法.只有当父接口中定义的变量使用时,父接口才会初始化.而且接口的实现类在初始化时也一样不会执行接口的\&lt;clinit>()方法.</p>
+<p>虚拟机会保证一个类的\&lt;clinit>()方法在多线程环境中正确的加锁,同步.如果多个线程同时去初始化一个类,那么只会有一个线程进入\&lt;clinit>()方法,其它线程都需要阻塞等待,而且当一个线程退出\&lt;clinit>()方法后,其它线程被唤醒之后并不会再执行该方法,也就是说,<strong>同一个类加载器下,一个类型只会初始化一次</strong>(这也意味着,使用多个加载器可多次初始化一个类， 类的静态语句块不需要显示的同步)</p>
+<p><strong>关于类加载器</strong></p>
+<p>对于一个类,都需要由加载它的类加载器与该类本身共同确定其在Java虚拟机中的唯一性,如果同一个类被不同的加载器加载,那么这两个类也不是相同的.</p>
+<h4 id="6-类初始化的时机"><a href="#6-类初始化的时机" class="headerlink" title="6.类初始化的时机"></a>6.类初始化的时机</h4><p>类初始化的时机分以下几种情况</p>
+<ol>
+<li>使用new关键字实例化对象的时候</li>
+<li>读取或设置一个类的静态字段(被final修饰,已在编译期把结果放入常量池的静态字段除外, 举个例子?)</li>
+<li>调用一个类的静态方法</li>
+<li>使用java.lang.reflect包的方法对类进行反射调用的时候</li>
+<li>当初始化一个类的时候,如果发现其父类还没有进行初始化,需要先初始化其父类</li>
+<li>虚拟机启动时要执行的主类(包含main()方法的类)</li>
+</ol>
+<p>以上场景称为对对一个类进行<strong>主动引用</strong>, 只有主动引用一个类时,才对类进行初始化,其它引用类的方式都不会触发初始化,称为<strong>被动引用</strong>, 主要有</p>
+<ol>
+<li>通过子类引用父类中定义的静态字段， 不会导致子类进行初始化</li>
+<li>生成数组对象时,不会进行数组成员类型的初始化</li>
+<li>经过常量传播优化(见深入理解JVM中的例子)</li>
+</ol>
+<p>注意,接口与类的初始化有些不同,不同于第5点,当一个接口初始化时,不要求其父接口也完成初始化.</p>
+<h2 id="Java内存模型-JMM"><a href="#Java内存模型-JMM" class="headerlink" title="Java内存模型(JMM)"></a>Java内存模型(JMM)</h2><p>Java内存模型指的是Java是如何访问和使用内存的,其大致结构如下图所示</p>
+<p><img src="/assets/pics/JMM.jpg" alt></p>
+<p>从图中可以看出,有两种内存,一种是<strong>主内存</strong>, 一种是<strong>工作内存</strong>, JMM规定所有的变量(这里的变量指的是线程共享的变量,因为共享才有一致性问题,而局部变量,方法参数等这种是线程私有的变量,不会被共享,所以就不存在一致性问题)都存储在主内存中.每条线程还有自己的工作内存(类似于缓存), 线程对变量的所有操作对是在工作内存中,工作内存中保存着主内存中变量的一个副本,一个线程对变量的修改要想向另一个线程看到,必须将工作内存中的变量写回主内存中,再从主内存复制一份到工作内存才行.</p>
+<p>因为存在同一个变量的多个副本,这就导致了一致性和同步问题,举例来说,假如三个线程对同一个变量进行加1操作,正确结果应该是加3,但可能三个线程对三个副本都只加了1,而一个线程对变量的改变并不能体现在其它线程当中,这就导致最后该变量只是加了1,结果就是错误的.</p>
+<p>关于JMM有两个关键的概念:<strong>原子性</strong>与<strong>可见性</strong></p>
+<h4 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h4><p>原子性仅仅指的是某一操作是原子的,一旦开始,便不能中断,它并没有涉及可见性的问题,即一个操作是原子的并不能保证其是可见的,在\&lt;java编程思想>中有下面这样的一段话</p>
+<blockquote>
+<p>It’s important to understand that atomicity and volatility are distinct concepts. An atomic operation on a non-volatile field will not necessarily be flushed to main memory, and so another task that reads that field will not necessarily see the new value. If multiple tasks are accessing a field, that field should be volatile; otherwise, the field should only be accessed via synchronization. Synchronization also causes flushing to main memory, so if a field is completely guarded by synchronized methods or blocks, it is not necessary to make it volatile.</p>
+</blockquote>
+<p>基本上说,一个操作是原子的,并不要求其将操作结果刷新到主内存中去,即并不是可见的.如果有多个线程访问同一个域,就要求该域为volatile, 或者使用<strong>synchronized</strong>关键字,其既保证了原子性,也会导致结果被刷新到主内存中去,即保证了可见性.</p>
+<h4 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h4><p>可见性是由JMM引起的,因为线程只能修改其工作内存,如果不将修改结果写回到主内存中去就会导致主内存中的值并非是最新值,其它线程从主内存拷贝到工作内存的值就是旧值.</p>
+<p>可见性是针对一个线程的写操作来说的,当多个线程操作一个值时,如果一个线程修改了值,那么其它线程能”看到”其修改后的值,也就是”可见”的含义.</p>
+<p>简而言之,可见就是说写操作对其它读操作是可见的.具体来说,当一个线程要从主内存拷贝一个变量到工作内存时,如果该变量之前被某一线程写过,那么会要求其先将写的结果刷新到主内存,然后其它线程才能读.</p>
+<p>这里还有一个误解,可见性并不是保证各线程工作内存中变量值的一致,如果有3个线程已经把一个变量都读入工作内存中,然后一个线程修改了其工作内存,这个变化并不会同步到其它线程的工作内存中去.</p>
+<p>换句话说,可见性仅仅保证了<strong>对一个变量在工作区的修改</strong>以及将该<strong>修改同步回主内存</strong>这两个操作是原子的.</p>
+<p><strong>实现可见性有三种机制</strong></p>
+<ol>
+<li>volatile</li>
+<li>synchronized</li>
+<li>final:final修饰的为常量,常量不可修改,只是读</li>
+</ol>
+<p>和原子性与可见性相关的另一个问题就是<strong>同步</strong>, 或者说,这两个概念是由<strong>同步</strong>所引出的.</p>
+<h4 id="那么什么是同步呢"><a href="#那么什么是同步呢" class="headerlink" title="那么什么是同步呢?"></a>那么什么是同步呢?</h4><p><strong>背景</strong></p>
+<p>多个线程共同完成一项工作,并且要有一定的顺序.这样这项工作才能被正确的完成,如果每次执行时,顺序是随机的,那么结果就是不可预测的.同步就是要保证多个线程的执行要有一定的顺序.</p>
+<p><strong>举个例子</strong></p>
+<p>有两个线程,都对一个变量进行加1操作, 初始值为</p>
+<p>i = 0;</p>
+<p>进行的操作为</p>
+<p>i++</p>
+<p>首先说正确的结果应该是2.</p>
+<p>那么怎么样能保证其执行顺序得到2呢?单独的使用原子性或可见性并不能解决问题</p>
+<p><strong>单独使用原子性</strong></p>
+<p>假设i++是原子的,这意味的该操作不能被打断,从微观来看,该操作指的是:</p>
+<p>线程从主内存拷贝值到工作内存 –&gt; 工作内存的变量加1</p>
+<p>此时,虽然工作内存的i = 1,但并没有写回主内存,所以第2个线程读到的依然是0,最后结果是为1</p>
+<p><strong>单独使用可见性</strong></p>
+<p>假设</p>
+<p>volatile i = 0;</p>
+<p>i++不是原子的,分为 读 –&gt; 加1 –&gt; 写操作</p>
+<p>那么可能存在以下这种情况</p>
+<p>一个线程从主内存读i到工作内存之后,切换到另一线程从主内存读i到工作内存,再切换回第一个线程对其进行修改,因为其可见性,所其修改会同步回主内存,但第二个线程的工作内存中依然是修改前的值,所以最终结果也是不正确的.</p>
+<p>由此可见,对于以上例子,单保证原子性或可见性并不能保证同步,只有当两个性质同时具有时能保证同步.而使用<strong>synchronized</strong>关键字是一种比较方便的做法,它可保证原子性和可见性.</p>
+<h2 id="先行发生原则"><a href="#先行发生原则" class="headerlink" title="先行发生原则"></a>先行发生原则</h2><p><strong>什么是先行发生?</strong></p>
+<p>先行发生是内存模型中定义的两项操作之间的偏序关系, 如果说操作A先行发生于B, 说明操作A产生的影响能被操作B观察到, “影响”包括修改了内存中共享变量的值,发送了消息,调用了方法等.</p>
+<p><strong>那么同步与先行发生有什么关系呢?</strong></p>
+<p>同步其实就是为了某种有序性,而由上面讨论可知,有序性要靠volatile和synchronized来保证. 而先行发生说的也是某种有序性.如果说两个操作A,B符合先行发生,那么其就是有序的,也就不需要使用volatile和synchronized来保证A,B操作的同步性了.</p>
+<p>在Java内存模型中,已经包含了某些操作符合先行发生原则,所以这些操作就不需要使用volatile和synchronized来显示的确保操作的顺序了,可以说,是一种内置的同步机制.如果没有这种内置的同步机制,那么写起代码来需要使用大量的volatile和synchronized,这样就会很繁琐.</p>
+<p><strong>内置的符合先行发生原则的操作为</strong></p>
+<ol>
+<li>程序次序规则</li>
+<li>管程锁定规则</li>
+<li>volatile变量规则</li>
+<li>线程启动规则</li>
+<li>线程终止规则</li>
+<li>线程中断规则</li>
+<li>对象终结规则</li>
+<li>传递性</li>
+</ol>
+<p>以上具体内容参考&lt;深入理解JVM&gt;</p>
+<p><strong>利用先行发生原则判断是否需要显示的synchronized</strong></p>
+<p>好,现在当我们有两个操作,需要同步,即保证其有序时,可以首先判断其是否属于以上8种情况,属于的话就可以利用内置的同步机制保证其同步性,就不必显示的使用synchronized,如果不属于就需要显示的使用synchronized.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/28/ams/" rel="next" title="由一个实例了解AMS机制">
+                <i class="fa fa-chevron-left"></i> 由一个实例了解AMS机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/04/singleton/" rel="prev" title="Singleton从简单到完善">
+                Singleton从简单到完善 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java虚拟机运行时数据区"><span class="nav-text">Java虚拟机运行时数据区</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-线程隔离数据区"><span class="nav-text">1.线程隔离数据区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-线程共享数据区"><span class="nav-text">2.线程共享数据区</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载与类的初始化"><span class="nav-text">类加载与类的初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-什么是类加载"><span class="nav-text">1.什么是类加载?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-类加载阶段做了哪些工作"><span class="nav-text">2.类加载阶段做了哪些工作?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-什么时候会进行类的加载"><span class="nav-text">3.什么时候会进行类的加载?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-类的准备阶段做的工作"><span class="nav-text">4.类的准备阶段做的工作.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-类的初始化阶段所做的工作"><span class="nav-text">5.类的初始化阶段所做的工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-类初始化的时机"><span class="nav-text">6.类初始化的时机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java内存模型-JMM"><span class="nav-text">Java内存模型(JMM)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性"><span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可见性"><span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#那么什么是同步呢"><span class="nav-text">那么什么是同步呢?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#先行发生原则"><span class="nav-text">先行发生原则</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="零、前言每当调整UI时，总是很迷糊，很多地方不明不白，有时需要android前缀， 有时又不需要。更改一个View的外观可以在layout中改，可以使用style，有时也可以使用?attr，还有的时候，还有的时候可以修改主题的某些属性，然后应用主题就可以了。 以上种种困扰着我，下面试着去理清这其中所涉及的种种概念，最后提出一种好的实践。 一、attr1. 什么是attrattr中文意思为属性，其类">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="attr style theme 以及实践">
+<meta property="og:url" content="http://asanelder.me/2016/06/02/attr-style-theme-best-practice/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="零、前言每当调整UI时，总是很迷糊，很多地方不明不白，有时需要android前缀， 有时又不需要。更改一个View的外观可以在layout中改，可以使用style，有时也可以使用?attr，还有的时候，还有的时候可以修改主题的某些属性，然后应用主题就可以了。 以上种种困扰着我，下面试着去理清这其中所涉及的种种概念，最后提出一种好的实践。 一、attr1. 什么是attrattr中文意思为属性，其类">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T13:04:40.751Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="attr style theme 以及实践">
+<meta name="twitter:description" content="零、前言每当调整UI时，总是很迷糊，很多地方不明不白，有时需要android前缀， 有时又不需要。更改一个View的外观可以在layout中改，可以使用style，有时也可以使用?attr，还有的时候，还有的时候可以修改主题的某些属性，然后应用主题就可以了。 以上种种困扰着我，下面试着去理清这其中所涉及的种种概念，最后提出一种好的实践。 一、attr1. 什么是attrattr中文意思为属性，其类">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/06/02/attr-style-theme-best-practice/">
+
+
+
+
+
+  <title>attr style theme 以及实践 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/06/02/attr-style-theme-best-practice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">attr style theme 以及实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-02T00:00:00+08:00">
+                2016-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="零、前言"><a href="#零、前言" class="headerlink" title="零、前言"></a>零、前言</h2><p>每当调整UI时，总是很迷糊，很多地方不明不白，有时需要android前缀， 有时又不需要。更改一个View的外观可以在layout中改，可以使用style，有时也可以使用?attr，还有的时候，还有的时候可以修改主题的某些属性，然后应用主题就可以了。</p>
+<p>以上种种困扰着我，下面试着去理清这其中所涉及的种种概念，最后提出一种好的实践。</p>
+<h2 id="一、attr"><a href="#一、attr" class="headerlink" title="一、attr"></a>一、attr</h2><h3 id="1-什么是attr"><a href="#1-什么是attr" class="headerlink" title="1. 什么是attr"></a>1. 什么是attr</h3><p>attr中文意思为属性，其类似于平时我们所定义的变量，有以下三个要素</p>
+<ol>
+<li>有一个名称</li>
+<li>有类型</li>
+<li>有值</li>
+</ol>
+<p>以上就是关于attr的全部了。</p>
+<h3 id="2-定义和赋值的地方"><a href="#2-定义和赋值的地方" class="headerlink" title="2. 定义和赋值的地方"></a>2. 定义和赋值的地方</h3><p>既然attr类似与变量，就会有定义和赋值的地方，那么这两个地方在哪里？</p>
+<p>首先说定义，定义是在一个叫attrs.xml的文件当中，形式类似与下面这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"hint"</span> <span class="attr">format</span>=<span class="string">"string"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中name说明了attr的名称，而format说明了attr的类型，可以是如下几种</p>
+<ul>
+<li>reference - if it references another resource id (e.g, * “@color/my_color”, “@layout/my_layout”)</li>
+<li>color</li>
+<li>boolean</li>
+<li>dimension</li>
+<li>float</li>
+<li>integer</li>
+<li>string</li>
+<li>fraction</li>
+<li>enum - normally implicitly defined</li>
+<li>flag - normally implicitly defined</li>
+</ul>
+<p>flag说明值可以进行位或运算, reference说明其值是引用的另一个资源。</p>
+<p>至于赋值的地方，这个就和attr的作用有关了，在下文中提及。</p>
+<h3 id="3-attr的用途是什么？"><a href="#3-attr的用途是什么？" class="headerlink" title="3. attr的用途是什么？"></a>3. attr的用途是什么？</h3><p>好，既然我们定义了attr，那其总归是有用途的，它到底用来作什么呢？</p>
+<p>其最明显的用途是用来设置View的属性，暂时抛开attr这个概念不谈，假如我们有一个Button控件，那么这个控件本身应该有一些属性吧，比如说背景颜色，文字大小，文字颜色等。而在Android系统中如何表现该控件的这些属性呢？显然我们就可以使用attr来表示。</p>
+<p>如，我们可以这样定义一个Button应该有的属性</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"backgroundColor"</span> <span class="attr">format</span>=<span class="string">"color"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span> <span class="attr">format</span>=<span class="string">"color"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textSize"</span> <span class="attr">format</span>=<span class="string">"dimension"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后在layout文件中对其进行赋值</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">    <span class="attr">backgroundColor</span>=<span class="string">"#ffffff"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">textColor</span>=<span class="string">"#000000"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">textSize</span>=<span class="string">"25sp"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>注:以上代码并不规范，只是为了说明思想</em></p>
+<p>在这里， 我们已经看到对属性赋值的一种方法，即在layout文件中直接赋值。当然不止这一种方式</p>
+<h3 id="4-attr是如何影响到view外观的。"><a href="#4-attr是如何影响到view外观的。" class="headerlink" title="4. attr是如何影响到view外观的。"></a>4. attr是如何影响到view外观的。</h3><p>虽然我们定义的attr并在某个地方对其进行了赋值， 但其最终是如何影响到view的外观的呢？</p>
+<p>可以从Google官方文档中<a href="https://developer.android.com/training/custom-views/index.html" target="_blank" rel="noopener">自定义view</a>找到一些线索。</p>
+<p>大概是如下一个过程。</p>
+<ol>
+<li>某一个Parser读取xml文件，找到该View的属性值， 生成一个TypedArray结构</li>
+<li>从TypedArray结构读取各个属性值， 赋值给某个成员变量</li>
+<li>在onDraw()函数中利用这些属性值再进行实际的绘制。</li>
+</ol>
+<p>最关键的就是， attr并没有什么神奇， 只是被转化成onDraw进行绘制时的参数罢了。</p>
+<h3 id="5-其它一些需要了解的地方"><a href="#5-其它一些需要了解的地方" class="headerlink" title="5. 其它一些需要了解的地方"></a>5. 其它一些需要了解的地方</h3><h4 id="5-1-找到某一个View支持的属性"><a href="#5-1-找到某一个View支持的属性" class="headerlink" title="5.1 找到某一个View支持的属性"></a>5.1 找到某一个View支持的属性</h4><p>如何知道某一个view支持的属性有哪些？方法有二</p>
+<ol>
+<li>查看官方文档，如 <a href="https://developer.android.com/reference/android/widget/Button.html" target="_blank" rel="noopener">Button</a></li>
+<li>查看attrs.xml文件，系统自带的View也是view，其支持的属性也一定在attrs.xml文件中定义，只不过， 这个文件是SDK自带的， 而如果是我们自己自定义的view， 则需要在项目中自定义一个attrs.xml。要想找到系统的attrs.xml， 利用Android Studio的搜索功能就可以了， 注意对应的API版本。</li>
+</ol>
+<h4 id="5-2-属性属于同一命名空间与android前缀"><a href="#5-2-属性属于同一命名空间与android前缀" class="headerlink" title="5.2 属性属于同一命名空间与android前缀"></a>5.2 属性属于同一命名空间与android前缀</h4><p>对于某一包来说， 所有的属性都属于同一个命名空间。所以多个attr文件中的属性和同一文件中的属性， 不能同名不同类型。</p>
+<p>平时我们在layout文件中为属性赋值时，有时需要加android前缀， 有时需要加app前缀，那么如何抉择呢？</p>
+<p>如果是SDK中自带的attr就加android前缀， 如果是自定义的attr就加app前缀(当前这个名字可以是任意名称)，不同的前缀说明了其属于不同的命名空间。</p>
+<p>举个例子， 如果一个自定义的View，继承了Button，并自定义了一些attr，那么， 为该View的attr赋值时， 类似于以下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">CustomButton</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:textColor</span>=<span class="string">"#000000"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">app:roundCorner</span>=<span class="string">true</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>注， Support Appcompat其地位也是类似于自定义的View, 所以使用时， 依然需要app前缀</em></p>
+<h4 id="5-3-declare-styleable"><a href="#5-3-declare-styleable" class="headerlink" title="5.3 declare-styleable"></a>5.3 declare-styleable</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">declare-styleable</span> <span class="attr">name</span>=<span class="string">"PieChart"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"showText"</span> <span class="attr">format</span>=<span class="string">"boolean"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">declare-styleable</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>首先， 属性都属于同一命名空间， 所以showText并不隶属于PieChart，那declare-styleable有什么作用呢？这里主要是用来组织一些attr， 并在代码中方便得到， 如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TypedArray a = context.getTheme().obtainStyledAttributes(</span><br><span class="line">   attrs,</span><br><span class="line">   R.styleable.PieChart,</span><br><span class="line">   <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>当然， 属性也可以不属于declare-styleable</p>
+<h4 id="5-4-没有format的attr"><a href="#5-4-没有format的attr" class="headerlink" title="5.4 没有format的attr"></a>5.4 没有format的attr</h4><p>在查看SDK中的attrs.xml时，发现有如下情况</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">declare-styleable</span> <span class="attr">name</span>=<span class="string">"TextView"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>发现有的attr没有format, 这是怎么回事呢? 这是因为该attr已经在之前定义过了，如果往上找可以发现</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span> <span class="attr">format</span>=<span class="string">"reference|color"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>而这个并不属于任何declare-styleable，所以如果有多个View需要相同的attr，他们有相同的format， 就可以在一处定义，在其他地方就可以不添加format了。</p>
+<h2 id="二、style"><a href="#二、style" class="headerlink" title="二、style"></a>二、style</h2><h3 id="1-什么是style"><a href="#1-什么是style" class="headerlink" title="1. 什么是style"></a>1. 什么是style</h3><p>style的中文含义是样式，关注的是某一个View本身的外观。</p>
+<p>当然以上解释还是有些模糊， 什么是样式呢？</p>
+<p>当我们在一个应用中看到一个Button时，实际上这只是一个View，但是看起来像一个Button而已， 怎么做到看起来像呢？就是为这个View的各个attr设置一些值， 如backgroundColor,borderSize等赋值， 然后这个View看起来就像是一个Button了。</p>
+<p>所以说style是一种抽象的概念，当我们说某一个View有个Button style时，实际上为了调整该View看起来像一个Button， 我们为该View的某些attr赋一些值。所以我们完全可将一个不是Button的View改成Button的外观。</p>
+<p>现在也可以说style具体指什么了， 指的就是：</p>
+<blockquote>
+<p>为某些attr设置了值使之产生某中特定的视觉效果</p>
+</blockquote>
+<p>所以，style和attr的赋值有关。</p>
+<h3 id="2-如何定义和使用style"><a href="#2-如何定义和使用style" class="headerlink" title="2. 如何定义和使用style"></a>2. 如何定义和使用style</h3><p>由上可知， 如果我们想要一个Button的外观， 那么直接在layout中为其attr设置一些属性值即可。如可以这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">    <span class="attr">background</span>=<span class="string">"@drawable/btn_default"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">focusable</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">clickable</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">textAppearance</span>=<span class="string">"?attr/textAppearanceSmallInverse"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">textColor</span>=<span class="string">"@color/primary_text_light"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">gravity</span>=<span class="string">"center_vertical|center_horizontal"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样做有什么弊端呢？当我们需要多个TextView都有相同Button外观时，如果想要修改一下，则需要修改多处。 所以一种更好的方式是</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Button"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"background"</span>&gt;</span>@drawable/btn_default<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"focusable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"clickable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textAppearance"</span>&gt;</span>?attr/textAppearanceSmallInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>@color/primary_text_light<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"gravity"</span>&gt;</span>center_vertical|center_horizontal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>以上摘自SDK的styles.xml文件， 可见， 我们可以为一个Style起一个名字，这样当我们想将一个TextView设置为Button外观时， 可以这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">   <span class="attr">style</span>=<span class="string">"@android:style/Widget.Button"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>注：关于上面的@android:style以及?attr下文中会提到，暂时忽略</em></p>
+<p>这样就方便了很多， 而且有一个有意义的名称。</p>
+<p>当然， 我们使用Button时，并没有显示的设置其style， 实际上是利用了theme将ButtonStyle的外观对Button进行了设置， 至于如何设置的， 下文中讲到。</p>
+<h3 id="3-SDK自带的style"><a href="#3-SDK自带的style" class="headerlink" title="3.SDK自带的style"></a>3.SDK自带的style</h3><p>有时我们需要定义某一种style，实际上并不需要自已来定义，SDK本身带了大量的style。</p>
+<p>查看SDK都定义了哪些Style可以使用如下两种方法</p>
+<ol>
+<li><a href="https://developer.android.com/reference/android/R.style.html" target="_blank" rel="noopener">官方文档</a></li>
+<li>源码， 使用Android Studio查找styles开头的文件，一般有多个， 如styles.xml, styles_material.xml, styles_device_defaults.xml等，<br>一般源码是更好的方式。</li>
+</ol>
+<h3 id="4-再谈style的定义"><a href="#4-再谈style的定义" class="headerlink" title="4. 再谈style的定义"></a>4. 再谈style的定义</h3><p>如果浏览SDK中的styles*.xml文件， 需要有三点需要注意的地方</p>
+<ol>
+<li><p>style可以继承另一个style:</p>
+<p>继承方式有两种， 一种是显示的，指定parent 如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"TextAppearance.EasyCorrectSuggestion   parent="</span><span class="attr">TextAppearance.Suggestion</span>"&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textUnderlineColor"</span>&gt;</span>#88C8C8C8<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>另一种是隐式的， 通过名称可以知道父style， 如以下TextAppearance.Inverse就继承了TextAppearance</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"TextAppearance"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?textColorPrimary<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHighlight"</span>&gt;</span>    textColorHighlight<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHint"</span>&gt;</span>?textColorHint<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorLink"</span>&gt;</span>?textColorLink<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textSize"</span>&gt;</span>16sp<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textStyle"</span>&gt;</span>normal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"TextAppearance.Inverse"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?textColorPrimaryInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHint"</span>&gt;</span>?textColorHintInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHighlight"</span>&gt;</span>?   textColorHighlightInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorLink"</span>&gt;</span>?textColorLinkInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>有一个需要注意的地方是， 如果我们自已定义一个style，显示继承SDK中的style， 则需要android前缀， 因为不在一个包内， 而SDK中的则不需要，因为在一个包内。如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"CustomStyle"</span> <span class="attr">parent</span>=<span class="string">"@android:style/parent&gt;</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>attr赋值</p>
+<p>attr都有format，对与不同的format，则需要赋不同类型的值。如对于以下属性</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span> <span class="attr">format</span>=<span class="string">"reference|color"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textSize"</span> <span class="attr">format</span>=<span class="string">"dimension"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"shadowColor"</span> <span class="attr">format</span>=<span class="string">"color"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"shadowDx"</span> <span class="attr">format</span>=<span class="string">"float"</span> /&gt;</span>    </span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"shadowDy"</span> <span class="attr">format</span>=<span class="string">"float"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"shadowRadius"</span> <span class="attr">format</span>=<span class="string">"float"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>有一个Style如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> </span></span><br><span class="line"><span class="tag"><span class="attr">name</span>=<span class="string">"TextAppearance.SlidingTabNormal"</span> </span></span><br><span class="line"><span class="tag"><span class="attr">parent</span>=<span class="string">"TextAppearance.Medium"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?attr/textColorTertiary<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textSize"</span>&gt;</span>28sp<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"shadowColor"</span>&gt;</span>@color/sliding_tab_text_color_shadow<span class="tag">&lt;<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"shadowDx"</span>&gt;</span>0.0<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"shadowDy"</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">     <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"shadowRadius"</span>&gt;</span>5.0<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>有一个奇怪的地方</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?attr/textColorTertiary<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这是什么含义呢？这里的含义指的是textColor的值使用的是当前theme中定义的textColorTertiary属性的值。下文中讲theme是会提到，theme和style类似，也是为一些属性进行了赋值，而且在其它地方可以使用<strong>?attr</strong>来引用这些属性值(如果不在一个包内,则需要使用<strong>?android:attr</strong>，加android前缀，说明是使用SDK中的theme中attr。)</p>
+</li>
+<li><p>命名规范</p>
+<p>为Style起名字也需要一定的格式，遵循好的规范有利于对style的使用,后文提到</p>
+</li>
+</ol>
+<h2 id="三、theme"><a href="#三、theme" class="headerlink" title="三、theme"></a>三、theme</h2><h3 id="1-什么是theme"><a href="#1-什么是theme" class="headerlink" title="1. 什么是theme"></a>1. 什么是theme</h3><p>theme的中文含义是主题，关注的是一种整体的感觉。</p>
+<p>那么什么是整体的感觉呢？ 当我们说style时，往往指的是某一个局部view的style, 而我们说theme时， 指的是整个app中， 颜色的一致性，文字大小的一致性， 各个View看起来属于同一类别，比如都是Material风格的等等，总之，让你感觉到，你所看到的各个View是属于某一App的，简单的来说，要达到和谐的效果。</p>
+<h3 id="2-到底如何达到一种整体的感觉"><a href="#2-到底如何达到一种整体的感觉" class="headerlink" title="2. 到底如何达到一种整体的感觉"></a>2. 到底如何达到一种整体的感觉</h3><p>先抛开theme，现在我们有一个目标， 设计一个界面， 是Material风格的，既界面上的组件都得是Material风格的。</p>
+<p>假设该界面上有如下组件。</p>
+<p>2个Button<br>2个Spinner<br>1个Tab</p>
+<p>首先我们为每一类组件定义一种Material style</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Material.Tab"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Material.Spinner"</span>&gt;</span><span class="undefined"></span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Material.Button"</span>&gt;</span><span class="undefined"></span></span></span><br></pre></td></tr></table></figure>
+<p>在layout文件中， 我们可以这样指定其样式</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">    <span class="attr">id</span>=<span class="string">"button_1"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">style</span>=<span class="string">"@style/Widget.Material.Button"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">    <span class="attr">id</span>=<span class="string">"button_2"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">style</span>=<span class="string">"@style/Widget.Material.Button"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Spinner</span></span></span><br><span class="line"><span class="tag">    <span class="attr">id</span>=<span class="string">"spinner_1"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">style</span>=<span class="string">"@style/Widget.Material.Spinner"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Spinner</span></span></span><br><span class="line"><span class="tag">    <span class="attr">id</span>=<span class="string">"spinner_2"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">style</span>=<span class="string">"@style/Widget.Material.Spinner"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Tab</span></span></span><br><span class="line"><span class="tag">    <span class="attr">id</span>=<span class="string">"tab_1"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">style</span>=<span class="string">"@style/Widget.Material.Tab"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>好了， 这个界面算是Material风格的了， 如果有其它界面， 我们也这样设置就行。</p>
+<p>但是， 如果我们想为App换一种风格，比如说Holo风格， 那么怎么办呢？要修改每一个组件的Style吗？岂不很麻烦？</p>
+<p>此时， 就是Theme发挥作用的地方了。</p>
+<p>我们在Application或Activity指定Theme就可以使得整个App或某一Activity有着某一整体风格了， 如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">theme</span>=<span class="string">“@style/Theme.Material</span>"</span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样就OK了。如果换成另一风格， 只要</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">theme</span>=<span class="string">“@style/Theme.Holo</span>"</span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当为application或activity应用某一theme时，会依次查看该Activity对应View树中的每个节点是否支持Theme中定义的attr， 支持就应用， 不支持就忽略， 而对于style来说， 只是查看应用该style的节点是否支持。</p>
+<p>注意， 这里的支持指的是View的构造函数中真正读取的attr，下文中Button以及buttonStyle就是一个例子。</p>
+<p>但这是如何做到的呢？</p>
+<h3 id="3-theme中为哪些属性进行了赋值？"><a href="#3-theme中为哪些属性进行了赋值？" class="headerlink" title="3. theme中为哪些属性进行了赋值？"></a>3. theme中为哪些属性进行了赋值？</h3><p>由上一节结尾</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">theme</span>=<span class="string">“@style/Theme.Material</span>"</span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>发现Theme其实也是一种Style，只是名称以Theme开头罢了，既然也是一种Style， 那么也是为一些attr赋值。那么为哪些attr赋值呢？</p>
+<p>因为我们知道style一般为某一Widget设置样式，所以设置的attr一般是该Widget支持的attr，但theme似乎要为各种各样的widget设置样式，而不同widget的attr也不尽相同，难道在要theme中为所有可能的attr赋值吗？</p>
+<p>我们来看系统自带的Theme是如何做的，首先要找到系统自带的Theme， 有两种方式</p>
+<ol>
+<li><a href="https://developer.android.com/reference/android/R.style.html" target="_blank" rel="noopener">官方文档</a>, 因为theme也是一种style，所以也在R.style中</li>
+<li>源码：使用Android Studio搜索themes.xml就可以看到好几个， 打开一个看， 发现与styles.xml中的结构相同，这也说明theme就是一种style.</li>
+</ol>
+<p>以themes.xml中Theme为例，在这里讨论几种attr</p>
+<h4 id="3-1-与Widget相关"><a href="#3-1-与Widget相关" class="headerlink" title="3.1 与Widget相关"></a>3.1 与Widget相关</h4><p>查看其中的一条</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"buttonStyle"</span>&gt;</span>@style/Widget.Button<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>看名称似乎和Button的样式有关，而且其值是一个Style，那么该属性值是如何应用到Button上的呢？</p>
+<p>如果我查看官方文档，发现Button并没有这个attr，查看attrs.xml中也没有发现Button支持这个attr, 既然Button都不支持buttonStyle这个属性， 那么怎么会影响到Button外观呢？</p>
+<p>其实别忘记了， attr到底是怎样影响到View的外观的，在第一部分已经讨论了，attr只是定义了一些键值对， 而这些键值对要在View的构造函数中读入， 并在onDraw()中使用，仅仅如此。</p>
+<p>如果我们去看Button的源代码，就会发现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Button</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(context, attrs, com.android.internal.R.attr.buttonStyle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看到buttonStyle了吧， 这里会将buttonStyle中引用的style展开， 查看Widget.Button</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Widget.Button"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"background"</span>&gt;</span>@drawable/btn_default<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"focusable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"clickable"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textAppearance"</span>&gt;</span>?attr/textAppearanceSmallInverse<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>@color/primary_text_light<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"gravity"</span>&gt;</span>center_vertical|center_horizontal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里的属性就是Button直接支持的attr了。</p>
+<p>以上这类theme中定义的attr还有很多，主要是定义Widget的外观，如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Widget styles --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"absListViewStyle"</span>&gt;</span>@style/Widget.AbsListView<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"autoCompleteTextViewStyle"</span>&gt;</span>@style/Widget.AutoCompleteTextView<span class="tag">&lt;<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"checkboxStyle"</span>&gt;</span>@style/Widget.CompoundButton.CheckBox<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"checkedTextViewStyle"</span>&gt;</span>@style/Widget.CheckedTextView<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"dropDownListViewStyle"</span>&gt;</span>@style/Widget.ListView.DropDown<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"editTextStyle"</span>&gt;</span>@style/Widget.EditText<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"expandableListViewStyle"</span>&gt;</span>@style/Widget.ExpandableListView<span class="tag">&lt;<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"expandableListViewWhiteStyle"</span>&gt;</span>@styleWidget.ExpandableListView.White<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"fastScrollStyle"</span>&gt;</span>@style/Widget.FastScroll<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"galleryStyle"</span>&gt;</span>@style/Widget.Gallery<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-2-只用来被其它attr引用的属性"><a href="#3-2-只用来被其它attr引用的属性" class="headerlink" title="3.2 只用来被其它attr引用的属性"></a>3.2 只用来被其它attr引用的属性</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorPrimary"</span>&gt;</span>@color/primary_text_dark<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>从名称上来看，该属性是用来设置text的颜色的，但是查询attrs.xml发现， 该属性不属于任何Widget，是一个全局的属性。查看各Widget的源码文件，也没有发现在源码文件中读取该attr值的地方。</p>
+<p>那么它怎么就能影响到text的颜色了呢？</p>
+<p>其实很简单，该attr并不是直接影响text的颜色， 而是被其它attr引用后，间接影响text的颜色，如果查看styles.xml文件，发现如下片段</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"TextAppearance"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColor"</span>&gt;</span>?textColorPrimary<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHighlight"</span>&gt;</span>?textColorHighlight<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorHint"</span>&gt;</span>?textColorHint<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textColorLink"</span>&gt;</span>?textColorLink<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textSize"</span>&gt;</span>16sp<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"textStyle"</span>&gt;</span>normal<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>注,这里?就是?attr</em></p>
+<p>这一类的attr是被其它attr引用， 进而影响到了UI。</p>
+<h4 id="3-3-其它"><a href="#3-3-其它" class="headerlink" title="3.3 其它"></a>3.3 其它</h4><p>另外，还有window开头的attr, scrollbar, actionbar等attr，总之， 关于UI方面的任何一个地方， 在themes中是都为其指定了值的。</p>
+<h2 id="三、结合style-theme-attr"><a href="#三、结合style-theme-attr" class="headerlink" title="三、结合style, theme, attr"></a>三、结合style, theme, attr</h2><p>以上分别讲了style, theme, attr. 下面通过自定义一个主题，学习如何编写这三个文件， 通过此，了解以下三点</p>
+<ol>
+<li>SDK中的theme,style,attr是如何组织的。</li>
+<li>theme和style中的命名规范</li>
+<li>正确使用theme和style</li>
+</ol>
+<p>一种主题就是一种UI风格， 涉及到UI下</p>
+<ol>
+<li>各组件的样式</li>
+<li>UI的配色</li>
+<li>字体</li>
+</ol>
+<p>我们就从这三个方面入手定义主题。</p>
+<p>Step1: 首先，为我们的主题起一个名字，我们想该主题给人一种温暖的感觉， 所以就叫做Warm吧。</p>
+<p>Step2: 定义attr，在此之前，需要确定系统中有哪几种Widget， 假设就两种， Button, TextView， 而且这两种没有继承关系。</p>
+<p>那么，如何定义attr呢？我们定义的attr应该有两类， 一类是与Widget无关的， 一类是与Widget相关的。</p>
+<p>比如说，可以这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">declare-styleable</span> <span class="attr">name</span>=<span class="string">"Theme"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"colorPrimary"</span> <span class="attr">format</span>=<span class="string">”color</span>"/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span> <span class="attr">format</span>=<span class="string">"color"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"fontFamily"</span> <span class="attr">format</span>=<span class="string">"string"</span>/&gt;</span></span><br><span class="line">        </span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"buttonStyle"</span> <span class="attr">format</span>=<span class="string">"reference"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textViewStyle"</span> <span class="attr">format</span>=<span class="string">"reference"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">declare-styleable</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">declare-styleable</span> <span class="attr">name</span>=<span class="string">"Button"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"roundCorner"</span> <span class="attr">format</span>=<span class="string">”boolean</span>"/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"fontFamily"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">declare-styleable</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">declare-styleable</span> <span class="attr">name</span>=<span class="string">"TextView"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"borderSize"</span> <span class="attr">format</span>=<span class="string">”dimension</span>"/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"textColor"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attr</span> <span class="attr">name</span>=<span class="string">"fontFamily"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">declare-styleable</span>&gt;</span></span><br><span class="line">    </span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>以上， 定义了三个全局属性，为每个Widget定义了三个属于Widget的属性。</p>
+<p>全局属性从名称可以看出来， 其并非属于某一特定的Widget， 如colorPrimary应用的主色调等。</p>
+<p>好了， 接下来可以定义主题了</p>
+<p>Step 3: 定义Warm主题Part1</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Theme.Warm"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">    //全局属性设置</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="colorPrimary"</span>&gt;</span>#ee0000<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="textColor"</span>&gt;</span>#000000<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="fontFamily"</span>&gt;</span>Roboto Mono<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined">    </span></span><br><span class="line"><span class="undefined">    //这里我们似乎需要先定义Widget的样式</span></span><br></pre></td></tr></table></figure>
+<p>这里的名字以Theme开头，说明这是一个Theme, 后面是Theme的风格名。</p>
+<p>以上主题并没有定义完， 我们先转到Widget的样式定义上来。</p>
+<p>Step 4: Widget样式定义</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">“Widget.Warm.Button</span>"&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="roundCorner"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="textColor"</span>&gt;</span>?attr/textColor<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="fontFamily"</span>&gt;</span>?attr/fontFamily<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">“Widget.Warm.TextView</span>"&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="borderSize"</span>&gt;</span>1dp<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="textColor"</span>&gt;</span>?attr/textColor<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="fontFamily"</span>&gt;</span>?attr/fontFamily<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>以上我们的命名规划是， 第一项Widget说明是一个Widget的样式， 第二项为风格名，第三项为Widget的名称。</p>
+<p>而且其属性值都引用了theme中定义的全局属性值， 这样做是合理的， 因为textColor和fontFamily要保持和谐， 直接使用主题中的值是最好不过的了。</p>
+<p>Step 5: 定义Warm主题Part2</p>
+<p>接下来可以完成主题的第二部分定义了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Theme.Warm"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">    //全局属性设置</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="colorPrimary"</span>&gt;</span>#ee0000<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="textColor"</span>&gt;</span>#000000<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="fontFamily"</span>&gt;</span>Roboto Mono<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined">    </span></span><br><span class="line"><span class="undefined">    //定义Widget的样式</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="buttonStyle"</span>&gt;</span>@style/Widget.Warm.Button<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">item="textViewStyle"</span>&gt;</span>@style/Widget.Warm.TextView<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="undefined">    </span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Step 6: 总结</p>
+<p>以上只是一个很简单的例子， 有很多不合理的地方，但基本说明了问题， SDK中的主题更加复杂，但基本组织结构与些类似。</p>
+<h2 id="四，-好的实践"><a href="#四，-好的实践" class="headerlink" title="四， 好的实践"></a>四， 好的实践</h2><p>那么， 如何利用好themes styles attrs呢？</p>
+<p>我们设计应用时，会首先确定应用的风格，如果要自定义风格， 就得像前面那样， 为每种Widget设计其风格，如果要使用SDK中的主题，如Material，则各种Widget已经有了相应风格。如果我们要对其进行定制， 那么怎么修改呢？</p>
+<p>比如说， 我们对Theme.Material这个主题很满意， 除了它的buttonStyle的风格， 那么我们怎么修改呢？在哪里修改是最合适呢？</p>
+<p>一种方法是自定义新的buttonStyle，然后在layout中利用style直接改， 这样，每有一个Button就必须有一个style引用，其麻烦之处就像第二节所讲的那样。</p>
+<p>另一种方法是先找到主题中哪些attr影响了我们要修改的地方， 然后继承一个主题， 并复写该attr即可，比如说， 可以这样。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"CustomTheme"</span> <span class="attr">parent</span>=<span class="string">"@android:style/Theme.Material&gt;</span></span></span><br><span class="line"><span class="tag"><span class="string">    &lt;item name="</span><span class="attr">buttonStyle</span>”&gt;</span><span class="css">@<span class="keyword">style</span>/<span class="keyword">customButtonStyle</span>&lt;/<span class="keyword">item</span>&gt;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>如果说我们要对某一View进行一个简单的修改，如使一个背景色使用主题的主要色，这样更加和谐，在这里，应该引用theme的属性， 以体现和谐性。如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Button</span> <span class="attr">background</span>=<span class="string">"?attr/colorPrimary"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>而不是这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Button</span> <span class="attr">background</span>=<span class="string">“@color/colorPrimary</span>"/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>所以， 所有的值尽量来自于theme， 这样会使得app有一种统一的风格。</p>
+<h2 id="五、v7-appcompat-library"><a href="#五、v7-appcompat-library" class="headerlink" title="五、v7 appcompat library"></a>五、v7 appcompat library</h2><p>v7是经常使用的一个库， 在官网中有这样一句话</p>
+<blockquote>
+<p>There are several libraries designed to be used with Android 2.1 (API level 7) and higher. These libraries provide specific feature sets and can be included in your application independently from each other.</p>
+</blockquote>
+<p>即v7为低版本的SDK提供了Material Design的支持， 因为低版本的SDK中没有带Material Theme.</p>
+<p>关于v7的使用， 记住最关键的一点</p>
+<blockquote>
+<p>v7中themes, styles, attrs的地位与你自定义的是一样的，都是属于第三方，即和SDK并不在同一个命名空间</p>
+</blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://blog.supenta.com/2014/06/15/how-to-avoid-headaches-with-android-themes-and-styles/" target="_blank" rel="noopener">How to avoid headaches with Android themes and styles</a></li>
+<li><a href="https://m.oschina.net/blog/383552" target="_blank" rel="noopener">修改安卓默认的系统button样式，以及其它系统控件的默认样式</a></li>
+<li><a href="https://chris.banes.me/2014/11/12/theme-vs-style/" target="_blank" rel="noopener">Theme vs Style</a></li>
+<li><a href="http://stackoverflow.com/questions/3441396/defining-custom-attrs" target="_blank" rel="noopener">Defining custom attrs</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/09/several-questions-about-volley/" rel="next" title="关于Volley的几个问题">
+                <i class="fa fa-chevron-left"></i> 关于Volley的几个问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/19/database-fundamental-concepts/" rel="prev" title="数据库基础概念-索引，事务，日志，存储引擎">
+                数据库基础概念-索引，事务，日志，存储引擎 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#零、前言"><span class="nav-text">零、前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、attr"><span class="nav-text">一、attr</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-什么是attr"><span class="nav-text">1. 什么是attr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-定义和赋值的地方"><span class="nav-text">2. 定义和赋值的地方</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-attr的用途是什么？"><span class="nav-text">3. attr的用途是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-attr是如何影响到view外观的。"><span class="nav-text">4. attr是如何影响到view外观的。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-其它一些需要了解的地方"><span class="nav-text">5. 其它一些需要了解的地方</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-找到某一个View支持的属性"><span class="nav-text">5.1 找到某一个View支持的属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-属性属于同一命名空间与android前缀"><span class="nav-text">5.2 属性属于同一命名空间与android前缀</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-declare-styleable"><span class="nav-text">5.3 declare-styleable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-没有format的attr"><span class="nav-text">5.4 没有format的attr</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、style"><span class="nav-text">二、style</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-什么是style"><span class="nav-text">1. 什么是style</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-如何定义和使用style"><span class="nav-text">2. 如何定义和使用style</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-SDK自带的style"><span class="nav-text">3.SDK自带的style</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-再谈style的定义"><span class="nav-text">4. 再谈style的定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、theme"><span class="nav-text">三、theme</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-什么是theme"><span class="nav-text">1. 什么是theme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-到底如何达到一种整体的感觉"><span class="nav-text">2. 到底如何达到一种整体的感觉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-theme中为哪些属性进行了赋值？"><span class="nav-text">3. theme中为哪些属性进行了赋值？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-与Widget相关"><span class="nav-text">3.1 与Widget相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-只用来被其它attr引用的属性"><span class="nav-text">3.2 只用来被其它attr引用的属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-其它"><span class="nav-text">3.3 其它</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、结合style-theme-attr"><span class="nav-text">三、结合style, theme, attr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四，-好的实践"><span class="nav-text">四， 好的实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、v7-appcompat-library"><span class="nav-text">五、v7 appcompat library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

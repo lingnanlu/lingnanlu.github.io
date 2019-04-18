@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背景网络上有很多关于Task和launchMode, 但多数过于关注细节. 这样导致在读这些文章时还懂, 但过了一段时间都记不清了, 容易搞混. 本文试着探索其背后的设计理念, 不关注细节, 当理念了其设计理念后, 不同launchMode下的行为也就不难推断出来了. 本文结构如下  先讲为什么要有Task, Task背后的隐喻 为什么要有LaunchMode 从字面上去理解LaunchMode,">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lanuchMode, Task, 隐喻[TBD]">
+<meta property="og:url" content="http://asanelder.me/2016/04/01/lanuchmode-and-task/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="背景网络上有很多关于Task和launchMode, 但多数过于关注细节. 这样导致在读这些文章时还懂, 但过了一段时间都记不清了, 容易搞混. 本文试着探索其背后的设计理念, 不关注细节, 当理念了其设计理念后, 不同launchMode下的行为也就不难推断出来了. 本文结构如下  先讲为什么要有Task, Task背后的隐喻 为什么要有LaunchMode 从字面上去理解LaunchMode,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.859Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="lanuchMode, Task, 隐喻[TBD]">
+<meta name="twitter:description" content="背景网络上有很多关于Task和launchMode, 但多数过于关注细节. 这样导致在读这些文章时还懂, 但过了一段时间都记不清了, 容易搞混. 本文试着探索其背后的设计理念, 不关注细节, 当理念了其设计理念后, 不同launchMode下的行为也就不难推断出来了. 本文结构如下  先讲为什么要有Task, Task背后的隐喻 为什么要有LaunchMode 从字面上去理解LaunchMode,">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/04/01/lanuchmode-and-task/">
+
+
+
+
+
+  <title>lanuchMode, Task, 隐喻[TBD] | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/04/01/lanuchmode-and-task/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">lanuchMode, Task, 隐喻[TBD]</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-04-01T00:00:00+08:00">
+                2016-04-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>网络上有很多关于Task和launchMode, 但多数过于关注细节. 这样导致在读这些文章时还懂, 但过了一段时间都记不清了, 容易搞混.</p>
+<p>本文试着探索其背后的设计理念, 不关注细节, 当理念了其设计理念后, 不同launchMode下的行为也就不难推断出来了.</p>
+<p>本文结构如下</p>
+<ol>
+<li>先讲为什么要有Task, Task背后的隐喻</li>
+<li>为什么要有LaunchMode</li>
+<li>从字面上去理解LaunchMode, 并对每一种LaunchMode给出一个应用场景.</li>
+<li>查看当前系统中运行的Task</li>
+</ol>
+<h3 id="1-Task背后的隐喻"><a href="#1-Task背后的隐喻" class="headerlink" title="1. Task背后的隐喻"></a>1. Task背后的隐喻</h3><p>Task的中文意思就是任务, 在Android中, 是什么含义呢?</p>
+<p>举个例子.</p>
+<p>比如说, 你现在</p>
+<blockquote>
+<p>想写一封邮件, 在这封邮件中需要插入一张图片</p>
+</blockquote>
+<p>这就是一个任务</p>
+<p>我们知道Android中与用户交互的组件由Activity组成, 想要完成以上任务, 基本上需要两个Activity, 一个是写邮件的Activity, 另一个是选择图片的Activity, 于是乎, 该任务就涉及到了两个Activity.</p>
+<p>可以推断出, 有时, 我们利用手机要做一件事, 这件事涉及到了多个Activity的配合使用, 将这件事抽象出来, 就是一个Task, 而这做这件事的过程中涉及到多个Activity, 所以, 一个Task中包含多个Activity, 而要管理这件事中的多个Activity, 就是Back Stack了.</p>
+<p>由上可知, 当我们在使用手机做一件事时, 我们并不太关心使用的是哪一个具体的应用, 而关心做这件事时,需要哪些个界面才行. 从这个角度来讲, “应用”这种抽象概念并不是那么自然的, 反而Task抽象显得更自然与合理.</p>
+<p>这也体现出Android的设计理念, 模糊应用之间的边界, 整个Android系统由四大组件组成, 组件之间的配合, 来帮助用户完成一个任务, 而用户不需要关心自己用的是哪一个应用.</p>
+<h3 id="2-什么是LaunchMode-为什么要有LaunchMode"><a href="#2-什么是LaunchMode-为什么要有LaunchMode" class="headerlink" title="2. 什么是LaunchMode, 为什么要有LaunchMode"></a>2. 什么是LaunchMode, 为什么要有LaunchMode</h3><p>LaunchMode是Activity的一个属性, Activity还有另外一个属性taskAffinity, 这两个属性影响着当新生成一个Activity对象时, 该对象与Task的关系(当然,还有很多属性影响到Activity与Task的关系, 这里只考虑这两个属性, 其它默认)</p>
+<p>好, 什么是Activity与Task的关系呢? 它们之间有什么关系呢?</p>
+<p>由以上可以知识, 当用户在做一个Task时, 需要使用多个不同的Activity, 这些Activity以First In Last Out的顺序组织在Back Stack中, 每切换到另一个Activity时, 就需要生成一个新的Activity压栈, 而点击返回则将栈顶的Activity出栈, 这就是默认的行为, 一个Task中的所有Activity在同一个BackStack中, 并且当startActivity()时就生成一个新的对象放到栈顶.</p>
+<p>但有时, 这种默认行为并不是用户想要的.</p>
+<p>比如说如下这种任务</p>
+<blockquote>
+<p>假设有一个搜索框，每次搜索查询都会将我们引导至SearchActivity查看结果，为了更好的交互体验，我们在结果页顶部也放置这样的搜索框。<br>假设一下，SearchActivity启动模式为standard，那么每一个搜索都会创建一个新的SearchActivity实例，10次查询就是10个Activity。当我们想要退回到非SearchActivity，我们需要按返回键10次，这显然太不合理了。<br>但是如果我们使用singleTop的话，如果SearchActivity在栈顶，当有了新的查询时，不再重新创建SearchAc实例，而是使用当前的SearchActivity来更新结果。当我们需要返回到非SearchActivity只需要按一次返回键即可。使用了singleTop显然比之前要合理。</p>
+</blockquote>
+<p>这里的standard和singleTop就是不同的LaunchMode, 当用户在进行搜索任务时, 显然standard的启动模式不能给用户带来良好的体验.</p>
+<p>所以, LaunchMode存在的意义就是, 当用户执行不同的任务时, 为了提供良好的体验所设计的.</p>
+<p>以下就从字面意义上去解释四种LaunchMode和taskAffinity的含义, 并对每一种mode, 给出一种应用场景.</p>
+<h3 id="3-理解LaunchMode和taskAffinity"><a href="#3-理解LaunchMode和taskAffinity" class="headerlink" title="3. 理解LaunchMode和taskAffinity"></a>3. 理解LaunchMode和taskAffinity</h3><p>首先解释一个taskAffinity的含义.</p>
+<p>顾名思义, taskAffinity的含义就是<strong>Activity与Task的亲密度</strong></p>
+<p>我们知道, taskAffinity是Activity的一个属性, 而task也有一个taskAffinity的属性, 其值就是task中root activity的taskAffinity的值.</p>
+<p>当startActivity时, 生成的Activity会优先放到与其taskAffinity相同的Task中, 但这也不一定, 生成的Activity放入哪一个Task还要由LaunchMode来决定.</p>
+<p>如果不指定taskAffinity, 同一Application中的所有Activity具有相同的taskAffinity.</p>
+<p>因为Task的存在就是为了让用户忘记Application, 所以以下讨论只考虑LaunchMode与taskAffinity, 不区分是否在同一个Application中.</p>
+<p>所以taskAffinity的背后的理念是</p>
+<blockquote>
+<p>当启动新的Activity时, 将其放入到与其taskAffinity相同的task中, 当该task不存在时, 新生成一个task(由以下对LaunchMode的讨论中, 某些行为并不符合该理念, 不知为什么[TBD])</p>
+</blockquote>
+<p>关于以上理念的证据,见Google官网对taskAffinity的解释</p>
+<blockquote>
+<p>The task that the activity has an affinity for. Activities with the same affinity conceptually belong to the same task (to the same “application” from the user’s perspective). The affinity of a task is determined by the affinity of its root activity.<br>By default, all activities in an application have the same affinity. You can set this attribute to group them differently, and even place activities defined in different applications within the same task.</p>
+</blockquote>
+<h4 id="1-Standard"><a href="#1-Standard" class="headerlink" title="1. Standard"></a>1. Standard</h4><p>这是默认的模式</p>
+<p>当启动一个新的Activity时, 永远生成一个新的实例.</p>
+<p>如果该Activity的taskAffinity与当前task相同, 则放入当前Task, 如果不同, 则放入另一个Task.</p>
+<p>实际上, 上面这句话并不全对, 对于不同Application的Activity是适用的, 对于同一个Applicaton, 尽管taskAffinity不同, 也不会新建Task, 这里的行为与其理念相背.</p>
+<p>要想将不同taskAffinity的Activity放入新的Task中, 则需要为Intent设置FLAG_ACTIVITY_NEW_TASK标志.</p>
+<h4 id="2-singleTop"><a href="#2-singleTop" class="headerlink" title="2. singleTop"></a>2. singleTop</h4><p><strong>字面解释:</strong></p>
+<p>只有Single个Activity实例在栈的Top, 即不可能有连续两个Activity在栈顶.</p>
+<p>其与Standard的区别就是, 当Activity在栈顶时, 启动一个新的Activity时, 不会生成新的实例, 会复用栈顶的实例.</p>
+<p>如果该Activity的taskAffinity与task的taskAffinity不同呢?</p>
+<p>这种情况不存在, 因为该Activity在栈顶的事实已经说明了其taskAffinity与task的相同.</p>
+<p>除去在栈顶的情况, 其他情况下与Standard相同</p>
+<p><strong>应用场景:</strong></p>
+<p>见第二部分举的例子</p>
+<h4 id="3-singleTask"><a href="#3-singleTask" class="headerlink" title="3. singleTask"></a>3. singleTask</h4><p><strong>字面含义:</strong></p>
+<p>该activity在其所在的Task中是Single的.</p>
+<p>如果Activity的实例在Task中不存在, 此时, 相同的taskAffinity会使其放入当前task的栈顶, 不同taskAffinity会生成新的Task, 放入新的Task的栈顶.</p>
+<p>如果Activity的实例在Task中存在, 那么说明该Activity的taskAffinity与当前task的相同, 当其在栈顶时, 已经满足要求, 所以什么也不做, 当不在栈顶时, 因为不能生成新的实例, 所以要将其上面的activity都销毁.</p>
+<p><strong>应用场景:</strong></p>
+<p>暂无</p>
+<h4 id="4-singleInstance"><a href="#4-singleInstance" class="headerlink" title="4. singleInstance."></a>4. singleInstance.</h4><p><strong>字面含义:</strong></p>
+<p>该activity在其所在的Task中只有一个instance.并且该Task中只有这一个对象, 没有其它Activity实例, 这就是与singleTask中的不同.</p>
+<p>由以上可知, 只要该实例存在, 一定是在一个新的task中, 而该task与该activity的taskaffinity是相同的.</p>
+<p><strong>应用场景:</strong></p>
+<p>暂无</p>
+<h3 id="4-查看当前系统中运行的Task"><a href="#4-查看当前系统中运行的Task" class="headerlink" title="4. 查看当前系统中运行的Task"></a>4. 查看当前系统中运行的Task</h3><p>可使用<code>adb shell dumpsys activity activities</code></p>
+<h3 id="5-参考"><a href="#5-参考" class="headerlink" title="5. 参考"></a>5. 参考</h3><ol>
+<li><a href="http://blog.iderzheng.com/debug-activity-task-stack-with-adb-shell-dumpsys/" target="_blank" rel="noopener">使用adb shell dumpsys检测Android的Activity任务栈</a></li>
+<li><a href="http://www.cnblogs.com/franksunny/archive/2012/04/17/2453403.html" target="_blank" rel="noopener">Activity、Task、应用和进程</a></li>
+<li><a href="http://droidyue.com/blog/2015/08/16/dive-into-android-activity-launchmode/index.html" target="_blank" rel="noopener">深入讲解Android中Activity launchMode</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/27/what-is-context/" rel="next" title="什么是Context">
+                <i class="fa fa-chevron-left"></i> 什么是Context
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/01/android-memory-leak/" rel="prev" title="Android中的内存泄露">
+                Android中的内存泄露 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Task背后的隐喻"><span class="nav-text">1. Task背后的隐喻</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-什么是LaunchMode-为什么要有LaunchMode"><span class="nav-text">2. 什么是LaunchMode, 为什么要有LaunchMode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-理解LaunchMode和taskAffinity"><span class="nav-text">3. 理解LaunchMode和taskAffinity</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Standard"><span class="nav-text">1. Standard</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-singleTop"><span class="nav-text">2. singleTop</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-singleTask"><span class="nav-text">3. singleTask</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-singleInstance"><span class="nav-text">4. singleInstance.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-查看当前系统中运行的Task"><span class="nav-text">4. 查看当前系统中运行的Task</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-参考"><span class="nav-text">5. 参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

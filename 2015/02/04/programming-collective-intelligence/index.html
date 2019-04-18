@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="第2章 提供推荐概念推荐列表的产生——构造推荐系统的步骤  为指定人员寻找品味相近者，以及如何向其推荐商品 首先，通过某种方式对人们的品味进行量化然后，使用某种算法，计算两个人之间的品味相似性,对于给定的一个人，利用他人与它的品味相似性，以及对物品的评价，进行一个加权的打分，最后给出推荐列表  寻找彼此相近的物品 类似于找品味相近者，如果这里把物品看作人，把人看作物品。前面的方法依然可以利用。 品">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="集体智慧编程笔记">
+<meta property="og:url" content="http://asanelder.me/2015/02/04/programming-collective-intelligence/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="第2章 提供推荐概念推荐列表的产生——构造推荐系统的步骤  为指定人员寻找品味相近者，以及如何向其推荐商品 首先，通过某种方式对人们的品味进行量化然后，使用某种算法，计算两个人之间的品味相似性,对于给定的一个人，利用他人与它的品味相似性，以及对物品的评价，进行一个加权的打分，最后给出推荐列表  寻找彼此相近的物品 类似于找品味相近者，如果这里把物品看作人，把人看作物品。前面的方法依然可以利用。 品">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="集体智慧编程笔记">
+<meta name="twitter:description" content="第2章 提供推荐概念推荐列表的产生——构造推荐系统的步骤  为指定人员寻找品味相近者，以及如何向其推荐商品 首先，通过某种方式对人们的品味进行量化然后，使用某种算法，计算两个人之间的品味相似性,对于给定的一个人，利用他人与它的品味相似性，以及对物品的评价，进行一个加权的打分，最后给出推荐列表  寻找彼此相近的物品 类似于找品味相近者，如果这里把物品看作人，把人看作物品。前面的方法依然可以利用。 品">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2015/02/04/programming-collective-intelligence/">
+
+
+
+
+
+  <title>集体智慧编程笔记 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/02/04/programming-collective-intelligence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">集体智慧编程笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-02-04T00:00:00+08:00">
+                2015-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="第2章-提供推荐"><a href="#第2章-提供推荐" class="headerlink" title="第2章 提供推荐"></a>第2章 提供推荐</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>推荐列表的产生——构造推荐系统的步骤</p>
+<ol>
+<li><p>为指定人员寻找品味相近者，以及如何向其推荐商品</p>
+<p>首先，通过某种方式对人们的品味进行量化<br>然后，使用某种算法，计算两个人之间的品味相似性,对于给定的一个人，利用他人与它的品味相似性，以及对物品的评价，进行一个加权的打分，最后给出推荐列表</p>
+</li>
+<li><p>寻找彼此相近的物品</p>
+<p>类似于找品味相近者，如果这里把物品看作人，把人看作物品。前面的方法依然可以利用。</p>
+<p>品味相近者-彼此相近的物品<br>为评论者推荐影片-为物品推荐评论者<br>人喜欢某些商品和商品被某些人所喜欢。</p>
+</li>
+</ol>
+<p>基于用户的协作型过滤会频繁的在用户之间进行比较，当用户数量很大时，其速度可能是无法忍受的。而物品间的比较不会像用户间的比较那么频繁变化，所以一种改进的方式是基于物品的协作型过滤。</p>
+<h3 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h3><ol>
+<li>协同过滤 collaborative filtering</li>
+<li>欧几里德距离</li>
+<li>皮尔逊相关度</li>
+<li>Jaccard系数</li>
+<li>曼哈顿距离</li>
+</ol>
+<h2 id="第3章-发现群组"><a href="#第3章-发现群组" class="headerlink" title="第3章 发现群组"></a>第3章 发现群组</h2><p>数据聚类：一种用以寻找紧密相关的事，人或观点，并将其可视化的方法。</p>
+<h3 id="监督学习和无监督学习"><a href="#监督学习和无监督学习" class="headerlink" title="监督学习和无监督学习"></a>监督学习和无监督学习</h3><p><strong>监督学习</strong> : 利用样本输入和期望输出来学习如何预测的方法。</p>
+<ol>
+<li>神经网络</li>
+<li>决策树</li>
+<li>向量支持机</li>
+<li>贝叶斯过滤</li>
+</ol>
+<p><strong>无监督学习</strong> : 不用进行训练，目地是要在一组数据中找寻某种结构，其目标是采集数据，然后从中找出不同的群组。</p>
+<ol>
+<li>聚类</li>
+<li>非负矩阵因式分解</li>
+<li>自组织映射</li>
+</ol>
+<p><strong>分级聚类</strong></p>
+<p>分级聚类通过连续不断地将最为相似的群组两两合并，来构造出一个群组的层级结构。</p>
+<p><strong>列聚类</strong></p>
+<p>列聚类类似于行聚类，只要把矩阵进行转置，就可以使用之前的算法了。</p>
+<p><strong>K-means</strong></p>
+<p>K-means可以指定最终生成的聚类个数，通过多次迭代将数据集生成K个聚类</p>
+<p><strong>Tanimoto系数</strong></p>
+<p>也是度量相关度的方式，通过将两个数据集的交集与并集做比来进行判断。</p>
+<h2 id="第4章-搜索与排名"><a href="#第4章-搜索与排名" class="headerlink" title="第4章 搜索与排名"></a>第4章 搜索与排名</h2><p><strong>搜索的大体流程</strong></p>
+<ol>
+<li>利用爬虫抓取数据，如网页</li>
+<li>将这么数据保存到数据库中并建立索引。</li>
+<li>查询数据库得到结果</li>
+<li>利用一定的算法对查询结果进行排序</li>
+</ol>
+<p><strong>对结果排序的方法</strong></p>
+<ol>
+<li><p>基于网页内容的排序，考察以下三个方面</p>
+<ul>
+<li>单词频度</li>
+<li>文档位置</li>
+<li>单词距离</li>
+</ul>
+</li>
+<li><p>PageRank,另一种对网页进行评价的方法</p>
+</li>
+</ol>
+<p><strong>神经网络</strong></p>
+<p>为什么需要一种像神经网络这样的复杂技术，而不是简单地记录下查询地记录下查询条件以及每个搜索结果被点击的次数呢？</p>
+<p>这是因为神经网络可以根据与其他查询的相似度情况，对以前从未见过的查询结果做出合理的猜测。</p>
+<p>比如说，输入法，当你输出某个首字母缩写后，从候选词列表中选择一下，当选择次数多之后，再次输入时，该被选择词组会被放在第一个位置。</p>
+<p>当你输入另一个首字母缩写（该单词的含义与之前类似，如计算机和电脑），神经网络可以利用之前的训练给出合理的结果，如果不使用神经网络，仅仅是简单的记录，是无法利用之前的查询结果的。</p>
+<p>为什么神经网络可以做到呢？这是因为，之前的查询会对某些神经元进行训练，这些训练会不断加强相关神经元的活跃程度，之后，再遇到类似的查询时这些活跃的神经元就可以帮助给出合理的结果。</p>
+<p><strong>关键问题</strong></p>
+<p>神经网络一个关键问题是，如何利用用户对搜索结果的偏好来改变各神经元之间的链接强度。</p>
+<p><strong>其它概念</strong></p>
+<p>归一化处理：对结果进行处理即令之有相同的值域和变化方向。</p>
+<h2 id="第五章-优化"><a href="#第五章-优化" class="headerlink" title="第五章 优化"></a>第五章 优化</h2><p><strong>本章要解决的问题</strong></p>
+<p>对于一个问题可能有很多解，这些解有的好有的不好，而我们不能对所有可能的解进行一一尝试来找出最佳解，优化算法就是从一种解出发，然后对其进行不断的修正，从而使其接近最优解。</p>
+<p>关键是确定</p>
+<ol>
+<li>解的表示方法</li>
+<li>一个成本函数用来评估解的优劣</li>
+</ol>
+<p><strong>典型算法</strong></p>
+<ol>
+<li>随机搜索：在解域随机选择若干，找出其中的使成本函数值最小的解。该方法不能找出最优解。</li>
+<li><p>爬山法：先随机找出一个解，然后找出其所有邻居解。在邻居解中找出最优解，再迭代重复。</p>
+<p>形象化：解为横坐标，解的成本为纵坐标。</p>
+<p>优缺点：因为初始解是随机的，所以只能得到局部最优解。做为改善，可以使用随机重复爬山法。</p>
+</li>
+<li><p>模拟退火：该算法也是先找一个随机解，与爬山法不同的是，该算法有一定的概率接受一个更差的解，而且该概率与一个变量——温度有关，当温度高时，接受更差的解的可能性比较大，随着迭代的进行，温度慢慢下降，接受更差的解的可能性也逐渐降低。</p>
+</li>
+<li><p>遗传算法：随机选择一组解，然后从这组解中选取精英解，利用这些精英解，构建一组新解。构建方法有</p>
+<ul>
+<li>变异</li>
+<li>交叉</li>
+</ul>
+</li>
+</ol>
+<p>优化算法起作用的前提是：最优解应该接近于其他的优解。</p>
+<p><strong>应用实例</strong></p>
+<ol>
+<li>航班安排</li>
+<li>学生宿舍优化(资源分配问题)</li>
+<li>绘制一个交叉线尽量少的网络</li>
+</ol>
+<h2 id="第六章-文档过滤"><a href="#第六章-文档过滤" class="headerlink" title="第六章 文档过滤"></a>第六章 文档过滤</h2><p><strong>本章解决问题</strong></p>
+<p>依据内容对文档进行分类，分类器需要利用某些特征来对不同的内容进行分类，所以选择什么样的特征以及提取特征是一个很重要的问题</p>
+<p><strong>算法流程</strong></p>
+<ol>
+<li>对所要分类的内容提取出特征集(定义特征提取函数)</li>
+<li>计算不同特征在不同分类中所出现的概率</li>
+<li>利用特征的概率计算出内容属于某一分类的概率</li>
+</ol>
+<p><strong>两种分类器</strong></p>
+<ol>
+<li>朴素贝叶斯</li>
+<li>费舍尔方法</li>
+</ol>
+<p><strong>应用实例</strong></p>
+<ol>
+<li>垃圾邮件过滤</li>
+<li>RSS内容筛选</li>
+</ol>
+<h2 id="第七章-决策树建模"><a href="#第七章-决策树建模" class="headerlink" title="第七章 决策树建模"></a>第七章 决策树建模</h2><p>决策树也是一种分类算法，其它分类算法还有，贝叶斯分类，神经网络，支持向量机。</p>
+<p><strong>名词</strong></p>
+<ol>
+<li>基尼不纯度：指将来自集合中的某种结果随机应用于集合中某一数据项的预期误差率</li>
+<li>熵：在信息理论中，熵代表的是集合的无序程序，熵越大，信息量越大，越不容易预测。</li>
+<li>过拟合：一个学习者在经过训练之后，在训练集上能得到很好的拟合效果，而在测试集上却不能很好的拟合数据。</li>
+</ol>
+<p><strong>算法流程</strong></p>
+<ol>
+<li>根据数据集来构造决策树</li>
+<li>对新的观测数据，使用该决策树对其进行分类</li>
+</ol>
+<p><strong>应用</strong></p>
+<ol>
+<li>对住房价格进行建模</li>
+<li>用户付费进行建模</li>
+<li>交友网站用户热度建模</li>
+</ol>
+<h2 id="第八章-构建价格模型"><a href="#第八章-构建价格模型" class="headerlink" title="第八章 构建价格模型"></a>第八章 构建价格模型</h2><p><strong>解决问题</strong></p>
+<p>本章要解决的问题是：利用一个数据集，对数值型数据进行预测。</p>
+<p><strong>使用的算法</strong></p>
+<ol>
+<li>K-最近邻算法：利用与待预测的商品相近的商品价格对该商品的价格进行预测。</li>
+</ol>
+<p><strong>应用</strong></p>
+<ol>
+<li>商品价格预测</li>
+</ol>
+<p><strong>算法流程(kNN)</strong></p>
+<ol>
+<li>选择一组对待预测数据产生影响的变量</li>
+<li>构造数据集，利用此数据集对待预测数据进行预测</li>
+</ol>
+<p><strong>关键问题(kNN)</strong></p>
+<ol>
+<li>选择相近的商品数(k值的决定)</li>
+<li>对不同距离的邻居分配不同权重(一般越远权重越小)</li>
+<li>对预测算法的准确性进行验证(利用交差验证函数)</li>
+<li>一组变量中，不同变量的值域并不相同，直接计算距离值是没有意义的。而且还可能引入了完全不相关的变量。为了提高预测的准确度，需要对各变量进行 <strong>按比例缩放</strong> 处理。至于对各变量的比例<br>缩放大小是多少，可以利用优化算法来进行确定(使用优化算法时，成本函数可以是交差验证函数)</li>
+</ol>
+<p><strong>优点与不足(kNN)</strong></p>
+<p>优点：因为每一次预测都要计算近邻，所以将新的观测数据加入到数据集中时，无须任何计算开销(其它算法可能在数据集发生改变时重新进行训练)</p>
+<p>缺点：</p>
+<ol>
+<li>计算量很大</li>
+</ol>
+<h2 id="第九章-核方法与SVM"><a href="#第九章-核方法与SVM" class="headerlink" title="第九章 核方法与SVM"></a>第九章 核方法与SVM</h2><p><strong>名词</strong></p>
+<p><strong>线性分类的工作原理</strong>：寻找每个分类中所有数据的平均值，并构造一个代表该分类中心位置的点。然后判断待分类数据距离哪个中心点近来确定其分类。线性分类器需要找出一条分界线来，根据<br>点与分界线的相对位置来判断属于哪一类</p>
+<p><strong>核函数</strong>：当将一个空间A变换到另一个空间B（利用映射）,对于空间B，计算空间B中的两个向量的内积，并使用空间A中的变量表达该内积，这样的一个函数表达式就是核函数</p>
+<p><strong>径向基函数</strong>：是这样的一种函数，其值只依赖于变量距某一点的距离。</p>
+<p><strong>支持向量机</strong>：是一种分类器，利用支持向量来寻找分界线。支持向量是每一类上的边缘处那几个点分界线的位置是完全由支持向量来确定，也就是说，如果去掉每一类的非支持向量点，分界线的位置是不变的。在某些情况下，在低维度，寻找一个分界超平面是一个非线性的问题，此时，需要把数据空间从低维度映射到高维度，映射到高维度之后，就可以找到一个分界超平面来进行分类。</p>
+<p><strong>注意</strong>：核函数和径向基函数没有必然联系，只是有的核函数的形式就是一种径向基函数。</p>
+<h2 id="第十章-寻找独立特征"><a href="#第十章-寻找独立特征" class="headerlink" title="第十章 寻找独立特征"></a>第十章 寻找独立特征</h2><p><strong>关键问题</strong></p>
+<p>本章要解决的问题是，从一组数据集出，提取出模式，即，一些数据属于某一模式，另一些属于另一模式，本章就是从大量数据集中找出隐含在其背后的模式。</p>
+<p><strong>应用实例</strong></p>
+<ol>
+<li>将大量新闻进行分组。找出新闻背后的主题</li>
+<li>股票市场</li>
+</ol>
+<p><strong>使用算法</strong></p>
+<p>NMF：非负矩阵因式分解。</p>
+<p>将一个矩阵分解为两个矩阵，一个为特征矩阵， 一个为权重矩阵。这两个矩阵中的元素都是非负的。特征矩阵和行数以及权重矩阵的列数就是要找的特征数(模式数)。所以寻找背后的模式也称为特征提取。</p>
+<h2 id="第十一章-智能进化"><a href="#第十一章-智能进化" class="headerlink" title="第十一章 智能进化"></a>第十一章 智能进化</h2><p><strong>关键问题</strong></p>
+<p>本章利用遗传的思想来构造程序。</p>
+<p>解决实际问题时，总是要寻找一个解，即构造出一个程序来。但有的时候，凭借人工无法找出这样的一个程序，如随机给定一些点，寻找一个函数来拟合这些点。</p>
+<p>遗传编程的思想时，先随机生成很多个程序来，然后对这些程序选出优异的个体，进行交叉，变异传递给下一代，这样进化几代之后，就可能找出这样一个程序，可以解决要解决的问题。</p>
+<p>由上可知，在使用遗传编程时，有如下两点需要注意。</p>
+<ol>
+<li>寻找一种程序的表示方法，从而方便的对程序进行变异，交叉等(使用树的表示法)</li>
+<li>对程序进行评价，衡量程序的好坏。</li>
+</ol>
+<p><strong>应用实例</strong></p>
+<ol>
+<li>寻找未知函数</li>
+<li>在游戏中，构造智能玩家。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/02/encodings/" rel="next" title="乱码问题原因分析">
+                <i class="fa fa-chevron-left"></i> 乱码问题原因分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/03/31/an-example-about-closure/" rel="prev" title="闭包的一个例子">
+                闭包的一个例子 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#第2章-提供推荐"><span class="nav-text">第2章 提供推荐</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念"><span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#术语"><span class="nav-text">术语</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第3章-发现群组"><span class="nav-text">第3章 发现群组</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#监督学习和无监督学习"><span class="nav-text">监督学习和无监督学习</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第4章-搜索与排名"><span class="nav-text">第4章 搜索与排名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第五章-优化"><span class="nav-text">第五章 优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第六章-文档过滤"><span class="nav-text">第六章 文档过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第七章-决策树建模"><span class="nav-text">第七章 决策树建模</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第八章-构建价格模型"><span class="nav-text">第八章 构建价格模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第九章-核方法与SVM"><span class="nav-text">第九章 核方法与SVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第十章-寻找独立特征"><span class="nav-text">第十章 寻找独立特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第十一章-智能进化"><span class="nav-text">第十一章 智能进化</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="框架图 fast-fail原理当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。例如：当某一个线程A通过iterator去遍历某集合的过程中，若该集合的内容被其他线程所改变了；那么线程A访问集合时，就会抛出ConcurrentModificationException异常，产生fail-fast事件。 原理见Java 集合系列04之 fail-fast总结 List1 A">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java容器总结">
+<meta property="og:url" content="http://asanelder.me/2016/08/07/java-container-summary/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="框架图 fast-fail原理当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。例如：当某一个线程A通过iterator去遍历某集合的过程中，若该集合的内容被其他线程所改变了；那么线程A访问集合时，就会抛出ConcurrentModificationException异常，产生fail-fast事件。 原理见Java 集合系列04之 fail-fast总结 List1 A">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/Java_Container.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.009Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java容器总结">
+<meta name="twitter:description" content="框架图 fast-fail原理当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。例如：当某一个线程A通过iterator去遍历某集合的过程中，若该集合的内容被其他线程所改变了；那么线程A访问集合时，就会抛出ConcurrentModificationException异常，产生fail-fast事件。 原理见Java 集合系列04之 fail-fast总结 List1 A">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/Java_Container.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/08/07/java-container-summary/">
+
+
+
+
+
+  <title>Java容器总结 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/java-container-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java容器总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-07T00:00:00+08:00">
+                2016-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="框架图"><a href="#框架图" class="headerlink" title="框架图"></a>框架图</h3><p><img src="/assets/pics/Java_Container.jpg" alt="Java容器全局图"></p>
+<h3 id="fast-fail原理"><a href="#fast-fail原理" class="headerlink" title="fast-fail原理"></a>fast-fail原理</h3><p>当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。<br>例如：当某一个线程A通过iterator去遍历某集合的过程中，若该集合的内容被其他线程所改变了；那么线程A访问集合时，就会抛出ConcurrentModificationException异常，产生fail-fast事件。</p>
+<p>原理见<a href="http://wangkuiwu.github.io/2012/02/04/collection-04-fail-fast/" target="_blank" rel="noopener">Java 集合系列04之 fail-fast总结</a></p>
+<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><h4 id="1-ArrayList"><a href="#1-ArrayList" class="headerlink" title="1 ArrayList"></a>1 ArrayList</h4><ol>
+<li>容量不足时，新扩容的大小为旧容量的一半</li>
+<li>实际上利用的一个数组去保存数据的</li>
+<li><p>不同遍历方式</p>
+<ul>
+<li>get(index)方式最简单最高效， 就是直接返回底层数组的index元素，而没有fast-fail检查</li>
+<li>而使用iterator会涉及到fast-fail检查， 即多个线程并发去读写list时， 抛出concurrencymodify异常， 所以效率低</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-CopyOnWriteArrayList"><a href="#2-CopyOnWriteArrayList" class="headerlink" title="2 CopyOnWriteArrayList"></a>2 CopyOnWriteArrayList</h4><ol>
+<li>顾名思义，在对List写时， 所写的已不是原数组，而是在一个新的数组在进行操作</li>
+<li>由源码可知， 如果有多个线程并发读写， 那么读到的数组是原数组， 所以会出现数据不一致的情况， 即读到的数据并不是最新的。但因为最终读（在所有写完成后）可以读到最新数据， 这就是具有<strong>最终一致性</strong>， 但不具有<strong>实时一致性</strong></li>
+<li>适用于读多写少（读的时候不加锁）， 且不要求实时一致性的场合</li>
+<li>在写的时候会进行加锁， 所以， 即使有多个写线程， 也是只有一个副本。</li>
+<li>因为写的时候有一个副本， 所以内存还是占用多那么一点</li>
+<li>其它CopyOnWrite系列原理与此相同</li>
+</ol>
+<p>参考文章</p>
+<p><a href="http://coolshell.cn/articles/11175.html" target="_blank" rel="noopener">Java中的CopyOnWrite容器</a></p>
+<h4 id="3-LinkedList"><a href="#3-LinkedList" class="headerlink" title="3 LinkedList"></a>3 LinkedList</h4><ol>
+<li>实际上是一个双向列表</li>
+<li>其依然支持随机访问， 它就是通过一个计数索引值来实现的。例如，当我们调用get(int location)时，首先会比较“location”和“双向链表长度的1/2”；若前者大，则从链表头开始往后查找，直到location位置；否则，从链表末尾开始先前查找，直到location位置</li>
+<li>依然是fast-fail机制</li>
+<li>由随机访问的原理可知， 当遍历LinkedList是， 随机访问的效率是很低的，所以使用Iterator比较好 </li>
+</ol>
+<h4 id="4-Vector"><a href="#4-Vector" class="headerlink" title="4 Vector"></a>4 Vector</h4><p>和ArrayList类似， 但是是线程安全的.</p>
+<p>因为是默认是线程安全的， 所以get，set方法都要加锁， 即使是在非并发环境下。</p>
+<p>所以，新的设计是使用ArrayList, 如果在并发环境中使用， 则利用synchronizedList返回其并发版本。</p>
+<h4 id="5-Stack"><a href="#5-Stack" class="headerlink" title="5 Stack"></a>5 Stack</h4><p>Stack是继承Vector的， 所以Vector的缺点它都有， 这也是不推荐使用的原因，可利用LinkedList代替</p>
+<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3><h4 id="1-HashMap"><a href="#1-HashMap" class="headerlink" title="1 HashMap"></a>1 HashMap</h4><ol>
+<li>HashMap是非线程安全的，一样实现了fast-fail机制</li>
+<li>使用Collections.sy…Map方法返回其线程安全版本，该安全版本性能不好，因为锁的是整个Map, 性能更好的版本是CocurrencyHashMap，这个使用的是分段锁，锁的不是整个Map</li>
+<li>HashTable是线程安全的, 但同样性能不好</li>
+<li><a href="http://lingnanlu.github.io/2016/08/07/hashmap-loadfactor" target="_blank" rel="noopener">HashMap中loadfactor的含义</a></li>
+<li><p>HashMap提供三种视图</p>
+<ul>
+<li>所有条目entrySet():集合</li>
+<li>所有键keySet():集合</li>
+<li>所有值values():Collection</li>
+</ul>
+</li>
+<li><p>put, get的复杂度为O(1)</p>
+</li>
+</ol>
+<h4 id="2-HashTable"><a href="#2-HashTable" class="headerlink" title="2 HashTable"></a>2 HashTable</h4><p>和HashMap类似， 就是线程安全的， 性能低</p>
+<h4 id="3-TreeMap"><a href="#3-TreeMap" class="headerlink" title="3 TreeMap"></a>3 TreeMap</h4><ol>
+<li>利用红黑树来保存， 因为红黑树也是用来加快检索的， 所以和Hash的功能类似</li>
+<li>因为红黑树也是二叉搜索树， 对其进行中序遍历， 就可以得到其有序序列， 其保存的键是有序的， 所以当对其进行迭代时，键是有序的</li>
+<li>因为是红黑树，其put,get操作复杂度是O(logN)</li>
+<li>同样，非同步，fast-fail</li>
+</ol>
+<h4 id="4-WeakHashMap-TODO-以及WeakReference的用途"><a href="#4-WeakHashMap-TODO-以及WeakReference的用途" class="headerlink" title="4 WeakHashMap(TODO, 以及WeakReference的用途)"></a>4 WeakHashMap(TODO, 以及WeakReference的用途)</h4><ol>
+<li>键是弱键，值不是弱值</li>
+<li>当弱键引用的对象被回收后，会将该弱键放入ReferenceQueue中，当下一次操作WeakHashMap时，会根据ReferenceQueue中的弱键删除相关entry</li>
+<li>同样，非同步 fast-fail</li>
+<li>用途，好像是用来保存某些元信息(TODO）</li>
+</ol>
+<h4 id="5-LinkedHashMap"><a href="#5-LinkedHashMap" class="headerlink" title="5 LinkedHashMap"></a>5 LinkedHashMap</h4><p>保存着插入顺序，迭代时的顺序就是插入顺序。继承自HashMap, 非线程安全</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>Set是基于Map实现的，其中</p>
+<ol>
+<li>HashSet是基于HashMap</li>
+<li>TreeSet是通过TreeMap</li>
+</ol>
+<h4 id="1-HashSet"><a href="#1-HashSet" class="headerlink" title="1 HashSet"></a>1 HashSet</h4><ol>
+<li>HashSet是基于HashMap</li>
+<li>非同步，fast-fail</li>
+<li>怎样实现没有重复元素呢？实际上是利用了HashMap中键不可能重复的性质，也就是说，只使用了HashMap中的键，而值是一个Object对象</li>
+<li>其它性质与HashMap类似，如查找性质等</li>
+</ol>
+<h4 id="2-TreeSet"><a href="#2-TreeSet" class="headerlink" title="2 TreeSet"></a>2 TreeSet</h4><p>参照HashSet的4条与TreeMap的性质。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/07/framework-dip-ioc-di/" rel="next" title="理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)">
+                <i class="fa fa-chevron-left"></i> 理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/07/hashmap-loadfactor/" rel="prev" title="HashMap中loadfactor的含义">
+                HashMap中loadfactor的含义 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#框架图"><span class="nav-text">框架图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fast-fail原理"><span class="nav-text">fast-fail原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#List"><span class="nav-text">List</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-ArrayList"><span class="nav-text">1 ArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-CopyOnWriteArrayList"><span class="nav-text">2 CopyOnWriteArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-LinkedList"><span class="nav-text">3 LinkedList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Vector"><span class="nav-text">4 Vector</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Stack"><span class="nav-text">5 Stack</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Map"><span class="nav-text">Map</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-HashMap"><span class="nav-text">1 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-HashTable"><span class="nav-text">2 HashTable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-TreeMap"><span class="nav-text">3 TreeMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-WeakHashMap-TODO-以及WeakReference的用途"><span class="nav-text">4 WeakHashMap(TODO, 以及WeakReference的用途)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-LinkedHashMap"><span class="nav-text">5 LinkedHashMap</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set"><span class="nav-text">Set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-HashSet"><span class="nav-text">1 HashSet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-TreeSet"><span class="nav-text">2 TreeSet</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

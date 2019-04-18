@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言本文通过分析一个具体的实例来了解AMS的机制,了解该机制中涉及到的实体,这些实体之间的关系,以及这些实体的作用的角色等. 该实例来自于Android系统在新进程中启动自定义服务过程（startService）的原理分析, 本文只是换种方式来对其进行重新组织和分析,并只关注AMS中的关键概念. 实例分析该实例可分为三个阶段,以下分阶段进行分析. 1. Step 1 - Step 7:要启动服务的">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="由一个实例了解AMS机制">
+<meta property="og:url" content="http://asanelder.me/2016/02/28/ams/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="前言本文通过分析一个具体的实例来了解AMS的机制,了解该机制中涉及到的实体,这些实体之间的关系,以及这些实体的作用的角色等. 该实例来自于Android系统在新进程中启动自定义服务过程（startService）的原理分析, 本文只是换种方式来对其进行重新组织和分析,并只关注AMS中的关键概念. 实例分析该实例可分为三个阶段,以下分阶段进行分析. 1. Step 1 - Step 7:要启动服务的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/AMS1.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.859Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="由一个实例了解AMS机制">
+<meta name="twitter:description" content="前言本文通过分析一个具体的实例来了解AMS的机制,了解该机制中涉及到的实体,这些实体之间的关系,以及这些实体的作用的角色等. 该实例来自于Android系统在新进程中启动自定义服务过程（startService）的原理分析, 本文只是换种方式来对其进行重新组织和分析,并只关注AMS中的关键概念. 实例分析该实例可分为三个阶段,以下分阶段进行分析. 1. Step 1 - Step 7:要启动服务的">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/AMS1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/02/28/ams/">
+
+
+
+
+
+  <title>由一个实例了解AMS机制 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/02/28/ams/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">由一个实例了解AMS机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-28T00:00:00+08:00">
+                2016-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本文通过分析一个具体的实例来了解AMS的机制,了解该机制中涉及到的实体,这些实体之间的关系,以及这些实体的作用的角色等.</p>
+<p>该实例来自于<a href="http://blog.csdn.net/luoshengyang/article/details/6677029" target="_blank" rel="noopener">Android系统在新进程中启动自定义服务过程（startService）的原理分析</a>, 本文只是换种方式来对其进行重新组织和分析,并只关注AMS中的关键概念.</p>
+<h3 id="实例分析"><a href="#实例分析" class="headerlink" title="实例分析"></a>实例分析</h3><p>该实例可分为三个阶段,以下分阶段进行分析.</p>
+<h4 id="1-Step-1-Step-7-要启动服务的进程与ActivityManagerService通信"><a href="#1-Step-1-Step-7-要启动服务的进程与ActivityManagerService通信" class="headerlink" title="1. Step 1 - Step 7:要启动服务的进程与ActivityManagerService通信"></a>1. Step 1 - Step 7:要启动服务的进程与ActivityManagerService通信</h4><h4 id="所做工作"><a href="#所做工作" class="headerlink" title="所做工作"></a>所做工作</h4><ol>
+<li>启动一个新的进程</li>
+<li>从Intent中取得Service的相关信息(如要运行的Service的类名)</li>
+<li>将新进程的pid与Service的相关信息保存到ActivityManagerService中</li>
+</ol>
+<h4 id="涉及实体"><a href="#涉及实体" class="headerlink" title="涉及实体"></a>涉及实体</h4><ol>
+<li>ActivityManagerProxy</li>
+<li>ActivityManagerService</li>
+<li>IActivityManager</li>
+<li>ContextImpl</li>
+<li>ActivityThread</li>
+<li>Context</li>
+<li>ContextWrapper</li>
+<li>ContextThemeWrapper</li>
+<li>ContextImpl</li>
+<li>Activity</li>
+</ol>
+<p>以上类的之间的关系如下图所示</p>
+<p><img src="/assets/pics/AMS1.jpg" alt></p>
+<p>由图可知,当调用Activity的startService时,实际上调用的是ActivityManagerProxy,而从图中看出,IAcitityManager, ActivityManagerProxy, ActivityManagerService是典型的Binder机制结构, 所以最终调用的是ActivityManagerService.startService().</p>
+<p>对于ActivityThread, 在Android系统中,每一个进程都用一个ActivityThread实例表示,每一个进程都与ActivityThread相关联.体现以上说法的是ActivityManagerService.startProcessLocked()中的如下代码:</p>
+<pre><code>int pid = Process.start(&quot;android.app.ActivityThread&quot;,  mSimpleProcessManagement ? app.processName : null, uid, uid,
+                        gids, debugFlags, null);
+</code></pre><p>可见,ActivityThread是由新的进程执行,而其main函数就是新进程程序的入口.</p>
+<h4 id="2-Step-8-Step-11-由第一阶段生成的新进程与ActivityManagerService通信"><a href="#2-Step-8-Step-11-由第一阶段生成的新进程与ActivityManagerService通信" class="headerlink" title="2. Step 8 - Step 11:由第一阶段生成的新进程与ActivityManagerService通信"></a>2. Step 8 - Step 11:由第一阶段生成的新进程与ActivityManagerService通信</h4><h4 id="所做工作-1"><a href="#所做工作-1" class="headerlink" title="所做工作"></a>所做工作</h4><p>获取第一阶段中保存在ActivityManagerService中的Service信息(此时并未把该信息传到新进程中,只是查询出来)</p>
+<h4 id="涉及实体-1"><a href="#涉及实体-1" class="headerlink" title="涉及实体"></a>涉及实体</h4><ol>
+<li>ActivityManagerProxy</li>
+<li>ActivityManagerService</li>
+<li>IActivityManager</li>
+</ol>
+<h4 id="3-Step-12-Step-20-ActivityManagerService与新的进程进行通信"><a href="#3-Step-12-Step-20-ActivityManagerService与新的进程进行通信" class="headerlink" title="3. Step 12 - Step 20:ActivityManagerService与新的进程进行通信"></a>3. Step 12 - Step 20:ActivityManagerService与新的进程进行通信</h4><h4 id="所做工作-2"><a href="#所做工作-2" class="headerlink" title="所做工作"></a>所做工作</h4><ol>
+<li>将第二阶段中查询得到的信息发送回新的进程</li>
+<li>由新的进程负责生成相应的Service实例</li>
+</ol>
+<h4 id="涉及实体-2"><a href="#涉及实体-2" class="headerlink" title="涉及实体"></a>涉及实体</h4><ol>
+<li>IApplicationThread</li>
+<li>ApplicationThreadProxy</li>
+<li>ApplicationThread</li>
+<li>ActivityThread</li>
+<li>ActivityThread.H</li>
+<li>自定义的Service</li>
+</ol>
+<p>其中1, 2, 3也是一个典型的Binder结构,也是用来在进程间通信, 此时ActivityThread保有一个ApplicationThread的对象,ApplicationThread是IApplicationThread的本地接口,那么远端接口在哪里呢? 远端接口在ActivityManagerService那里,是由第二阶段的ActivityManagerProxy.attachApplication(IApplicationThread)将IApplicationThread的远端接口发送给ActivityManagerService的.</p>
+<p>由本地接口与远端接口所处的进程可以知道进程通信的方向是由ActivityManagerProxy到新的进程.而1, 2, 3的存在就是为了支持这一方向的进程间通信的Binder机制.</p>
+<p>当ActivityManagerService将其第二阶段中保存的Service信息传给新的进程之后,由新的进程负责创建Service的实例.在新进程中,会通过Looper消息机制来创建Service实例.而Looper消息机制的建立正是在第一阶段中ActivityThread.main()函数中建立的.</p>
+<p>创建完Service实例后,会调用其onCreate()方法.</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>由以上分析可知,上面的进程通信有两个方向,一个是进程到ActivityManagerService, 另一个方向是ActivityManagerService到进程. 于是就有两个Binder机制与之相对应.</p>
+<p>对于进程到ActivityManagerService</p>
+<ol>
+<li>ActivityManagerProxy</li>
+<li>ActivityManagerService</li>
+<li>IActivityManager</li>
+</ol>
+<p>对于ActivityManagerService到进程</p>
+<ol>
+<li>IApplicationThread</li>
+<li>ApplicationThreadProxy</li>
+<li>ApplicationThread</li>
+</ol>
+<p>查看IActivityManager接口,发现有如下方法等</p>
+<p>startActivity</p>
+<p>stopActivity</p>
+<p>startService</p>
+<p>stopService</p>
+<p>bindService</p>
+<p>可见,虽然名字是ActivityManager,但其功能却是对Android四大组件进行管理.这里名字有一定的误导</p>
+<p>而IApplicationThread也有如下这些接口等</p>
+<p>schedulePauseActivity</p>
+<p>scheduleStopActivity</p>
+<p>scheduleCreateService</p>
+<p>其实,IApplicationThread与IActivityManager都是对四大组件进行管理,而在其中扮演不同的角色罢了.</p>
+<p>另外,ActivityThread也并非只和Activity相关,它与一个进程相关联,或者说它就代表了一个进程,与IActivityManager, IApplicationThread配合,对activity, broadcast,service等进行管理</p>
+<p>所以在新的进程中启动Service或Activity的过程的关键点如下:</p>
+<ol>
+<li>利用两套Binder机制信息交换</li>
+<li>无论是Service还是Activity,都会执行ActivityThread.main方法, 从而在新的进程中可以处理UI的重绘.</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/25/compilesdkversion-minsdkversion-targetsdkversion/" rel="next" title="compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略">
+                <i class="fa fa-chevron-left"></i> compileSdkVersion minSdkVersion targetSdkVersion SupportLibrary含义与设置策略
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/03/java-key-concepts/" rel="prev" title="java关键概念-JMM-类加载-并发">
+                java关键概念-JMM-类加载-并发 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例分析"><span class="nav-text">实例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Step-1-Step-7-要启动服务的进程与ActivityManagerService通信"><span class="nav-text">1. Step 1 - Step 7:要启动服务的进程与ActivityManagerService通信</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#所做工作"><span class="nav-text">所做工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#涉及实体"><span class="nav-text">涉及实体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Step-8-Step-11-由第一阶段生成的新进程与ActivityManagerService通信"><span class="nav-text">2. Step 8 - Step 11:由第一阶段生成的新进程与ActivityManagerService通信</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#所做工作-1"><span class="nav-text">所做工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#涉及实体-1"><span class="nav-text">涉及实体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Step-12-Step-20-ActivityManagerService与新的进程进行通信"><span class="nav-text">3. Step 12 - Step 20:ActivityManagerService与新的进程进行通信</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#所做工作-2"><span class="nav-text">所做工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#涉及实体-2"><span class="nav-text">涉及实体</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

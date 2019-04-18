@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="python,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="其它 使用帮助：在&amp;gt;&amp;gt;&amp;gt;下输入help(&amp;#39;&amp;#39;) 字符串常量：单引号和双引号作用相同，三引号用于输出字符串块 format函数：用来格式化字符串，代替printf Raw String：为字符串添加r前缀，告诉解释器不对字符串进行处理(如转义字符) Python中一切皆对象，包括数字，字符串和函数 Python中没有switch语句 :暗示下一个语句块的开始，而语句">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python笔记">
+<meta property="og:url" content="http://asanelder.me/2015/01/26/python-notes/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="其它 使用帮助：在&amp;gt;&amp;gt;&amp;gt;下输入help(&amp;#39;&amp;#39;) 字符串常量：单引号和双引号作用相同，三引号用于输出字符串块 format函数：用来格式化字符串，代替printf Raw String：为字符串添加r前缀，告诉解释器不对字符串进行处理(如转义字符) Python中一切皆对象，包括数字，字符串和函数 Python中没有switch语句 :暗示下一个语句块的开始，而语句">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T08:59:00.861Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python笔记">
+<meta name="twitter:description" content="其它 使用帮助：在&amp;gt;&amp;gt;&amp;gt;下输入help(&amp;#39;&amp;#39;) 字符串常量：单引号和双引号作用相同，三引号用于输出字符串块 format函数：用来格式化字符串，代替printf Raw String：为字符串添加r前缀，告诉解释器不对字符串进行处理(如转义字符) Python中一切皆对象，包括数字，字符串和函数 Python中没有switch语句 :暗示下一个语句块的开始，而语句">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2015/01/26/python-notes/">
+
+
+
+
+
+  <title>Python笔记 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/01/26/python-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Python笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-01-26T00:00:00+08:00">
+                2015-01-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ol>
+<li>使用帮助：在<em>&gt;&gt;&gt;</em>下输入<code>help(&#39;&#39;)</code></li>
+<li>字符串常量：单引号和双引号作用相同，三引号用于输出字符串块</li>
+<li>format函数：用来格式化字符串，代替printf</li>
+<li>Raw String：为字符串添加<em>r</em>前缀，告诉解释器不对字符串进行处理(如转义字符)</li>
+<li>Python中一切皆对象，包括数字，字符串和函数</li>
+<li>Python中没有<em>switch</em>语句</li>
+<li><em>:</em>暗示下一个语句块的开始，而语句块的区分是以缩进的多少</li>
+<li>DocStrings：一个函数开头的字符串可作为该函数的文档，同样也可用于<em>modules</em>和<em>classes</em>。输出文档可以使用<code>print func_name.—__doc__</code>。该特性用在帮助文档中</li>
+</ol>
+<h2 id="Modules"><a href="#Modules" class="headerlink" title="Modules"></a>Modules</h2><ul>
+<li>Module是一些函数的集合，使用Module的方式之一是创建<em>.py</em>文件，并使用<code>import</code>导入</li>
+<li><code>sys.path</code>保存着Module的搜寻路径</li>
+<li><em>.pyc</em>与<em>.py</em>的区别：<em>.pyc</em>是字节码形式，导入<em>.pyc</em>开销更小</li>
+<li><code>from...import</code>：使用该语句导入的Module可以不加模块名，如可使用<em>path</em></li>
+<li>Every module has a <em><strong>name</strong></em> and statements in a module can find out the name of their module. This is handy for the particular purpose of figuring out whether the module is being run standalone or being imported. When a module is imported for the first time, the code it contains get executed.For Example</li>
+</ul>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	<span class="built_in">print</span> <span class="string">'This program is being run by itself'</span></span><br><span class="line"><span class="built_in">else</span>:</span><br><span class="line">	<span class="built_in">print</span> <span class="string">'I am being imported from another module'</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>dir()</code>函数用来列举一个对象定义的identifiers，如，对一个module来说，包括函数，类和变量</li>
+<li><code>Packages</code>：用来组织module，实际上就是包含module的文件夹，但该文件夹内有一个特殊的文件<em>init.py</em></li>
+</ul>
+<h2 id="Data-Structures"><a href="#Data-Structures" class="headerlink" title="Data Structures"></a>Data Structures</h2><ol>
+<li>Python有四种内置的数据结构—— <em>list</em>, <em>tuple</em>, <em>dictionary</em> and <em>set</em></li>
+<li>Tuple使用<em>()</em>，Tuple是不可变的，而List可变，如 <code>zoo = (&#39;python&#39;, &#39;elephant&#39;, &#39;penguin&#39;)</code></li>
+<li>Dictionary就是键值对的集合，如<code>d = [key1:value1, key2:value2]</code></li>
+<li><p><em>list</em>, <em>tuple</em>, <em>dictionary</em> 都是Sequence，而Sequence支持如下三种操作</p>
+<ul>
+<li>membership tests</li>
+<li>indexing operations</li>
+<li>slicing</li>
+</ul>
+</li>
+<li><p>Set 如 <code>bri = set([&#39;brazil&#39;, &#39;russia&#39;, &#39;india&#39;])</code></p>
+</li>
+<li>String也是对象，也有许多方便的方法</li>
+</ol>
+<h2 id="Object-Oriented"><a href="#Object-Oriented" class="headerlink" title="Object Oriented"></a>Object Oriented</h2><ol>
+<li>Class方法和函数的区别是，class方法会隐含的传入一个参数self，该参数指的是调用该方法的实例本身。(如同this之于Java) 所以说，Class方法定义时，至少有个参数self。</li>
+<li><code>__init__</code>方法：类似于构造函数</li>
+<li>类变量和实例变量：定义在所有方法之外的是类变量,方法内使用self修饰的是实例变量。</li>
+<li>类函数与实例函数：利用<code>@classmethod</code>修饰的为类函数。</li>
+</ol>
+<h2 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h2><ol>
+<li>对象序列化：利用pickle模块<code>pickle.dump()</code>和<code>pickle.load()</code>方法</li>
+<li>当使用非英语字符时，在字符串前加<code>u</code>表示使用<em>Unicode</em>编码，此时相当于将<em>strings</em>类型转化成<em>unicode</em>类型，为了在互联网上传输字符串，还需要将<em>unicode</em>转化为能发送和接收的格式，这种格式为<em>UTF-8</em></li>
+<li>当程序中使用<em>unicode</em>字符串时，需要在程序的顶端添加<code># encoding=utf-8</code>以告诉python我们所使用的是<em>UTF-8</em></li>
+</ol>
+<h2 id="Exceptions"><a href="#Exceptions" class="headerlink" title="Exceptions"></a>Exceptions</h2><ol>
+<li>利用raise语句抛出异常</li>
+<li><code>with</code>语句：在<code>try</code>中获得一个资源，在<code>finally</code>释放资源是一种很常见的编程模式，为了简化这种模式的书写，使用<code>with</code>语句，这里在进入<code>with</code>下的语句块时，会调用所获得对象的<code>enter</code>方法，在离开语句块时，会调用对象的<code>exit</code>方法。</li>
+</ol>
+<h2 id="Python-Standard-Library"><a href="#Python-Standard-Library" class="headerlink" title="Python Standard Library"></a>Python Standard Library</h2><ol>
+<li><em>sys</em>：contains system-specific functionality.</li>
+<li><em>logging</em>：日志，调试</li>
+</ol>
+<h2 id="More"><a href="#More" class="headerlink" title="More"></a>More</h2><ol>
+<li><code>a, b = &lt;some expression&gt;</code>：将表达式的值分别指派给a, b(表达式返回一个tuple)</li>
+<li><p>special methods：可以为类定义一类特殊方法，这样方便对对象进行某些操作，如</p>
+<ul>
+<li>str(self)：当打印对象时，调用此方法</li>
+<li>lt(self, other)：比较对象时</li>
+<li>getitem(self, key)：使用x[key]</li>
+</ul>
+</li>
+<li><p>Lambda Forms：<code>lamba</code>语句用来创建匿名函数，对于那些不方便起名又只使用一些的函数这种方法很方便，创建语法为<code>lamba</code>take a parameter后跟一个表达式作为函数体，该表达式的值作为返回值。</p>
+</li>
+<li>使用*和**使函数接受可变参数，*使用可变参数作为一个tuple传递给函数，**使得可变参数作为一个dict传递给函数</li>
+<li><em>Decorators</em>：a shortcut to apply wrapper functions。</li>
+<li><em>Generator</em>：一种一边循环一边计算的机制。如果一次生成所有元素会占据大量内存，它也是一种可迭代的对象，可以用在for循环中。在函数中，使用<code>yield</code>返回值就把函数定义为了一种生成器。对函数来说，每次调用<code>next()</code>函数才执行，遇到<code>yield</code>就中断。其执行顺序与一般函数不同。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/19/something-about-pathon-windows/" rel="next" title="关于PATH(on Windows)">
+                <i class="fa fa-chevron-left"></i> 关于PATH(on Windows)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/01/27/scrapy-notes/" rel="prev" title="Scrapy笔记">
+                Scrapy笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-text">其它</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Modules"><span class="nav-text">Modules</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-Structures"><span class="nav-text">Data Structures</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Object-Oriented"><span class="nav-text">Object Oriented</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Input-and-Output"><span class="nav-text">Input and Output</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exceptions"><span class="nav-text">Exceptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-Standard-Library"><span class="nav-text">Python Standard Library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#More"><span class="nav-text">More</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

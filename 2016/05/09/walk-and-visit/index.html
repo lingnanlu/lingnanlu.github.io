@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一个比喻我们可以将树型结构比作一个小区, 小区中的房子都是一座座独立的别墅. 树的结点–&amp;gt;别墅 树的分支–&amp;gt;连接别墅的道路 Walk顺序假设树所对应的小区的结构如下图所示(之所以添加null结点是为了下文中讨论Visit时机时方便, 同时也可以让代码更容易理解与简化)  假如张三在小区散步, 他的散步习惯是深度优先. 出发点是A, 则其经过的别墅顺序为 A-&amp;gt;B-&amp;gt;Null">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Walk顺序与Visit时机">
+<meta property="og:url" content="http://asanelder.me/2016/05/09/walk-and-visit/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="一个比喻我们可以将树型结构比作一个小区, 小区中的房子都是一座座独立的别墅. 树的结点–&amp;gt;别墅 树的分支–&amp;gt;连接别墅的道路 Walk顺序假设树所对应的小区的结构如下图所示(之所以添加null结点是为了下文中讨论Visit时机时方便, 同时也可以让代码更容易理解与简化)  假如张三在小区散步, 他的散步习惯是深度优先. 出发点是A, 则其经过的别墅顺序为 A-&amp;gt;B-&amp;gt;Null">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/tree_sample.jpg">
+<meta property="og:updated_time" content="2019-03-30T13:17:10.084Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Walk顺序与Visit时机">
+<meta name="twitter:description" content="一个比喻我们可以将树型结构比作一个小区, 小区中的房子都是一座座独立的别墅. 树的结点–&amp;gt;别墅 树的分支–&amp;gt;连接别墅的道路 Walk顺序假设树所对应的小区的结构如下图所示(之所以添加null结点是为了下文中讨论Visit时机时方便, 同时也可以让代码更容易理解与简化)  假如张三在小区散步, 他的散步习惯是深度优先. 出发点是A, 则其经过的别墅顺序为 A-&amp;gt;B-&amp;gt;Null">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/tree_sample.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/05/09/walk-and-visit/">
+
+
+
+
+
+  <title>Walk顺序与Visit时机 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/walk-and-visit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Walk顺序与Visit时机</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-09T00:00:00+08:00">
+                2016-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一个比喻"><a href="#一个比喻" class="headerlink" title="一个比喻"></a>一个比喻</h3><p>我们可以将树型结构比作一个小区, 小区中的房子都是一座座独立的别墅.</p>
+<p>树的结点–&gt;别墅</p>
+<p>树的分支–&gt;连接别墅的道路</p>
+<h3 id="Walk顺序"><a href="#Walk顺序" class="headerlink" title="Walk顺序"></a>Walk顺序</h3><p>假设树所对应的小区的结构如下图所示(之所以添加null结点是为了下文中讨论Visit时机时方便, 同时也可以让代码更容易理解与简化)</p>
+<p><img src="/assets/pics/tree_sample.jpg" alt></p>
+<p>假如张三在小区散步, 他的散步习惯是深度优先. 出发点是A, 则其经过的别墅顺序为</p>
+<p>A-&gt;B-&gt;Null-&gt;D-Null-&gt;Null-&gt;C-&gt;Null-&gt;Null</p>
+<p>而以上的顺序就是Walk顺序, <strong>注意, 在经过某一别墅时, 他并没有进入到别墅中拜访别墅的主人</strong>.</p>
+<p>由以上讨论可知, <strong>对于一个小区, 如果散步习惯是深度优先, 其Walk顺序是确定的.</strong> </p>
+<h3 id="Visit时机"><a href="#Visit时机" class="headerlink" title="Visit时机"></a>Visit时机</h3><p>如果说, 当张三经过某一别墅时, 决定进入别墅拜访主人, 我们将拜访的抽象为Visit操作, 对于每一个别墅来说,Visit的时机, 有三种可能.</p>
+<p>对于A, 对于A其时机可以是</p>
+<p><strong>时机1:进入B之前, 这个时机可以称为进入A结点的时机</strong></p>
+<p><strong>时机2:从B返回</strong></p>
+<p><strong>时机3:从C返回, 这个时机可以称为离开A结点的时机</strong></p>
+<h3 id="代码描述"><a href="#代码描述" class="headerlink" title="代码描述"></a>代码描述</h3><p>如果使用代码描述Walk顺序与Visit时机, 则是这个样子的.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//时机1</span></span><br><span class="line">	walk(node.left);</span><br><span class="line">	<span class="comment">//时机2 </span></span><br><span class="line">	walk(node.right);</span><br><span class="line">	<span class="comment">//时机3</span></span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当程序中调用walk(TreeNode A)时, 可以认为到达了结点A. </p>
+<p>当涉及到树的结构时, 可以根据不同的需要选择一个或多个时机, 对于每一个时机, 也可以进行不同的操作.</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>以下例子所用的node结构为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TreeNode</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> val;</span><br><span class="line">	TreeNode left;</span><br><span class="line">	TreeNode right;</span><br><span class="line">	TreeNode(<span class="keyword">int</span> x) &#123;val = x;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="例1-前序-中序-后序打印结点"><a href="#例1-前序-中序-后序打印结点" class="headerlink" title="例1. 前序, 中序, 后序打印结点"></a>例1. 前序, 中序, 后序打印结点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//前序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//走到空结点, 什么也不做</span></span><br><span class="line">	<span class="keyword">if</span> (node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	print(node.val);</span><br><span class="line">	walk(node.left);</span><br><span class="line">	walk(node.right);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//中序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//走到空结点, 什么也不做</span></span><br><span class="line">	<span class="keyword">if</span> (node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	walk(node.left);</span><br><span class="line">	print(node.val);</span><br><span class="line">	walk(node.right);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//后序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//走到空结点, 什么也不做</span></span><br><span class="line">	<span class="keyword">if</span> (node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	walk(node.left);</span><br><span class="line">	walk(node.right);</span><br><span class="line">	print(node.val);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见, 平时所说有前序, 中序, 后序其实指的是在不同的访问时机做print操作罢了.</p>
+<h4 id="例2-打印2叉树的所有路径"><a href="#例2-打印2叉树的所有路径" class="headerlink" title="例2. 打印2叉树的所有路径"></a>例2. 打印2叉树的所有路径</h4><p>题目描述见</p>
+<p><a href="https://leetcode.com/problems/binary-tree-paths/" target="_blank" rel="noopener">binary-tree-paths</a></p>
+<p>分析题目, 我们利用一个变量path来记录从root到当前结点的路径.</p>
+<p>这里的关键是选择操作的时机,以及做哪些操作.</p>
+<p>首先, 当我们到达一个结点时, 如果该结点是非叶子结点, 则需要将node.val + “-&gt;” 添加到路径中.</p>
+<p>如果是叶子结点, 则需要将node.val添加到路径中并且将该路径放到最终的路径集合paths中.</p>
+<p>以上可以是时机1做的操作, 代码如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">append</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//叶子结点</span></span><br><span class="line">    <span class="keyword">if</span> (node.left == <span class="keyword">null</span> &amp;&amp; node.right == <span class="keyword">null</span>) &#123;</span><br><span class="line">        path.append(node.val);</span><br><span class="line">        paths.add(path.toString());</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//非叶子结点</span></span><br><span class="line">    path.append(node.val + <span class="string">"-&gt;"</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么还需要做其它的吗?</p>
+<p>以上所做的是往路径中添加的工作, 如果我们只加不减, 路径就会包含在其它结点, 这是错误的, 所以但我们离开某一个结点时, 即时机3时, 做以下操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">strip</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> valSize = Integer.toString(node.val).length();</span><br><span class="line">    <span class="keyword">if</span> (node.left == <span class="keyword">null</span> &amp;&amp; node.right == <span class="keyword">null</span>) &#123;</span><br><span class="line">        path.delete(path.length() - valSize, path.length());</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    path.delete(path.length() - (<span class="number">2</span> + valSize), path.length());</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>walk代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    append(node);</span><br><span class="line">    walk(node.left);</span><br><span class="line">    walk(node.right);</span><br><span class="line">    strip(node);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="为什么要分清Walk顺序与Visit时机"><a href="#为什么要分清Walk顺序与Visit时机" class="headerlink" title="为什么要分清Walk顺序与Visit时机?"></a>为什么要分清Walk顺序与Visit时机?</h3><p>对于例子1来说, 我们平时写的代码可能如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">preOrder</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	print(node.val);</span><br><span class="line">	preOrder(node.left);</span><br><span class="line">	preOrder(node.right);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">inOrder</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	print(node.val);</span><br><span class="line">	inOrder(node.left);</span><br><span class="line">	inOrder(node.right);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">postOrder</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	print(node.val);</span><br><span class="line">	postOrder(node.left);</span><br><span class="line">	postOrder(node.right);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样的代码实际上把walk与visit耦合在了一起, 并不清晰, 简单的问题还好, 如果稍微复杂一些, 如例2, 利用”遍历”的思想, 可能写出如下的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">innerBinaryTreePaths</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> valSize = Integer.toString(root.val).length();</span><br><span class="line"></span><br><span class="line">    path.append(root.val);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(root.left == <span class="keyword">null</span> &amp;&amp; root.right == <span class="keyword">null</span>) &#123;</span><br><span class="line">        paths.add(path.toString());</span><br><span class="line">        path.delete(path.length() - valSize, path.length());</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    path.append(<span class="string">"-&gt;"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(root.left != <span class="keyword">null</span>) &#123;</span><br><span class="line">        innerBinaryTreePaths(root.left);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(root.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">        innerBinaryTreePaths(root.right);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    path.delete(path.length() - (<span class="number">2</span> + valSize), path.length());</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而Walk与Visit的思想, 则将访问顺序与操作解耦合,  写代码时, 我们只要关心, <strong>操作的时机以及执行什么操作即可</strong>, 写出的代码更加清晰, 最终就像如下这样</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">walk</span><span class="params">(TreeNode node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">	<span class="comment">//operateA()</span></span><br><span class="line">	walk(node.left);</span><br><span class="line">	<span class="comment">//operateB()</span></span><br><span class="line">	walk(node.right);</span><br><span class="line">	<span class="comment">//operateC()</span></span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">operateA</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">operateB</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">opearteC</span><span class="params">()</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="进一步"><a href="#进一步" class="headerlink" title="进一步"></a>进一步</h3><p>实际上, 无论是二叉树, 多叉树, 还是图也好, 其Walk顺序都可以归结为深度优先顺序.</p>
+<p>对于二叉树, 访问时机有三个, n叉树, 访问时机有n+1个, 图也是类似.</p>
+<p>所以涉及到这几种数据结构的操作, 都可以利用以上所讨论的思想解决.</p>
+<h3 id="更进一步-访问者模式"><a href="#更进一步-访问者模式" class="headerlink" title="更进一步: 访问者模式"></a>更进一步: 访问者模式</h3><p>其实这个问题的更一般化问题就是访问者模式, 其思想是将算法与结构分离. </p>
+<p>详细介绍见</p>
+<p><a href="https://www.wikiwand.com/zh/访问者模式" target="_blank" rel="noopener">访问者模式</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/09/sort-algorithm-summary/" rel="next" title="排序算法总结">
+                <i class="fa fa-chevron-left"></i> 排序算法总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/09/binary-search-tree/" rel="prev" title="二叉查找树">
+                二叉查找树 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个比喻"><span class="nav-text">一个比喻</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Walk顺序"><span class="nav-text">Walk顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visit时机"><span class="nav-text">Visit时机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码描述"><span class="nav-text">代码描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#例子"><span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#例1-前序-中序-后序打印结点"><span class="nav-text">例1. 前序, 中序, 后序打印结点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#例2-打印2叉树的所有路径"><span class="nav-text">例2. 打印2叉树的所有路径</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要分清Walk顺序与Visit时机"><span class="nav-text">为什么要分清Walk顺序与Visit时机?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进一步"><span class="nav-text">进一步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更进一步-访问者模式"><span class="nav-text">更进一步: 访问者模式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

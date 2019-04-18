@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="others,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="零 名词解释组件：组成系统的各个部分 组件吞吐率：组件处理其输入的速率， 这里以秒为单位， 记作TPS(Tasks Per Second) 系统吞吐率：整个系统处理其输入的速率， 由组成该系统的组件决定， 依然使用TPS 一 例子假设有一项Task需要分两步处理,由组件A处理第一步,组件B处理第二步 1 原始最容易想到的方案如图1所示  假设组件A的吞吐率为10TPS,组件B的吞吐率为5TPS,那">
+<meta name="keywords" content="others">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何提升一个系统的吞吐率">
+<meta property="og:url" content="http://asanelder.me/2016/07/21/how-to-improve-system-tps/index.html">
+<meta property="og:site_name" content="Code, Food &amp; Music">
+<meta property="og:description" content="零 名词解释组件：组成系统的各个部分 组件吞吐率：组件处理其输入的速率， 这里以秒为单位， 记作TPS(Tasks Per Second) 系统吞吐率：整个系统处理其输入的速率， 由组成该系统的组件决定， 依然使用TPS 一 例子假设有一项Task需要分两步处理,由组件A处理第一步,组件B处理第二步 1 原始最容易想到的方案如图1所示  假设组件A的吞吐率为10TPS,组件B的吞吐率为5TPS,那">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS1.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS2.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS3.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS4.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS5.jpg">
+<meta property="og:image" content="http://asanelder.me/assets/pics/TPS6.jpg">
+<meta property="og:updated_time" content="2019-03-30T08:59:01.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何提升一个系统的吞吐率">
+<meta name="twitter:description" content="零 名词解释组件：组成系统的各个部分 组件吞吐率：组件处理其输入的速率， 这里以秒为单位， 记作TPS(Tasks Per Second) 系统吞吐率：整个系统处理其输入的速率， 由组成该系统的组件决定， 依然使用TPS 一 例子假设有一项Task需要分两步处理,由组件A处理第一步,组件B处理第二步 1 原始最容易想到的方案如图1所示  假设组件A的吞吐率为10TPS,组件B的吞吐率为5TPS,那">
+<meta name="twitter:image" content="http://asanelder.me/assets/pics/TPS1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://asanelder.me/2016/07/21/how-to-improve-system-tps/">
+
+
+
+
+
+  <title>如何提升一个系统的吞吐率 | Code, Food & Music</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Code, Food & Music</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/07/21/how-to-improve-system-tps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何提升一个系统的吞吐率</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-21T00:00:00+08:00">
+                2016-07-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="零-名词解释"><a href="#零-名词解释" class="headerlink" title="零 名词解释"></a>零 名词解释</h2><p>组件：组成系统的各个部分</p>
+<p>组件吞吐率：组件处理其输入的速率， 这里以秒为单位， 记作TPS(Tasks Per Second)</p>
+<p>系统吞吐率：整个系统处理其输入的速率， 由组成该系统的组件决定， 依然使用TPS</p>
+<h2 id="一-例子"><a href="#一-例子" class="headerlink" title="一 例子"></a>一 例子</h2><p>假设有一项Task需要分两步处理,由组件A处理第一步,组件B处理第二步</p>
+<h3 id="1-原始"><a href="#1-原始" class="headerlink" title="1 原始"></a>1 原始</h3><p>最容易想到的方案如图1所示</p>
+<p><img src="/assets/pics/TPS1.jpg" alt="TPS1"></p>
+<p>假设组件A的吞吐率为10TPS,组件B的吞吐率为5TPS,那么,整个系统(将A, B看作一个整体)的吞吐率取决于B， 即5TPS。</p>
+<p>而且， 因为A只能等B处理完了才能处理下一个, 所以A的实际吞吐率为5TPS.</p>
+<h3 id="2-添加缓冲队列"><a href="#2-添加缓冲队列" class="headerlink" title="2 添加缓冲队列"></a>2 添加缓冲队列</h3><p>可以在A, B之间添加一个无穷队列作为缓冲, 如图2</p>
+<p><img src="/assets/pics/TPS2.jpg" alt="TPS2"></p>
+<p>这样就可以消除A等待B的情况, 提升A的吞吐率到10TPS. 但整个系统的吞吐率依然是5TPS</p>
+<p><em>注：此时虽然A,B都在进行有效工作(即不存在一方等待另一方的情况),但整个吞吐率依然没有提升(所以单纯依靠缓存并非一定有效),但相比于之前的情况，A不会再因为B阻塞了，可以将Task插入到List后向客户端返回一个响应，这样对客户端来说，体验比较好，如小米抢手机时的请求排队。</em></p>
+<h3 id="3-提升B的吞吐率"><a href="#3-提升B的吞吐率" class="headerlink" title="3 提升B的吞吐率"></a>3 提升B的吞吐率</h3><p>为了提升整个系统的吞吐率, 需要找到最慢的那一环节, 即B, 提升它的吞吐率, 可以有两种方式</p>
+<ol>
+<li>提升其本身的吞吐率</li>
+<li>使用多个B</li>
+</ol>
+<p>这里我们使用使用两个B, 如下图3所示</p>
+<p><img src="/assets/pics/TPS3.jpg" alt="TPS3"></p>
+<p>现在两个B的吞吐率为10TPS, 和A匹配了, 现在整个系统的吞吐率达到了10TPS.</p>
+<p>此时， 添加更好的B并不能提升整个系统的吞吐率， 所以说添加同一组件的多个复制并非越多越好， <strong>但此时有另外一个好处， 即如果一个B挂掉了， 那么还有另外的可用。所以可以布置2个以上的B，以防其中一个挂掉</strong>。</p>
+<p>这种方案还有另外一种，即去掉A, B之间的队列， 由A直接将中间结果分发给B. 如图4</p>
+<p><img src="/assets/pics/TPS4.jpg" alt="TPS4"></p>
+<p><strong>图3和图4的区别仅仅是一个队列吗？</strong></p>
+<p>实际上一个队列会带来很大的方便，假如我们现在要添加一个B.</p>
+<p>对于图4来说， 因为A必须得知道B的存在(看图中的连线)， 所以添加一个B会影响到A(具体的系统中可能涉及到修改代码)</p>
+<p>而对于图3来说， A只知道往中间队列中添加中间结果即可， 并不知道有多少个B的存在， 所以添加B会很方便.</p>
+<p>不仅仅对于添加B来说， 对于修改或删除B也是同样的道理。</p>
+<p>**所以通过这个中间队列， 就解耦了A与B之间的关系。</p>
+<h3 id="4-多个组件结合成一个整体"><a href="#4-多个组件结合成一个整体" class="headerlink" title="4. 多个组件结合成一个整体"></a>4. 多个组件结合成一个整体</h3><p>但Tasks到达过快怎么办呢? 假如每秒到达20个, 那么系统现在每秒最多才能处理10个, 怎么办呢?</p>
+<p>其实, 这个问题上文中已经解决了, 但这里需要做一点小小的抽象, 这样会发现, 这个问题并不是什么新的问题, 而是已经解决过的问题.</p>
+<p>到底做怎么样的抽象呢?</p>
+<p>这里有一个Tasks的到达速率, 我们可以想象Tasks是由另一个组件生产的, 这样Tasks的到达速率可以看成是该组件的吞吐率了. 我们为该组件起名为Dispatcher</p>
+<p>然后, 将上文中提到的整个系统作为另一个组件， 称为Worker，该组件的吞率为10TPS。</p>
+<p>于是，上面的问题就转化为了还是两个组件的速率不匹配的问题。于是可以利用之前的方法来解决。 就像下图这样</p>
+<p><img src="/assets/pics/TPS5.jpg" alt="TPS5"></p>
+<p><em>注：为了画图方便， 这里省略了队列， 队列产生的影响见上文</em></p>
+<p>这里Dispatcher对Task不作处理， 其唯一的任务就是将Task分发给不同组件。</p>
+<p>如果把Dispathcer和Worker看到一个整体,那么整个系统的吞吐率就是20TPS了.</p>
+<p>很容易想到， 这种抽象可以一直这样进行下去， 将不同的组件当做一个整体看待， 从而可以一直提升系统的吞吐率。</p>
+<h3 id="5-分解一个组件"><a href="#5-分解一个组件" class="headerlink" title="5. 分解一个组件"></a>5. 分解一个组件</h3><p>上面讨论到， 可以把多个组件组合成一个整体。这一节，向想反的方向探索-将一个组件分解为多个子组件。</p>
+<p>这其实是可能的， 如果说一个组件是一个CPU的话， 我们可以将CPU的一个核当做一个子组件，这样一台服务器也可以看作是多个子组件组成的一个整体。</p>
+<h2 id="二-这个例子不真实"><a href="#二-这个例子不真实" class="headerlink" title="二 这个例子不真实"></a>二 这个例子不真实</h2><p>上面的讨论似乎已经找到一种通用的思路来提升系统的吞吐率。</p>
+<p>但忽略了一个很重要的地方。是什么呢？</p>
+<p>上面的讨论是基本如下隐含的假设</p>
+<blockquote>
+<p>当一个组件处理完之后， 其结果能瞬间发送给下一个组件</p>
+</blockquote>
+<p>而事实并非如此</p>
+<p>以图2为例， 当组件A处理完之后， 需要将结果发送给队列， 如果组件A与队列是两台不同机器的话， 那么这个发送要涉及网络IO, 在发送过程中， A什么也做不了。</p>
+<p>同样， B需要等待A发来的数据， 如果数据来的很慢， 它也是什么都做不了。</p>
+<h3 id="1-再看一个组件所做的工作"><a href="#1-再看一个组件所做的工作" class="headerlink" title="1. 再看一个组件所做的工作"></a>1. 再看一个组件所做的工作</h3><p>实现上一个组件所做的工作并不是仅仅处理数据， 还需要接收数据和发送数据， 确切的说由以下三部分组成</p>
+<ol>
+<li>等待其它组件发送过来的数据，作为输入</li>
+<li>处理数据</li>
+<li>将处理结果发送给下一步组件</li>
+</ol>
+<p>其中1, 3过程需要等待数据的接收和发送成功，在这个过程中并不处理数据，显然， 其用于1，3的时间越多， 该组件本身的吞吐率就越低。而且1，3本身只是同一问题的两个方面。如果发送的慢， 那么接收的肯定也慢。</p>
+<p>那么如何减少1，3的时间呢？</p>
+<h3 id="2-深入一个组件"><a href="#2-深入一个组件" class="headerlink" title="2. 深入一个组件"></a>2. 深入一个组件</h3><p>这里我们将组件看做是一台多核CPU的服务器。</p>
+<p>先来解决<strong>将处理结果发送给下一步组件的问题</strong></p>
+<p>如果即负责处理数据， 又负责发送数据， 那么发送数据会阻塞处理数据， 所以需要将两者分开。</p>
+<p>可以利用一个核专门处理数据， 将结果写入到一个队列中去(此队列在内存中， 传输时间可忽略不计), 利用多个写线程负责从队列中取数据并写入网络(下一个组件是另一台服务器)，一个写线程阻塞的情况下， CPU可调度另一个写线程，至于写线程个数的确定请搜索<strong>IO密集型任务线程数确定</strong></p>
+<p>再来看<strong>等待其它组件发送来的数据</strong></p>
+<p>上文中提到， 使用多个写线程来发送数据， 这里多个写线程对于下一个组件来说就是多个数据来源(一般很少只接收一个数据来源， 这样如果该来源没有数据的话， 会造成严重的资源浪费)。</p>
+<p>那么如何才能有效的接收多个来源的数据呢？</p>
+<p>最简单的方法是等待一个数据来源的数据到达后，再去处理另一个数据来源， 用代码表示就是</p>
+<pre><code>listenfd = open_listenfd(port);
+while(true) {
+    connfd = accept(listenfd);
+    read(connfd);   //阻塞， 当数据到来后才能处理下一个连接
+}
+</code></pre><p>一个改进方法是， 使用多个读线程</p>
+<pre><code>listenfd = open_listenfd(port);
+while(true) {
+    connfd = accept(listenfd);
+    thread_create(connfd);
+}
+</code></pre><p>这样一个数据源的读取就不会阻塞另一个数据源了。这种方法的缺点就是可能产生大量线程(当需要长链接时，如聊天类应用)</p>
+<p>另一种方法是使用selector监控多个数据源， 只要有数据源有数据到来就处理(当所有数据源没有数据时依然会阻塞)</p>
+<p>以上三种方法可以使用如下的一个类比。</p>
+<p><strong>人们排队打饭</strong></p>
+<p>对于最简单的方案就是， 大家排成一队， 如果前面一个老太太掏钱(发送数据)很墨迹， 后面的人即使已经掏出了钱(准备好数据)也没用</p>
+<p>对于多个读线程的方案就是， 大家排成一队， 来一个人就安排一个人专门负责处理， 这需要很多人(很多个线程)</p>
+<p>对于selector方案， 大家不要排队，直接掏钱， 谁先掏出来， 就先打钣给谁。</p>
+<h3 id="3-再看组件"><a href="#3-再看组件" class="headerlink" title="3 再看组件"></a>3 再看组件</h3><p>现在我们的组件不是那么简单了， 它包含很多核， 有的核负责读数据， 有的负责处理， 有的负责写数据， 一个组件现在看起来是图6这样的。该组件可以接收多个数据源， 并且可以产生多个数据源。队列用来进行线程间同步</p>
+<p><img src="/assets/pics/TPS6.jpg" alt="TPS6"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>由以上讨论可知， 以下原则</p>
+<ol>
+<li>一个系统各组件都在进行有效工作时， 该系统的效能并不一定到达其最高</li>
+<li>简单的添加队列并不能提高其吞吐率，队列可能仅仅是为了作线程之间同步或简化程序逻辑</li>
+<li>要想提高整个系统的吞吐率， 需要找到最慢的一节， 要么提升其吞吐率， 要么添加多个组件(添加多个组件还可能有效解决单点失效)</li>
+<li>不要忽略数据的传输问题</li>
+<li>dispatcher本质上来讲是一个分流器</li>
+</ol>
+<p>本文只是讨论了一种很简单的情况，但以上原则依然适用。需要具体问题， 具体分析</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/others/" rel="tag"># others</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/19/database-fundamental-concepts/" rel="next" title="数据库基础概念-索引，事务，日志，存储引擎">
+                <i class="fa fa-chevron-left"></i> 数据库基础概念-索引，事务，日志，存储引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/07/framework-dip-ioc-di/" rel="prev" title="理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)">
+                理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">asanelder</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">84</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lingnanlu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://instagram.com/lingnanlu" target="_blank" title="Instagram">
+                      
+                        <i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#零-名词解释"><span class="nav-text">零 名词解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一-例子"><span class="nav-text">一 例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-原始"><span class="nav-text">1 原始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-添加缓冲队列"><span class="nav-text">2 添加缓冲队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-提升B的吞吐率"><span class="nav-text">3 提升B的吞吐率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-多个组件结合成一个整体"><span class="nav-text">4. 多个组件结合成一个整体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-分解一个组件"><span class="nav-text">5. 分解一个组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-这个例子不真实"><span class="nav-text">二 这个例子不真实</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-再看一个组件所做的工作"><span class="nav-text">1. 再看一个组件所做的工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-深入一个组件"><span class="nav-text">2. 深入一个组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-再看组件"><span class="nav-text">3 再看组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">asanelder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
