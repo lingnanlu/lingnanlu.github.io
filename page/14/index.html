@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -260,7 +258,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/14/kramdown-syntax---key-conceptions/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/14/dive-into-yii---alias_configure_env/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -279,7 +277,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2015/07/14/kramdown-syntax---key-conceptions/" itemprop="url">kramdown syntax - 关键概念</a></h1>
+                <a class="post-title-link" href="/2015/07/14/dive-into-yii---alias_configure_env/" itemprop="url">深入理解Yii笔记 - 别名、配置、环境</a></h1>
         
 
         <div class="post-meta">
@@ -331,45 +329,13 @@
       
         
           
-            <h4 id="一、kramdown-元素"><a href="#一、kramdown-元素" class="headerlink" title="一、kramdown 元素"></a>一、kramdown 元素</h4><p>kramdown元素分为 <strong>Block-level Elements</strong> 和 <strong>Span-Level Elements</strong></p>
-<p><strong>Block-level Elements</strong> 包括</p>
-<ul>
-<li>Paragraphs</li>
-<li>Headers</li>
-<li>Blockquotes</li>
-<li>Code Blocks</li>
-<li>Horizontal Rules</li>
-<li>Lists</li>
-<li>Definition Lists</li>
-<li>Tables</li>
-<li>其它</li>
-</ul>
-<p><strong>Span-Level Elements</strong> 包括</p>
-<ul>
-<li>Emphasis</li>
-<li>Links and Images</li>
-<li>Inline Code</li>
-<li>Footnotes</li>
-<li>Abbreviations</li>
-</ul>
-<p>关于kramdown元素，不必记忆，现用现学，但学的时候要注意以下几点</p>
-<ol>
-<li><p>元素的表示法</p>
-<p>如Blockquotes的表示是以<code>&gt;</code>开头，后跟一个可选的空格，并且每一行的开头都为<code>&gt;</code>。</p>
-<p>而Code Blocks的表示又有两种，一种是 <strong>以4个空格</strong> 缩进，另一种不用缩进，但是使用 **<figure class="highlight plain"><figcaption><span>标志</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">#### 二、Block-level 元素的结束</span><br><span class="line"></span><br><span class="line">当Block-level元素遇到以下时结束。</span><br><span class="line"></span><br><span class="line">1. 空行</span><br><span class="line">2. EOB字符，a `^` as first character on an otherwise empty line.</span><br><span class="line">3. 其它(参见官方文档)</span><br><span class="line"></span><br><span class="line">#### 三、first character 和 first column</span><br><span class="line"></span><br><span class="line">当提交当前Block元素的 **first character** 或 **first column** 时，均是指相对于当前元素的嵌套等级来说的，而不是绝对于文档的最左边。</span><br><span class="line"></span><br><span class="line">#### 四、缩进与嵌套</span><br><span class="line"></span><br><span class="line">即如何利用缩进来嵌套元素。</span><br><span class="line"></span><br><span class="line">Block元素中可以包含多个Block元素，这就是嵌套，当然，这种嵌套可以有多层。</span><br><span class="line"></span><br><span class="line">可以这样理解，把整个文档想像成一个大的Block元素，这个元素中包含着许许多多的Block元素，拿一个Blockquotes来说，其`&gt;`必须在第一列上，然后是一个可选的空格，再接非空白字符。这样，一个Block元素就嵌套在文档这个最外层Block元素中了。</span><br><span class="line"></span><br><span class="line">此时，再空一行，就可以添加另一个Block元素，如无序列表，只要其`*`也在第一列上，即Blockquote和List的缩进是相同的，那么，这两个元素就都是外面文档的嵌套元素。</span><br><span class="line"></span><br><span class="line">然后就可以引申了，比如要在一个Blockquotes元素中嵌套元素，就可以利用上面的规则来实现。首先要找到Blockquotes元素的第一列是哪一列，然后，其所有要被嵌套的元素都与第一列对齐即可，如嵌套最一个Blockquotes和List, 因为Blockquotes的第一列为其非空白字符所在的那一列，所以只需要将嵌套的Blockquote的`&gt;`与List的`*`与该列对齐，两者之间使用空行隔开，就行了。具体的两个更复杂的例子如下：</span><br><span class="line"></span><br><span class="line">----</span><br><span class="line"></span><br><span class="line">&gt; This is a quote</span><br><span class="line">&gt; </span><br><span class="line">&gt; This is another para.  </span><br><span class="line">&gt;</span><br><span class="line">&gt; &gt; This is a nested quote.</span><br><span class="line">&gt; &gt; </span><br><span class="line">&gt; &gt; 1. This is Item 1</span><br><span class="line">&gt; &gt; 2. This is Item 2.</span><br><span class="line">&gt; &gt;  </span><br><span class="line">&gt; &gt;</span><br></pre></td></tr></table></figure></p>
-</li>
+            <h3 id="别名"><a href="#别名" class="headerlink" title="别名"></a>别名</h3><h4 id="别名的作用"><a href="#别名的作用" class="headerlink" title="别名的作用"></a>别名的作用</h4><p>防止硬编码一些文件路径和URL</p>
+<h4 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h4><ol>
+<li>注意别名定义的地方</li>
+<li>了解别名的注册和解析过程</li>
 </ol>
-<blockquote>
-<blockquote>
-<p>   This is a code block<br>   <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="code">   </span></span><br><span class="line">----</span><br><span class="line"><span class="code">   </span></span><br><span class="line">1. This is a item 1</span><br><span class="line">2. This is a item 2</span><br><span class="line"></span><br><span class="line"><span class="code">   &gt; This is a quoteblock</span></span><br><span class="line"><span class="code">   &gt; </span></span><br><span class="line"><span class="code">   &gt; another paragraph</span></span><br><span class="line"><span class="code">   &gt;</span></span><br><span class="line"><span class="code">   &gt;</span></span><br></pre></td></tr></table></figure></p>
-</blockquote>
-</blockquote>
-<blockquote>
-<p>another code block<br>~~~</p>
-</blockquote>
-<hr>
-<p>关键点：</p>
-<p>找到其直接外层元素的第一列的位置(不同Block元素的第一列位置也不同，可参见文档)，然后对齐该位置。</p>
+<h3 id="配置与环境"><a href="#配置与环境" class="headerlink" title="配置与环境"></a>配置与环境</h3><p>配置就是设置对象的属性，应用程序也是一种对象，所以配置文件就是改变应用程序的属性。</p>
+<p>环境就是一组配置文件，切换环境就是切换配置文件，不同环境应用程序的属性也应该不同，如开发环境所使用的数据库与发布环境所使用的数据库肯定不同，进而更改程序的属性。</p>
 
           
         
@@ -551,6 +517,126 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---preface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/07/10/dive-into-yii---preface/" itemprop="url">深入理解Yii笔记 - 前言</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
+                2015-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>这是关于<a href="http://www.digpage.com/index.html" target="_blank" rel="noopener">深入理解Yii2.0</a>的笔记，本篇是前言部分，仅作标记。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---event/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -662,126 +748,6 @@
 </ol>
 <hr>
 <p>综上所说，首先事件由某一Component实例或Event与handler进行绑定，然后，由某一Component实例或Event进行触发，相应的handler进行处理。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---preface/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/07/10/dive-into-yii---preface/" itemprop="url">深入理解Yii笔记 - 前言</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
-                2015-07-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>这是关于<a href="http://www.digpage.com/index.html" target="_blank" rel="noopener">深入理解Yii2.0</a>的笔记，本篇是前言部分，仅作标记。</p>
 
           
         
@@ -1008,10 +974,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 

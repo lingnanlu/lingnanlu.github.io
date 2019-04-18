@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -372,211 +370,6 @@
 </ol>
 <p>之后, 触发channelRegister事件, 执行initializer的initChannel方法, 进一步初始化NioSocketChannel所对应的pipeline.</p>
 <p>至此, 接收客户端并注册到NioEventLoop的过程完毕.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-asyc-callback/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/08/16/netty-asyc-callback/" itemprop="url">Netty异步回调机制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-16T00:00:00+08:00">
-                2016-08-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本文先介绍什么是异步回调, 接着给出一种简单实现 , 然后分析Netty中的实现以及使用</p>
-<h3 id="什么是异步回调呢"><a href="#什么是异步回调呢" class="headerlink" title="什么是异步回调呢?"></a>什么是异步回调呢?</h3><p>如果在网上查什么是异步回调, 很多人会举现实生活中的例子, 如下面这个例子</p>
-<blockquote>
-<p>你打电话问书店老板有没有《分布式系统》这本书，如果是同步通信机制，书店老板会说，你稍等，”我查一下”，然后开始查啊查，等查好了（可能是5秒，也可能是一天）告诉你结果（返回结果）。<br>而异步通信机制，书店老板直接告诉你我查一下啊，查好了打电话给你，然后直接挂电话了（不返回结果）。然后查好了，他会主动打电话给你。在这里老板通过“回电”这种方式来回调。</p>
-</blockquote>
-<p>如果说的更专业一些, 像下面这样</p>
-<blockquote>
-<p>异步调用在发出之后，这个调用就直接返回了，所以没有返回结果。换句话说，当一个异步过程调用发出后，调用者不会立刻得到结果。而是在调用发出后，被调用者通过状态、通知来通知调用者，或通过回调函数处理这个调用。</p>
-</blockquote>
-<p>看到以上两种说法, 似乎对异步机制懂了那么一点点, 对非程序员来说, 应该是足够的了, 但是我还是好奇, 如何在程序中实现呢? 比如说被调用者到底是如何将结果传递给调用者呢? 调用者在程序中指的又是什么呢?</p>
-<p>下面就介绍一下Netty中是如何实现这样一种异步机制的.</p>
-<p>在介绍代码前, 这里也要举一个例子来通俗形象的解释异步机制, 然后用代码来说明这个比喻.</p>
-<h3 id="一个比喻"><a href="#一个比喻" class="headerlink" title="一个比喻"></a>一个比喻</h3><p>先看一张图</p>
-<p><img src="/assets/pics/netty_asyc_callback_example.jpg" alt="alt"></p>
-<p>这里小王不断的从Task队列中取出一个Task, 如果队列为空, 那么小王就什么也不做, 如果该Task是一个耗时任务, 而小王执行该任务的话, 后面的Task会得不到执行, 于是, 小王可以将Task交给小李执行, 这样, 小王就可以继续执行下一个Task了, 而小李执行完毕后, 将执行结果作为了一Task放入到小王的任务队列中去, 这样, 当小王执行到该任务时, 也就得到了结果.</p>
-<p>如果上面的解释依然抽象的话, 可以放入一个具体场景. Task可以看成是一个数学题, 这个数学题有难有易, 易的耗时少, 难的耗时多, 如果小王卡在难题上, 那么容易的得就没时间做了, 此时, 可以把难题交给小李, 这样, 小王可以去做容易的题, 小李做完后, 把结果交给小王(作为一个任务插入到小王的任务队列中)</p>
-<p>当然, 以上所述还是有些不准确. 在后面的实现过程中, 就可以了解到不准确是在什么地方的, 这里, 能理解以上就可以了.</p>
-<p>下面是对以上模型的一个简单实现</p>
-<h3 id="一个简单实现"><a href="#一个简单实现" class="headerlink" title="一个简单实现"></a>一个简单实现</h3><p>首先要在程序语言中找到以上概念的对应实体, 由以上描述可知, 有如下概念</p>
-<ol>
-<li>小王, 小李</li>
-<li>小王, 小李的执行</li>
-<li>任务</li>
-<li>任务队列</li>
-<li>将任务提交到任务队列</li>
-</ol>
-<p>对于以上概念, 可以有以下实体</p>
-<ol>
-<li>线程</li>
-<li>线程的执行</li>
-<li>Runnable</li>
-<li>BlockingQueue</li>
-<li>将Runnable差入到BlockQueue中</li>
-</ol>
-<p>定义如下这样一个Thread</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    BlockingQueue&lt;Runnable&gt; taskQueue;              <span class="comment">//任务队列</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(name);</span><br><span class="line">        taskQueue = <span class="keyword">new</span> LinkedBlockingQueue&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>) &#123;                               <span class="comment">//无限循环, 不断从任务队取任务</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Runnable task = taskQueue.take();</span><br><span class="line">                task.run();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">submit</span><span class="params">(Runnable task)</span> </span>&#123;             <span class="comment">//将任务提交到任务队列中去</span></span><br><span class="line">        taskQueue.offer(task);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>而对于其使用呢? 使用之前做数学题的例子.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Person wang = <span class="keyword">new</span> Person(<span class="string">"wang"</span>);</span><br><span class="line">    <span class="keyword">final</span> Person li = <span class="keyword">new</span> Person(<span class="string">"li"</span>);</span><br><span class="line">    li.start();                     <span class="comment">//启动小王</span></span><br><span class="line">    wang.start();                   <span class="comment">//启动小李</span></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;    <span class="comment">//提交一个简单的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这一道简单的题"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;   <span class="comment">//提交一个复杂的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            li.submit(<span class="keyword">new</span> Runnable() &#123;      <span class="comment">//将复杂的题交给li来做</span></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() +<span class="string">" 2. 这是一道复杂的题"</span>);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    wang.submit(<span class="keyword">new</span> Runnable() &#123;            <span class="comment">//做完之后将结作为Task返回给wang</span></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                            System.out.println(Thread.currentThread(.getName() + <span class="string">"复杂题执行结果"</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;            <span class="comment">//提交一个简单的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这一道简单的题"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行结果是</p>
-<pre><code>wang 1. 这是一道简单的题
-wang 3. 这是一道简单的题
-li 2. 这是一道复杂的题
-wang 复杂题执行完毕
-</code></pre><p>可以看到第2道难题完全没有影响到1, 3题的执行.</p>
-<p>不过, 为什么提交复杂的题代码会这么复杂呢?</p>
-<p>可以这样认为, wang的执行肯定是执行某一个任务. 提交复杂的题给li这一操作肯定也是属于某一任务的, 这里wang不可能越过任务直接将复杂的题提交给li. 所以需要将提交操作用一个任务包装起来, 同理li的执行结果也以同样的方式提交给wang.</p>
-<h3 id="Netty中的实现"><a href="#Netty中的实现" class="headerlink" title="Netty中的实现"></a>Netty中的实现</h3><p>先看一下在Netty中实现以上场景的代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> DefaultEventExecutor wang = <span class="keyword">new</span> DefaultEventExecutor();</span><br><span class="line"><span class="keyword">final</span> DefaultEventExecutor li = <span class="keyword">new</span> DefaultEventExecutor();</span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Promise&lt;Integer&gt; promise = wang.newPromise();</span><br><span class="line">        promise.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? superInteger&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> Integer&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"复题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        li.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"执行计算任务的线程 "</span> +Thread.currentThread());</span><br><span class="line">                promise.setSuccess(<span class="number">10</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>看起来和简单实现中的代码差不多, DefaultEventExecutor可以简单的看做拥有一个队列的线程.</p>
-<p>与简单实现不同的是, 小李执行完任务后通知小王的方式. 即下面这段代码.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Promise&lt;Integer&gt; promise = wang.newPromise();</span><br><span class="line">promise.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? <span class="keyword">super</span> Integer&gt;&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> Integer&gt; future)</span> throwsException </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">"复杂题执行结"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">li.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"执行计算任务的线程 "</span> + Thread.currentThread());</span><br><span class="line">    promise.setSuccess(<span class="number">10</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>在Netty中Promise代码一个可写的异步任务结果, 以上代码的含义是</p>
-<ol>
-<li>生成一个promise</li>
-<li>为该promise注册一个listener, 当任务执行完后回调该listener</li>
-<li>在另一个线程中执行一个异步任务, 执行完后, 将promise设置为成功</li>
-<li>回调listener, 该listener在异步任务提交者线程中执行.</li>
-</ol>
-<p>下面, 从源代码分析一下, 上术过程是如何做到的.</p>
-<p>先看promise.setSuccess</p>
-<h4 id="1-DefaultPromise-setSuccess-V-result"><a href="#1-DefaultPromise-setSuccess-V-result" class="headerlink" title="1. DefaultPromise.setSuccess(V result)"></a>1. DefaultPromise.setSuccess(V result)</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (setSuccess0(result)) &#123;</span><br><span class="line">    notifyListeners();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>关键的是notifyListeners();</p>
-<h4 id="2-DefaultPromise-notifyListeners"><a href="#2-DefaultPromise-notifyListeners" class="headerlink" title="2. DefaultPromise.notifyListeners()"></a>2. DefaultPromise.notifyListeners()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyListeners</span><span class="params">()</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    EventExecutor executor = executor();</span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</span><br><span class="line">        notifyListenersWithStackOverFlowProtection();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        safeExecute(executor, <span class="keyword">new</span> OneTimeTask() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                notifyListenersWithStackOverFlowProtection();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="3-DefaultPromise-executor"><a href="#3-DefaultPromise-executor" class="headerlink" title="3. DefaultPromise.executor()"></a>3. DefaultPromise.executor()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> EventExecutor <span class="title">executor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> executor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>由2和3知道, 如果当前线程不是executor, 就将notifyListener包装成一个Task添加了executor的taskqueue中执行, 如果是executor则直接在当前线程中执行.</p>
-<p>从上面的行为可以猜得到, executor成员的含义应该是异步任务的提交者, 那么executor是什么时候被赋值呢?</p>
-<h4 id="4-DefaultEventExecutor-newPromise"><a href="#4-DefaultEventExecutor-newPromise" class="headerlink" title="4. DefaultEventExecutor.newPromise();"></a>4. DefaultEventExecutor.newPromise();</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;V&gt; <span class="function">Promise&lt;V&gt; <span class="title">newPromise</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DefaultPromise&lt;V&gt;(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultPromise</span><span class="params">(EventExecutor executor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.executor = checkNotNull(executor, <span class="string">"executor"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可见, 利用DefaultEventExecutor生成promise时, 将该executor赋值给promise.executor.</p>
-<p>至此, 明白了Netty中异步任务执行完毕后, 通知提交者的机制</p>
-<h3 id="一种误用"><a href="#一种误用" class="headerlink" title="一种误用"></a>一种误用</h3><p>为了实现以上问题, 还可以像下面这样写.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">           </span><br><span class="line">    Future&lt;String&gt; result = li.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">10000000</span>; i++)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= <span class="number">1000000</span>; j++) &#123;</span><br><span class="line">                    ;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 2. 这一道复杂的题"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    result.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? <span class="keyword">super</span> String&gt;&gt;()&#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> String&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"3.复杂题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>这样写似乎更简单, 但运行一下会发现, listener的执行却是由小李来处理, 按理说, 小王交给小李一个任务, 小李做完之后将结果返回给小王, 应该是小王处理才对啊, 可为什么是小李来处理呢?</p>
-<p>查看源码可知, DefaultEventExecutor.submit方法将一个Callable包装成一个DefaultPromise, 并且将执行者作为DefaultPromise的exectutor, 为什么要这样做呢?</p>
-<p>我猜是如下这样的原因.</p>
-<blockquote>
-<p>Netty的异步回调机制需要提交者必须有一个TaskQueue才行, 而这里wang并不一定含有一个TaskQueue, 为了防止因为提交者没有TaskQueue而出错, 所以只能赋值为执行者, 而使用newPromise就没有问题, 因为newPromise是DefaultEventExecutor的接口, 而DefaultEventExecutor肯定有一个TaskQueue.</p>
-</blockquote>
-<p>比如如下情况就可能出错</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Thread wang = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Future&lt;String&gt; result = li.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">10000000</span>; i++)&#123;</span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= <span class="number">1000000</span>; j++) &#123;</span><br><span class="line">                        ;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" 2.这是一道复杂的题"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        result.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? superString&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> String&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"3.复杂题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="Netty源码中对异步回调的使用"><a href="#Netty源码中对异步回调的使用" class="headerlink" title="Netty源码中对异步回调的使用"></a>Netty源码中对异步回调的使用</h3><p>在Netty中, ChannelHandlerContext的</p>
-<ol>
-<li>write(msg, promise)</li>
-<li>bind(address, promise)</li>
-</ol>
-<p>等操作都是一个异步操作, 为了使该操作不阻塞当前executor的执行, 一般这样使用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Promise result = ctx.newPromise(ctx.executor());</span><br><span class="line">ctx.write(msg, result);</span><br><span class="line">result.addListener(listener);</span><br></pre></td></tr></table></figure>
 
           
         
@@ -861,7 +654,7 @@ wang 复杂题执行完毕
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-handler-ctx--pipeline-uml/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-asyc-callback/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -880,7 +673,7 @@ wang 复杂题执行完毕
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/08/16/netty-handler-ctx--pipeline-uml/" itemprop="url">Netty Handler CTX & Pipeline UML</a></h1>
+                <a class="post-title-link" href="/2016/08/16/netty-asyc-callback/" itemprop="url">Netty异步回调机制</a></h1>
         
 
         <div class="post-meta">
@@ -932,7 +725,405 @@ wang 复杂题执行完毕
       
         
           
-            <p><img src="/assets/pics/netty_handler_ctx_pipeline_uml.jpg" alt="alt"></p>
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本文先介绍什么是异步回调, 接着给出一种简单实现 , 然后分析Netty中的实现以及使用</p>
+<h3 id="什么是异步回调呢"><a href="#什么是异步回调呢" class="headerlink" title="什么是异步回调呢?"></a>什么是异步回调呢?</h3><p>如果在网上查什么是异步回调, 很多人会举现实生活中的例子, 如下面这个例子</p>
+<blockquote>
+<p>你打电话问书店老板有没有《分布式系统》这本书，如果是同步通信机制，书店老板会说，你稍等，”我查一下”，然后开始查啊查，等查好了（可能是5秒，也可能是一天）告诉你结果（返回结果）。<br>而异步通信机制，书店老板直接告诉你我查一下啊，查好了打电话给你，然后直接挂电话了（不返回结果）。然后查好了，他会主动打电话给你。在这里老板通过“回电”这种方式来回调。</p>
+</blockquote>
+<p>如果说的更专业一些, 像下面这样</p>
+<blockquote>
+<p>异步调用在发出之后，这个调用就直接返回了，所以没有返回结果。换句话说，当一个异步过程调用发出后，调用者不会立刻得到结果。而是在调用发出后，被调用者通过状态、通知来通知调用者，或通过回调函数处理这个调用。</p>
+</blockquote>
+<p>看到以上两种说法, 似乎对异步机制懂了那么一点点, 对非程序员来说, 应该是足够的了, 但是我还是好奇, 如何在程序中实现呢? 比如说被调用者到底是如何将结果传递给调用者呢? 调用者在程序中指的又是什么呢?</p>
+<p>下面就介绍一下Netty中是如何实现这样一种异步机制的.</p>
+<p>在介绍代码前, 这里也要举一个例子来通俗形象的解释异步机制, 然后用代码来说明这个比喻.</p>
+<h3 id="一个比喻"><a href="#一个比喻" class="headerlink" title="一个比喻"></a>一个比喻</h3><p>先看一张图</p>
+<p><img src="/assets/pics/netty_asyc_callback_example.jpg" alt="alt"></p>
+<p>这里小王不断的从Task队列中取出一个Task, 如果队列为空, 那么小王就什么也不做, 如果该Task是一个耗时任务, 而小王执行该任务的话, 后面的Task会得不到执行, 于是, 小王可以将Task交给小李执行, 这样, 小王就可以继续执行下一个Task了, 而小李执行完毕后, 将执行结果作为了一Task放入到小王的任务队列中去, 这样, 当小王执行到该任务时, 也就得到了结果.</p>
+<p>如果上面的解释依然抽象的话, 可以放入一个具体场景. Task可以看成是一个数学题, 这个数学题有难有易, 易的耗时少, 难的耗时多, 如果小王卡在难题上, 那么容易的得就没时间做了, 此时, 可以把难题交给小李, 这样, 小王可以去做容易的题, 小李做完后, 把结果交给小王(作为一个任务插入到小王的任务队列中)</p>
+<p>当然, 以上所述还是有些不准确. 在后面的实现过程中, 就可以了解到不准确是在什么地方的, 这里, 能理解以上就可以了.</p>
+<p>下面是对以上模型的一个简单实现</p>
+<h3 id="一个简单实现"><a href="#一个简单实现" class="headerlink" title="一个简单实现"></a>一个简单实现</h3><p>首先要在程序语言中找到以上概念的对应实体, 由以上描述可知, 有如下概念</p>
+<ol>
+<li>小王, 小李</li>
+<li>小王, 小李的执行</li>
+<li>任务</li>
+<li>任务队列</li>
+<li>将任务提交到任务队列</li>
+</ol>
+<p>对于以上概念, 可以有以下实体</p>
+<ol>
+<li>线程</li>
+<li>线程的执行</li>
+<li>Runnable</li>
+<li>BlockingQueue</li>
+<li>将Runnable差入到BlockQueue中</li>
+</ol>
+<p>定义如下这样一个Thread</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    BlockingQueue&lt;Runnable&gt; taskQueue;              <span class="comment">//任务队列</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(name);</span><br><span class="line">        taskQueue = <span class="keyword">new</span> LinkedBlockingQueue&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>) &#123;                               <span class="comment">//无限循环, 不断从任务队取任务</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Runnable task = taskQueue.take();</span><br><span class="line">                task.run();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">submit</span><span class="params">(Runnable task)</span> </span>&#123;             <span class="comment">//将任务提交到任务队列中去</span></span><br><span class="line">        taskQueue.offer(task);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而对于其使用呢? 使用之前做数学题的例子.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Person wang = <span class="keyword">new</span> Person(<span class="string">"wang"</span>);</span><br><span class="line">    <span class="keyword">final</span> Person li = <span class="keyword">new</span> Person(<span class="string">"li"</span>);</span><br><span class="line">    li.start();                     <span class="comment">//启动小王</span></span><br><span class="line">    wang.start();                   <span class="comment">//启动小李</span></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;    <span class="comment">//提交一个简单的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这一道简单的题"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;   <span class="comment">//提交一个复杂的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            li.submit(<span class="keyword">new</span> Runnable() &#123;      <span class="comment">//将复杂的题交给li来做</span></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() +<span class="string">" 2. 这是一道复杂的题"</span>);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    wang.submit(<span class="keyword">new</span> Runnable() &#123;            <span class="comment">//做完之后将结作为Task返回给wang</span></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                            System.out.println(Thread.currentThread(.getName() + <span class="string">"复杂题执行结果"</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    wang.submit(<span class="keyword">new</span> Runnable() &#123;            <span class="comment">//提交一个简单的题</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这一道简单的题"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果是</p>
+<pre><code>wang 1. 这是一道简单的题
+wang 3. 这是一道简单的题
+li 2. 这是一道复杂的题
+wang 复杂题执行完毕
+</code></pre><p>可以看到第2道难题完全没有影响到1, 3题的执行.</p>
+<p>不过, 为什么提交复杂的题代码会这么复杂呢?</p>
+<p>可以这样认为, wang的执行肯定是执行某一个任务. 提交复杂的题给li这一操作肯定也是属于某一任务的, 这里wang不可能越过任务直接将复杂的题提交给li. 所以需要将提交操作用一个任务包装起来, 同理li的执行结果也以同样的方式提交给wang.</p>
+<h3 id="Netty中的实现"><a href="#Netty中的实现" class="headerlink" title="Netty中的实现"></a>Netty中的实现</h3><p>先看一下在Netty中实现以上场景的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> DefaultEventExecutor wang = <span class="keyword">new</span> DefaultEventExecutor();</span><br><span class="line"><span class="keyword">final</span> DefaultEventExecutor li = <span class="keyword">new</span> DefaultEventExecutor();</span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Promise&lt;Integer&gt; promise = wang.newPromise();</span><br><span class="line">        promise.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? superInteger&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> Integer&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"复题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        li.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"执行计算任务的线程 "</span> +Thread.currentThread());</span><br><span class="line">                promise.setSuccess(<span class="number">10</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>看起来和简单实现中的代码差不多, DefaultEventExecutor可以简单的看做拥有一个队列的线程.</p>
+<p>与简单实现不同的是, 小李执行完任务后通知小王的方式. 即下面这段代码.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Promise&lt;Integer&gt; promise = wang.newPromise();</span><br><span class="line">promise.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? <span class="keyword">super</span> Integer&gt;&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> Integer&gt; future)</span> throwsException </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">"复杂题执行结"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">li.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"执行计算任务的线程 "</span> + Thread.currentThread());</span><br><span class="line">    promise.setSuccess(<span class="number">10</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在Netty中Promise代码一个可写的异步任务结果, 以上代码的含义是</p>
+<ol>
+<li>生成一个promise</li>
+<li>为该promise注册一个listener, 当任务执行完后回调该listener</li>
+<li>在另一个线程中执行一个异步任务, 执行完后, 将promise设置为成功</li>
+<li>回调listener, 该listener在异步任务提交者线程中执行.</li>
+</ol>
+<p>下面, 从源代码分析一下, 上术过程是如何做到的.</p>
+<p>先看promise.setSuccess</p>
+<h4 id="1-DefaultPromise-setSuccess-V-result"><a href="#1-DefaultPromise-setSuccess-V-result" class="headerlink" title="1. DefaultPromise.setSuccess(V result)"></a>1. DefaultPromise.setSuccess(V result)</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (setSuccess0(result)) &#123;</span><br><span class="line">    notifyListeners();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关键的是notifyListeners();</p>
+<h4 id="2-DefaultPromise-notifyListeners"><a href="#2-DefaultPromise-notifyListeners" class="headerlink" title="2. DefaultPromise.notifyListeners()"></a>2. DefaultPromise.notifyListeners()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyListeners</span><span class="params">()</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    EventExecutor executor = executor();</span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</span><br><span class="line">        notifyListenersWithStackOverFlowProtection();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        safeExecute(executor, <span class="keyword">new</span> OneTimeTask() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                notifyListenersWithStackOverFlowProtection();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-DefaultPromise-executor"><a href="#3-DefaultPromise-executor" class="headerlink" title="3. DefaultPromise.executor()"></a>3. DefaultPromise.executor()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> EventExecutor <span class="title">executor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> executor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由2和3知道, 如果当前线程不是executor, 就将notifyListener包装成一个Task添加了executor的taskqueue中执行, 如果是executor则直接在当前线程中执行.</p>
+<p>从上面的行为可以猜得到, executor成员的含义应该是异步任务的提交者, 那么executor是什么时候被赋值呢?</p>
+<h4 id="4-DefaultEventExecutor-newPromise"><a href="#4-DefaultEventExecutor-newPromise" class="headerlink" title="4. DefaultEventExecutor.newPromise();"></a>4. DefaultEventExecutor.newPromise();</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;V&gt; <span class="function">Promise&lt;V&gt; <span class="title">newPromise</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DefaultPromise&lt;V&gt;(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultPromise</span><span class="params">(EventExecutor executor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.executor = checkNotNull(executor, <span class="string">"executor"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见, 利用DefaultEventExecutor生成promise时, 将该executor赋值给promise.executor.</p>
+<p>至此, 明白了Netty中异步任务执行完毕后, 通知提交者的机制</p>
+<h3 id="一种误用"><a href="#一种误用" class="headerlink" title="一种误用"></a>一种误用</h3><p>为了实现以上问题, 还可以像下面这样写.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 1. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">           </span><br><span class="line">    Future&lt;String&gt; result = li.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">10000000</span>; i++)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= <span class="number">1000000</span>; j++) &#123;</span><br><span class="line">                    ;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 2. 这一道复杂的题"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    result.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? <span class="keyword">super</span> String&gt;&gt;()&#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> String&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"3.复杂题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">wang.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 3. 这是一简单的题"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样写似乎更简单, 但运行一下会发现, listener的执行却是由小李来处理, 按理说, 小王交给小李一个任务, 小李做完之后将结果返回给小王, 应该是小王处理才对啊, 可为什么是小李来处理呢?</p>
+<p>查看源码可知, DefaultEventExecutor.submit方法将一个Callable包装成一个DefaultPromise, 并且将执行者作为DefaultPromise的exectutor, 为什么要这样做呢?</p>
+<p>我猜是如下这样的原因.</p>
+<blockquote>
+<p>Netty的异步回调机制需要提交者必须有一个TaskQueue才行, 而这里wang并不一定含有一个TaskQueue, 为了防止因为提交者没有TaskQueue而出错, 所以只能赋值为执行者, 而使用newPromise就没有问题, 因为newPromise是DefaultEventExecutor的接口, 而DefaultEventExecutor肯定有一个TaskQueue.</p>
+</blockquote>
+<p>比如如下情况就可能出错</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Thread wang = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Future&lt;String&gt; result = li.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">10000000</span>; i++)&#123;</span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= <span class="number">1000000</span>; j++) &#123;</span><br><span class="line">                        ;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" 2.这是一道复杂的题"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        result.addListener(<span class="keyword">new</span> GenericFutureListener&lt;Future&lt;? superString&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(Future&lt;? <span class="keyword">super</span> String&gt; future)</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"3.复杂题执行结果"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="Netty源码中对异步回调的使用"><a href="#Netty源码中对异步回调的使用" class="headerlink" title="Netty源码中对异步回调的使用"></a>Netty源码中对异步回调的使用</h3><p>在Netty中, ChannelHandlerContext的</p>
+<ol>
+<li>write(msg, promise)</li>
+<li>bind(address, promise)</li>
+</ol>
+<p>等操作都是一个异步操作, 为了使该操作不阻塞当前executor的执行, 一般这样使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Promise result = ctx.newPromise(ctx.executor());</span><br><span class="line">ctx.write(msg, result);</span><br><span class="line">result.addListener(listener);</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-pipeline/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/08/16/netty-pipeline/" itemprop="url">Netty-理解Pipeline</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-16T00:00:00+08:00">
+                2016-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在运行过程中, 每一个NioSocketChannel对应的Pipeline实际是如下这样子</p>
+<p><img src="/assets/pics/netty_pipeline.jpg" alt="alt"></p>
+<p>仔细观察可以发现</p>
+<ol>
+<li>Pipeline内部实际上是一个双向链表, 每个元素实际上是一个ChannelHandlerContext</li>
+<li>每一个Handler被一个ChannelHandlerContext所包装</li>
+<li>该Pipeline中隐含着两个Context, 一个是HeadContext, 另一个是TailContext, 通过源代码可以看出, 这两个Context也是Handler.</li>
+</ol>
+<p>在使用Pipeline中自己也有如下不解.</p>
+<ol>
+<li>ChannelHandlerContext的作用是什么, 为什么每一个Handler需要包装一个ChannelHandlerContext</li>
+<li>数据是如何在不同Handler中传递的</li>
+<li>Handler在哪一个executor中执行呢? 可以为Handler指派不同的executor吗, 如果handler在不同的executor中执行, 那么数据又是怎么在handler中传递的呢?</li>
+<li>HeadContext和TailContext的作用是什么? </li>
+<li>InBound Event来OutBound Event到底是什么? 有什么不同呢? 在Handler中传递有什么区别呢?</li>
+</ol>
+<p>本文通过分析源代码, 回答1, 2, 3问题</p>
+<p>注</p>
+<ol>
+<li>Netty版本4.1.0</li>
+<li>对代码做了精简</li>
+</ol>
+<p>通过本文, 对以下</p>
+<p>Channel, Pipeline, Handler, ChannelHandlerContext, InBound Event, OutBound Event有更深入的了解.</p>
+<hr>
+<p>当将Handler添加到Pipeline中时, 最终调用的方法是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> ChannelPipeline <span class="title">addLast</span><span class="params">(EventExecutorGroup group, String name ChannelHandler handler)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> EventExecutor executor;</span><br><span class="line">    <span class="keyword">final</span> AbstractChannelHandlerContext newCtx;</span><br><span class="line"> </span><br><span class="line">    newCtx = newContext(group, filterName(name, handler), handler);</span><br><span class="line">        </span><br><span class="line">    addLast0(newCtx);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再看newContext方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> AbstractChannelHandlerContext <span class="title">newContext</span><span class="params">(EventExecutorGroup group,String name, ChannelHandler handler)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DefaultChannelHandlerContext(<span class="keyword">this</span>, childExecutor(group),name, handler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法主要做了两件事</p>
+<ol>
+<li>将handler包装一个ChannelHandlerContext</li>
+<li>从group中取得一个childExecutor, 赋值给DefaultChannelHandlerContext的executor成员</li>
+<li>根据该handler是InBoundHandler还是OutBoundHandler为该Context设置inbound或outbound</li>
+</ol>
+<p>其中DefaultChannelHandlerContext的executor的含义是.</p>
+<blockquote>
+<p>执行所包装的Handler的executor</p>
+</blockquote>
+<p>所以可以看出:</p>
+<blockquote>
+<p>Handler可以在不同的executor中执行, 如果不指定, 则该executor是NioEventLoop, 这就是默认情况下Handler在NioEventLoop中执行.</p>
+</blockquote>
+<p>再看addLast0()方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addLast0</span><span class="params">(AbstractChannelHandlerContext newCtx)</span> </span>&#123;</span><br><span class="line">    AbstractChannelHandlerContext prev = tail.prev;</span><br><span class="line">    newCtx.prev = prev;</span><br><span class="line">    newCtx.next = tail;</span><br><span class="line">    prev.next = newCtx;</span><br><span class="line">    tail.prev = newCtx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出, 就是将该Context加入到双向队列中去.</p>
+<p>我们知道, 在Handler处理完数据后, 要想将数据传递到后一个Handler中, 要调用Context的相关方法, 假如这里一个InBoundHandler处理完了一个数据, 调用了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx.fireChannelRead(msg);</span><br></pre></td></tr></table></figure>
+<p>这个方法将msg传递到下一个handler中, 而前面已经知道, 下一个handler可能运行在另一个executor中, 那么解答不同exexutor中handler间数据的传递就在这个方法中了. 下面看这个方法做了什么.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ChannelHandlerContext <span class="title">fireChannelRead</span><span class="params">(<span class="keyword">final</span> Object msg)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    invokeChannelRead(findContextInbound(), msg);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先调用的findContextInbound()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> AbstractChannelHandlerContext <span class="title">findContextInbound</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    AbstractChannelHandlerContext ctx = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        ctx = ctx.next;</span><br><span class="line">    &#125; <span class="keyword">while</span> (!ctx.inbound);</span><br><span class="line">    <span class="keyword">return</span> ctx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出, 该方法的含义是找到当前handler后的第一个InBoundHandler</p>
+<p>再看invokeChannelRead()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">invokeChannelRead</span><span class="params">(<span class="keyword">final</span> AbstractChannelHandlerContext next,Object msg)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    EventExecutor executor = next.executor();</span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</span><br><span class="line">        next.invokeChannelRead(m);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        executor.execute(<span class="keyword">new</span> OneTimeTask() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                next.invokeChannelRead(m);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在真相大白了, 先返回下一个handler的executor, 然后利用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">executor.inEventLoop()</span><br></pre></td></tr></table></figure>
+<p>判断当前handler的executort和下一个Handler的executor是不是相同, 如果是, 就直接在当前executor中执行, 如果不是, 则打包成一个Task, 加入到下一个executor的TaskQueue中执行.</p>
+<p>而next.invokeChannelRead(msg)是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">invokeChannelRead</span><span class="params">(Object msg)</span> </span>&#123;</span><br><span class="line">    ((ChannelInboundHandler) handler()).channelRead(<span class="keyword">this</span>, msg);   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>即, 调用handler的channelRead方法, 至此, msg传入到了下一个handler中</p>
+<p>所以</p>
+<blockquote>
+<p>如果两个handler在不同executor中执行, 那么将msg传递到下一个handler是通过TaskQueue来进行了.</p>
+</blockquote>
+<p>现在, 可以总结ChannelHandlerContext的作用了.</p>
+<blockquote>
+<p>它将与处理数据无关的职能从handler中剥离了出去, 用来管理数据在pipeline中的传递.</p>
+</blockquote>
+<p>通过以上, 其实已经回答了问题1, 2, 3. 下面回答4, 5</p>
+<hr>
+<h3 id="TailContext-HeadContext的作用"><a href="#TailContext-HeadContext的作用" class="headerlink" title="TailContext, HeadContext的作用"></a>TailContext, HeadContext的作用</h3><p>由图中可知, 两者是netty帮程序员自动添加的. 两者有如下特点</p>
+<ol>
+<li>既是Context, 又是Handler</li>
+<li>HeadContext是InBoundHandler和OutBoundHandler, 而TailContext只是InBoundHandler</li>
+</ol>
+<p>那么, 为什么这样设计呢?</p>
+<p>在解释这个之前, 需要了解一下Inbound Event和OutBound event. 暂时记住以上两个两个结论</p>
+<h3 id="InBound-Event-OutBound-Event"><a href="#InBound-Event-OutBound-Event" class="headerlink" title="InBound Event, OutBound Event"></a>InBound Event, OutBound Event</h3><p>在ChannelPipeline的文档中, 有如下这样描述</p>
+<p>Inbound event propagation methods</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ChannelHandlerContext.fireChannelRegistered()</span><br><span class="line">ChannelHandlerContext.fireChannelActive()</span><br><span class="line">ChannelHandlerContext.fireChannelRead(Object)</span><br><span class="line">ChannelHandlerContext.fireChannelReadComplete()</span><br><span class="line">ChannelHandlerContext.fireExceptionCaught(Throwable)</span><br><span class="line">ChannelHandlerContext.fireUserEventTriggered(Object)</span><br><span class="line">ChannelHandlerContext.fireChannelWritabilityChanged()</span><br><span class="line">ChannelHandlerContext.fireChannelInactive()</span><br><span class="line">ChannelHandlerContext.fireChannelUnregistered()</span><br></pre></td></tr></table></figure>
+<p>Outbound event propagation methods:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ChannelOutboundInvoker.bind(SocketAddress, ChannelPromise)</span><br><span class="line">ChannelOutboundInvoker.connect(SocketAddress, SocketAddress,ChannelPromise)</span><br><span class="line">ChannelOutboundInvoker.write(Object, ChannelPromise)</span><br><span class="line">ChannelHandlerContext.flush()</span><br><span class="line">ChannelHandlerContext.read()</span><br><span class="line">ChannelOutboundInvoker.disconnect(ChannelPromise)</span><br><span class="line">ChannelOutboundInvoker.close(ChannelPromise)</span><br><span class="line">ChannelOutboundInvoker.deregister(ChannelPromise)</span><br></pre></td></tr></table></figure>
+<p>可以看出, 这些方法是ChannelHandlerContext的方法</p>
+<p>而Pipeline中也有类似的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ChannelPipeline.fireChannelRead(Object)</span><br><span class="line">ChannelPipeline.write(Object)</span><br></pre></td></tr></table></figure>
+<p>而如果去看AbstractChannel, 则有</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AbstractChannel.write(Object)</span><br></pre></td></tr></table></figure>
+<p>而没有fire开头的方法</p>
+<p>再看AbstractUnsafe, 也有</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AbstractUnsafe.write(Object, ChannelPromise)</span><br></pre></td></tr></table></figure>
+<p>没有fire开头的方法</p>
+<p>同时, 对于AbstractChannel, 有</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AbstractChannel.doWrite(ChannelOutboundBuffer in)</span><br></pre></td></tr></table></figure>
+<p>没有fire开头的方法.</p>
+<p>这有些混乱.</p>
+<p>如果前以上模糊的地方整理一下, 有以下几点</p>
+<ol>
+<li>ChannelHandlerContext, Channel, Unsafe, Pipeline有一些类似的方法</li>
+<li>有的类中有fire前缀的方法和非fire前缀的方法, 有的类中只有非fire前缀的方法</li>
+<li>同一非fire前缀的方法, 出现在多个类中. 如write方法</li>
+<li>同一非fire前缀的方法, 出现的多个类中, 参数有不同, 如ChannelPipeline.write(Object), AbstractUnsafe.write(Object, ChannelPromise)</li>
+<li>同一非fire前缀的方法, 出现的多个类中, 但名称也有些不同, 如AbstractChannel.write(Object)和AbstractChannel.doWrite(ChannelOutboundBuffer in)</li>
+</ol>
+<p>下面就来理一理, 澄清以上的困惑, 进而也就回答了问题4, 5</p>
+<h4 id="1-fire前缀的方法"><a href="#1-fire前缀的方法" class="headerlink" title="1. fire前缀的方法"></a>1. fire前缀的方法</h4><p>fire前缀的方法叫InBound Event propagation methods. </p>
+<p>什么叫InBound Event呢? 就是被动事件, 这里被动的含义指Netty程序根据事件被动的作出反应, 而不是主动做出反应. </p>
+<p>举个例子, NioEventLoop一直在Selector上进行监听, 当一个Channel在Selector上读就绪时, 触发一个Read事件, 然后就调用fireChannelRead(Object)方法在Pipeline中传递这个事件, 利用handler对此逐步处理.</p>
+<p>如果看源码可以发现, 当NioEventLoop从Socket读入数据后, 会调用Pipeline的fireChannelRead方法, 而<strong>该方法在Pipeline与ChannelHandlerContext中都有</strong>, 有什么区别呢?</p>
+<p>看一下Pipeline.fireChannelRead的源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> ChannelPipeline <span class="title">fireChannelRead</span><span class="params">(Object msg)</span> </span>&#123;</span><br><span class="line">    AbstractChannelHandlerContext.invokeChannelRead(head, msg);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">invokeChannelRead</span><span class="params">(<span class="keyword">final</span> AbstractChannelHandlerContext nextObject    msg)</span> </span>&#123;</span><br><span class="line">    EventExecutor executor = next.executor();</span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</span><br><span class="line">        next.invokeChannelRead(m);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        executor.execute(<span class="keyword">new</span> OneTimeTask() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                next.invokeChannelRead(m);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出, </p>
+<blockquote>
+<p>PipeLine的fire方法仅仅是将数据传递给了HeadContext而已</p>
+</blockquote>
+<p>而HeadContext的executor是NioEventLoop, 所以是在NioEventLoop中执行的, 再来看一下HeadContext对读进来的数据做了什么操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> throwsException </span>&#123;</span><br><span class="line">        ctx.fireChannelRead(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很简单, </p>
+<blockquote>
+<p>就是传递给下一个Handler</p>
+</blockquote>
+<p>对于其它InBound也是类似的含义.</p>
+<p>至此, 澄清了</p>
+<blockquote>
+<p>Pipeline与ChannelHandlerContext中fire方法的区别, 因为第一个Handler之前没有Handler, 所以依赖Pipeline的fire方法传递给第一个Handler</p>
+</blockquote>
+<h4 id="2-非fire前缀方法"><a href="#2-非fire前缀方法" class="headerlink" title="2. 非fire前缀方法"></a>2. 非fire前缀方法</h4><p>ChannelHandlerContext中非fire前缀方法叫做Outbound event propagation methods, 这里Outbound event可以称为主动事件, 什么是主动事件呢?</p>
+<p>从Channel读是一个被动事件, 这是因为服务端得等待着客户端数据的到来, 服务端不能主动做动作.</p>
+<p>而向Channel写则是一个主动事件, 因为服务端可以决定什么时候来写. 这是一个主动的行为.</p>
+<p>常用的写事件如下</p>
+<ol>
+<li>bind(SocketAddress, ChannelPromise)</li>
+<li>connect(SocketAddress, SocketAddress, ChannelPromise)</li>
+<li>write(Object, ChannelPromise)</li>
+<li>flush()</li>
+<li>read()</li>
+<li>disconnect(ChannelPromise)</li>
+<li>close(ChannelPromise)</li>
+<li>deregister(ChannelPromise)</li>
+</ol>
+<p>从名称中可以看出, 这些行为都可以是主动行为, 但有的行为即可以主动, 又可以被动, 如close, 如果说等待客户端的close则是一种被动行为, 只是名称不同, fireChannelInactive.</p>
+<p>这里的read可能不好理解, read怎么可能是一个主动行为呢? 之后会对此进行解释.</p>
+<p>关于非fire前缀的方法, 有三点需要注意</p>
+<ol>
+<li>主动事件是如何在Pipeline中传播的</li>
+<li>方法中的Promise是做什么用的, 为什么fire方法没有Promise</li>
+<li>非fire前缀方法出现在多个类有, 有什么区别</li>
+</ol>
+<p>下面通过分析将数据写入到Channel的流程, 就可以回答以上的几个问题</p>
+<h4 id="write操作的传播"><a href="#write操作的传播" class="headerlink" title="write操作的传播"></a>write操作的传播</h4><p>假如从客户端读入数据后, 在某一InBoundHandler中处理完毕, 此时需要写回到Channel中, 于是在该Handler的channelRead方法中执行如下代码.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ChannelFuture future = ctx.writeAndFlush(response);</span><br><span class="line">future.addListener(ChannelFutureListener.CLOSE);</span><br></pre></td></tr></table></figure>
+<p>该段代码的含义是将响应发送给客户端后, 关闭Channel, 现在, 深入源码看都发生了什么</p>
+<p>先是DefaultChannelHandlerContext.write(Object)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">write</span><span class="params">(Object msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> write(msg, newPromise());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">write</span><span class="params">(<span class="keyword">final</span> Object msg, <span class="keyword">final</span> ChannelPromise promise)</span></span>&#123;</span><br><span class="line">    write(msg, <span class="keyword">false</span>, promise);</span><br><span class="line">    <span class="keyword">return</span> promise;</span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(Object msg, <span class="keyword">boolean</span> flush, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    AbstractChannelHandlerContext next = findContextOutbound();</span><br><span class="line">    EventExecutor executor = next.executor();</span><br><span class="line">    <span class="keyword">if</span> (executor.inEventLoop()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (flush) &#123;</span><br><span class="line">            next.invokeWriteAndFlush(m, promise);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            next.invokeWrite(m, promise);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        AbstractWriteTask task;</span><br><span class="line">        <span class="keyword">if</span> (flush) &#123;</span><br><span class="line">            task = WriteAndFlushTask.newInstance(next, m, promise);</span><br><span class="line">        &#125;  <span class="keyword">else</span> &#123;</span><br><span class="line">            task = WriteTask.newInstance(next, m, promise);</span><br><span class="line">        &#125;</span><br><span class="line">        safeExecute(executor, task, promise, m);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过以上可以看出</p>
+<ol>
+<li>调用write会隐式传入一个Promise, 而我们知道, Promsie代表一个异步任务的结果, 所以这里writeAndFlush操作是一个异步任务, 即不会阻塞当前executor, 而且在写成功后会修改Promise为success, 进而通知listener</li>
+<li>其传播方式与fire是类似的, 先找到下一个OutBoundHandler, 看是不是在同一个executor中, 不是的话就加入到executor的taskqueue中. 不过, 这里传播的是两个事件, write 和 flush, 会依次调用Handler中的这两个方法</li>
+</ol>
+<p>由上知道 , 第一个OutBoundHandler是HeadContext, write操作最终会传播到HeadContext, 现在来看HeadContext的write和flush方法做了什么.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(ChannelHandlerContext ctx, Object msg, ChannelPromisepromise)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    unsafe.write(msg, promise);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flush</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    unsafe.flush();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的UnSafe是NioSocketChannel关联的UnSafe, 即NioSocketChannelUnsafe</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(Object msg, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    assertEventLoop();</span><br><span class="line">    <span class="keyword">int</span> size;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        msg = filterOutboundMessage(msg);</span><br><span class="line">        size = pipeline.estimatorHandle().size(msg);</span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            size = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        safeSetFailure(promise, t);</span><br><span class="line">        ReferenceCountUtil.release(msg);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    outboundBuffer.addMessage(msg, size, promise);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">flush</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    assertEventLoop();</span><br><span class="line">    ChannelOutboundBuffer outboundBuffer = <span class="keyword">this</span>.outboundBuffer;</span><br><span class="line">    <span class="keyword">if</span> (outboundBuffer == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    outboundBuffer.addFlush();</span><br><span class="line">    flush0();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从以上代码中可以看出, 这两个方法必须在NioEventLoop中执行, write方法只是将msg写入到缓冲区, 并没有修改promise和发生真正的写Channel操作, 这说明可能这两个操作发生在flush()中.</p>
+<p>查看flush0</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">flush0</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    doWrite(outboundBuffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法调用doWrite, 而doWrite是UnSafe所在Channel的abstract方法, 这里的NioSocketChannel</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doWrite</span><span class="params">(ChannelOutboundBuffer in)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="keyword">int</span> size = in.size();</span><br><span class="line">        <span class="keyword">if</span> (size == <span class="number">0</span>) &#123;</span><br><span class="line">            clearOpWrite();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> writtenBytes = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">boolean</span> done = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">boolean</span> setOpWrite = <span class="keyword">false</span>;</span><br><span class="line">        ByteBuffer[] nioBuffers = in.nioBuffers();</span><br><span class="line">        <span class="keyword">int</span> nioBufferCnt = in.nioBufferCount();</span><br><span class="line">        <span class="keyword">long</span> expectedWrittenBytes = in.nioBufferSize();</span><br><span class="line">        SocketChannel ch = javaChannel();                       <span class="comment">//关联SocketChannel</span></span><br><span class="line">    </span><br><span class="line">        <span class="keyword">switch</span> (nioBufferCnt) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">super</span>.doWrite(in);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                ByteBuffer nioBuffer = nioBuffers[<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = config().getWriteSpinCount() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">                    <span class="keyword">final</span> <span class="keyword">int</span> localWrittenBytes = ch.write(nioBuffer);     <span class="comment">//真正的写Channel</span></span><br><span class="line">                    <span class="keyword">if</span> (localWrittenBytes == <span class="number">0</span>) &#123;</span><br><span class="line">                        setOpWrite = <span class="keyword">true</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    expectedWrittenBytes -= localWrittenBytes;</span><br><span class="line">                    writtenBytes += localWrittenBytes;</span><br><span class="line">                    <span class="keyword">if</span> (expectedWrittenBytes == <span class="number">0</span>) &#123;</span><br><span class="line">                        done = <span class="keyword">true</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = config().getWriteSpinCount() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">                    <span class="keyword">final</span> <span class="keyword">long</span> localWrittenBytes = ch.write(nioBuffers, <span class="number">0</span>,nioBufferCnt);</span><br><span class="line">                    <span class="keyword">if</span> (localWrittenBytes == <span class="number">0</span>) &#123;</span><br><span class="line">                        setOpWrite = <span class="keyword">true</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    expectedWrittenBytes -= localWrittenBytes;</span><br><span class="line">                    writtenBytes += localWrittenBytes;</span><br><span class="line">                    <span class="keyword">if</span> (expectedWrittenBytes == <span class="number">0</span>) &#123;</span><br><span class="line">                        done = <span class="keyword">true</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        in.removeBytes(writtenBytes);</span><br><span class="line">        <span class="keyword">if</span> (!done) &#123;</span><br><span class="line">            incompleteWrite(setOpWrite);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法很长, 只看有注释的地方, 可以看出真正的将数据写入Channel是发生在这里, 而且是利用JDK的Socket接口.</p>
+<p>那promise呢? 进入in.removeBytes(writtenBytes)看一看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeBytes</span><span class="params">(<span class="keyword">long</span> writtenBytes)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        remove();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再看remove()方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Entry e = flushedEntry;</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>) &#123;</span><br><span class="line">        clearNioBuffers();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Object msg = e.msg;</span><br><span class="line"></span><br><span class="line">    ChannelPromise promise = e.promise;</span><br><span class="line">    <span class="keyword">int</span> size = e.pendingSize;</span><br><span class="line"></span><br><span class="line">    removeEntry(e);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!e.cancelled) &#123;</span><br><span class="line">        <span class="comment">// only release message, notify and decrement if it was not canceled before.</span></span><br><span class="line">        ReferenceCountUtil.safeRelease(msg);</span><br><span class="line">        safeSuccess(promise);</span><br><span class="line">        decrementPendingOutboundBytes(size, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// recycle the entry</span></span><br><span class="line">    e.recycle();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里总算可以看到safeSuccess(promise)将promise设置为完成了.</p>
+<p>至此, 一个write方法的执行完成了, 始于handler调用, 终于JDK socket的write().</p>
+<p>结合以上分析与fire方法分析, 可以澄清一些东西了.</p>
+<blockquote>
+<ol>
+<li>fire方法是InBound event的传播方法, 所以只有Pipeline和ChannelHandlerContext有, Pipeline的方法只是用于将event传给第一个Handler.</li>
+<li>fire方法没有Promise, 它只是用来将数据在Pipeline中不断传递和处理.</li>
+<li>非fire的方法分为两类, 一类是传播方法, Pipeline和ChannelHandlerContext中的方法就是传递方法, Pipeline的非fire方法用来传递给TailContext, 与数据传入不同, 数据传入肯定会经过HeadContext, 而数据的传出肯定会经过HeadContext, 但不一定经过TailContext, 只要从中间某一个Handler调用这个方法即可. 另一类是非传递方法即Unsafe中的方法, 此方法利用相关联的Channel中的do开头相关方法, 进行真实的IO操作.</li>
+<li>可以推断, HeadContext作为非fire方法传递的终点站, 会调用Unsafe的方法</li>
+<li>非fire方法有的有promise参数, 有的没有, 其实都会传入一个promise参数, 其含义是要得到操作结果的一个通知, 通常这是有意义的, 如write操作完成后关闭Channel</li>
+<li>Channel中的非fire方法, 如bind, 实际上调用的是pipeline的bind方法. 这里只是提供了一个方便的接口吧.</li>
+<li>Channel中do开头的方法, 是利用所关联的JDK Channel进行实际的操作</li>
+</ol>
+</blockquote>
+<p><em>另:OutBound中read方法是做什么用的?</em></p>
+<p>现在已经知道, OutBound事件最终用HeadContext处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">read</span><span class="params">(ChannelHandlerContext ctx)</span> </span>&#123;</span><br><span class="line">    unsafe.beginRead();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终走到NioSocketChannel的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doBeginRead</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// Channel.read() or ChannelHandlerContext.read() was called</span></span><br><span class="line">    <span class="keyword">final</span> SelectionKey selectionKey = <span class="keyword">this</span>.selectionKey;</span><br><span class="line">    <span class="keyword">if</span> (!selectionKey.isValid()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    readPending = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> interestOps = selectionKey.interestOps();</span><br><span class="line">    <span class="keyword">if</span> ((interestOps &amp; readInterestOp) == <span class="number">0</span>) &#123;</span><br><span class="line">        selectionKey.interestOps(interestOps | readInterestOp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>反正是做了以上工作, 这里自己也搞不懂什么作用, 以后再补充吧(TODO)</p>
+<p>至此, 开始的5个问题都已解决了.</p>
 
           
         
@@ -1150,10 +1341,10 @@ wang 复杂题执行完毕
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 

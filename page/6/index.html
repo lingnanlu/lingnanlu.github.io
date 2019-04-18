@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -260,7 +258,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/several-questions-about-volley/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/sort-algorithm-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -279,7 +277,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/05/09/several-questions-about-volley/" itemprop="url">关于Volley的几个问题</a></h1>
+                <a class="post-title-link" href="/2016/05/09/sort-algorithm-summary/" itemprop="url">排序算法总结</a></h1>
         
 
         <div class="post-meta">
@@ -331,35 +329,102 @@
       
         
           
-            <h3 id="1-Response是如何被传递给UI线程时"><a href="#1-Response是如何被传递给UI线程时" class="headerlink" title="1. Response是如何被传递给UI线程时"></a>1. Response是如何被传递给UI线程时</h3><p>在初始化一个RequestQueue时, 会注入一个ExecutorDelivery对象, 该对象持有一个Handler对象, 而Handler对象又持有主线程的Looper对象.如下代码所示</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">RequestQueue</span><span class="params">(Cache cache, Network network, <span class="keyword">int</span> threadPoolSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(cache, network, threadPoolSize,</span><br><span class="line">            <span class="keyword">new</span> ExecutorDelivery(<span class="keyword">new</span> Handler(Looper.getMainLooper())));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>而该ExecutorDelivery对象又会被传递给RequestQueue管理的Dispatcher</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Make sure any currently running dispatchers are stopped.</span></span><br><span class="line">    <span class="comment">// 启动之前将所有的dispatcher线程停止</span></span><br><span class="line">    stop();</span><br><span class="line">    <span class="comment">// Create the cache dispatcher and start it.</span></span><br><span class="line">    mCacheDispatcher = <span class="keyword">new</span> CacheDispatcher(mCacheQueue, mNetworkQueue,mCache, mDelivery);</span><br><span class="line">    mCacheDispatcher.start();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create network dispatchers (and corresponding threads) up to thepool size.</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mDispatchers.length; i++) &#123;</span><br><span class="line">        NetworkDispatcher networkDispatcher = <span class="keyword">new</span> NetworkDispatche(mNetworkQueue, mNetwork,</span><br><span class="line">                mCache, mDelivery);</span><br><span class="line">        mDispatchers[i] = networkDispatcher;</span><br><span class="line">        networkDispatcher.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Dispatcher就是工作者线程, 该线程的run()方法中调用mDelivery.postResponse(request, response)来发布response.</p>
-<p>而所谓的发布仅仅是通过将response转换为Runnable对象后</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mResponsePoster.execute(<span class="keyword">new</span> ResponseDeliveryRunnable(request, response, <span class="keyword">null</span>));</span><br></pre></td></tr></table></figure>
-<p>利用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">handler.post(command);</span><br></pre></td></tr></table></figure>
-<p>发送到主线程的消息队列中去</p>
-<h3 id="2-如何判断一个请求正在被处理"><a href="#2-如何判断一个请求正在被处理" class="headerlink" title="2. 如何判断一个请求正在被处理"></a>2. 如何判断一个请求正在被处理</h3><p>其实这就是mCurrentRequests的作用之一. 当一个请求被处理后, 会调用Request的finish方法, 该方法又调用RequestQueue的finish方法, 而在该方法中, 有</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (mCurrentRequests) &#123;</span><br><span class="line">   mCurrentRequests.remove(request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>说明当Request被处理完后, 会从mCurrentRequests中删除.</p>
-<p>由此可见, 如果一个Request还没有从mCurrentRequests中删除,说明其依然还在处理当中.</p>
-<h3 id="3-mCurrentRequests的作用是什么"><a href="#3-mCurrentRequests的作用是什么" class="headerlink" title="3. mCurrentRequests的作用是什么"></a>3. mCurrentRequests的作用是什么</h3><p>作用暂时有两点</p>
+            <blockquote>
+<p>对于每一种算法, 头脑中都要有其计算过程, 如快速排序, 归并排序, 理解了计算过程, 也就理解了时间复杂度与稳定性, 尤其是对于复杂算法</p>
+</blockquote>
+<h3 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h3><p>特性:</p>
+<p>一遍排序可以找到一个最大元素</p>
+<p>改进方法:</p>
+<p>在一遍排序过程中如果没有交换元素, 说明已经是有序了</p>
+<p>稳定性: 稳定的</p>
+<p>时间复杂度: O(N^2)</p>
+<h3 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h3><p>特性:</p>
+<p>每一遍都可以确定一个元素的最终位置, 也就知道该元素在最终排序过程中是第几大</p>
+<p>稳定性: </p>
+<p>不稳定的, 在partition过程中有可能将其后的元素放在它的前面</p>
+<p>时间复杂度: </p>
+<p>已经有序, 最坏是O(N^2), 最好是O(NlogN)</p>
+<p>因为其计算过程是树型递归, 对于树的每一层来说, 所比较的元素都是所有元素, 即O(N), 所以最终复杂度就是树的深度乘以O(N)</p>
+<h3 id="直接插入排序"><a href="#直接插入排序" class="headerlink" title="直接插入排序"></a>直接插入排序</h3><p>特性:</p>
+<p>部分有序, 原地排序, 将待排序元素看成一个有序表和一个无序表, 将无序表中的元素插入到有序表中.<br>所有有两个index, 一个指向有序表, 一个指向无序表, 排序过程中, 有序表不断增长.</p>
+<p>改进方法:</p>
+<p>因为有一个有序表, 在将无序表中的元素插入到有序表中时, 可以利用二分搜索的方法返回插入位置.</p>
+<p>稳定性:</p>
+<p>稳定的, 对于相同元素A, B, 假设A已在有序表中, 将B插入时依然可以放在其后面</p>
+<p>时间复杂度:</p>
+<p>共n-1趟, 每一趟都要比较和移位O(N), 利用二分查找可以减少比较的次数</p>
+<h3 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h3><p>特性:</p>
 <ol>
-<li>如问题2, 保存着所有正在被处理的Request</li>
-<li><p>可用来取消正在被处理的Request. 如RequestQueue中的cancelAll代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(RequestFilter filter)</span> </span>&#123;</span><br><span class="line">	 <span class="keyword">synchronized</span> (mCurrentRequests) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (Request&lt;?&gt; request : mCurrentRequests) &#123;</span><br><span class="line">        	<span class="keyword">if</span> (filter.apply(request)) request.cancel();</span><br><span class="line">    	&#125;</span><br><span class="line">	 &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li>每次选择一个最大的, 或最小的. </li>
+<li>部分有序: 这种排序过程中也是部分有序</li>
+<li>可用来找出数组中前K大或前K小的元素</li>
+</ol>
+<p>稳定性: </p>
+<p>不稳定的, 如5, 5, 1</p>
+<p>时间复杂度:</p>
+<p>共n-1趟, 每一趟都要和剩余的元素进行比较, 所有为O(N^2)</p>
+<h3 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h3><p>特性:</p>
+<p>希尔排序是分组插入排序, 首先选择一个gap, 做为步长, 分为多组, 对每一组进行直接插入排序, 然后减少gap值, 再分组, 再直接插入排序, 当gap=1时, 再进行一次.</p>
+<p>主要是利用插入排序在部分有序的情况下, 性能更好的原因, 因为在部分有序的情况下, 查找所插入位置的比较次数就少了很多.</p>
+<p>注意这里数组元素数n, gap, 和所分组数m, 以有每组当中元素个数c的关系</p>
+<p>gap 就是所分组数, 可以这样去想, 一个gap内的所有元素都属于不同的组, 所以gap内的元素数就是组数, 所以gap == m</p>
+<p>c = n / gap, 至于有哪些元素, 画图</p>
+<p>稳定性:</p>
+<p>不稳定的, 因为A, B可能处理两个不同组, 在一个组排序过程中, B可能跑到了A的前面.</p>
+<h3 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h3><p>特性:</p>
+<p>将两个有序数列合并成一个有序数列, 称之为”归并”</p>
+<p>需要一个O(N)的辅助空间来排序.</p>
+<p>归并排序由两种方式</p>
+<ol>
+<li>从上到下:递归</li>
+<li>从下到上:迭代</li>
+</ol>
+<p>稳定性:</p>
+<p>还是考虑计算过程, 是一个二叉树, 在分解过程中, 元素的前后位置没变, 在合并两个数组的过程中, 元素的前后位置也没有发生变化, 所以最后都没有变化.</p>
+<p>时间复杂度:</p>
+<p>O(NlogN), 以从上往下分解为例, 其计算过程是一个不断的二分, 树的深度为O(logN), 而且不同于快速排序的是, 不论输入是否有序, 都是平均二分, 所以树的深度一直是O(logN), 而对于树的每一层, 都是要归并的数组, 归并每一层的数组的复杂度为O(N), 所以最弱时间复杂度为O(NlogN)</p>
+<h3 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h3><p>堆排序分两部分</p>
+<ol>
+<li>将数据调整成堆</li>
+<li>堆顶和末尾不断交换数据</li>
+</ol>
+<p>因为是堆顶和末尾不断交换数据</p>
+<p>对于最大堆, 交换后就是升序<br>对于最小堆, 交换后就是降序</p>
+<ol>
+<li>原地将数组调整成最大堆:</li>
+</ol>
+<p>从第一个非叶子结点开始, 不断向上调整</p>
+<ol start="2">
+<li>将堆顶与最后一个交换后, 不断向下调整</li>
+</ol>
+<p>时间复杂度:</p>
+<p>还是从计算过程来看</p>
+<ol>
+<li><p>调整成堆的过程是, 对于第一个非叶子结点到第一个结点(复杂度为O(N)), 不断向上调整(复杂度为树的深度, 因为是完全二叉树, 所以复杂度为O(logN))</p>
+</li>
+<li><p>交换数据的过程, 交换的元素个数为O(N), 每次交换后向下调整, 复杂度为树的深度O(logN))</p>
 </li>
 </ol>
-<p>实际上, 取消操作不一定成功, 因为可能某一Dispatcher已经判断过isCanceled了.</p>
-<h3 id="4-mWaitingRequests的作用是什么"><a href="#4-mWaitingRequests的作用是什么" class="headerlink" title="4. mWaitingRequests的作用是什么"></a>4. mWaitingRequests的作用是什么</h3><p>由RequestQueue的add方法代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// If the request is uncacheable, skip the cache queue and go straight to the network.</span></span><br><span class="line"><span class="keyword">if</span> (!request.shouldCache()) &#123;</span><br><span class="line">    mNetworkQueue.add(request);</span><br><span class="line">    <span class="keyword">return</span> request;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">synchronized</span> (mWaitingRequests) &#123;</span><br><span class="line">    String cacheKey = request.getCacheKey();</span><br><span class="line">    <span class="keyword">if</span> (mWaitingRequests.containsKey(cacheKey)) &#123;</span><br><span class="line">        <span class="comment">// There is already a request in flight. Queue up.</span></span><br><span class="line">        Queue&lt;Request&lt;?&gt;&gt; stagedRequests = mWaitingRequests.ge(cacheKey);</span><br><span class="line">        <span class="keyword">if</span> (stagedRequests == <span class="keyword">null</span>) &#123;</span><br><span class="line">            stagedRequests = <span class="keyword">new</span> LinkedList&lt;Request&lt;?&gt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">        stagedRequests.add(request);</span><br><span class="line">        mWaitingRequests.put(cacheKey, stagedRequests);</span><br><span class="line">        <span class="keyword">if</span> (VolleyLog.DEBUG) &#123;</span><br><span class="line">            VolleyLog.v(<span class="string">"Request for cacheKey=%s is in flight, puttingonhold."</span>, cacheKey);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Insert 'null' queue for this cacheKey, indicating there isnow arequest in</span></span><br><span class="line">        <span class="comment">// flight.</span></span><br><span class="line">        mWaitingRequests.put(cacheKey, <span class="keyword">null</span>);</span><br><span class="line">        mCacheQueue.add(request);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> request;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以及, RequestQueue的finish方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (request.shouldCache()) &#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mWaitingRequests) &#123;</span><br><span class="line">        String cacheKey = request.getCacheKey();</span><br><span class="line">        Queue&lt;Request&lt;?&gt;&gt; waitingRequests = mWaitingRequests.remo(cacheKey);</span><br><span class="line">        <span class="keyword">if</span> (waitingRequests != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (VolleyLog.DEBUG) &#123;</span><br><span class="line">                VolleyLog.v(<span class="string">"Releasing %d waiting requestsforcacheKey=%s."</span>,</span><br><span class="line">                        waitingRequests.size(), cacheKey);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// Process all queued up requests. They won't beconsidered asin flight, but</span></span><br><span class="line">            <span class="comment">// that's not a problem as the cache has been primedby'request'.</span></span><br><span class="line">            mCacheQueue.addAll(waitingRequests);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可知, mWaitingRequests保存着具有相同cacheKey的所有Request, 而在Request被finish时, 具有相同cacheKey的Request会被加入到mCacheQueue中, 那么, 为什么不把相同cacheKey的Request直接加入到mCacheQueue, 而必须要等到某一Request被finish之后才加入呢?</p>
-<p>假如直接加入到mCacheQueue, 我们知道第一个Request还未被Cache, 所以会交给NetworkDispatcher来处理, 如果NetworkDispatcher还未处理, 又来了几个相同cacheKey的Request, 那么因为NetworkDispatcher还未处理, 所以还未被cache, 所以这些Request就都会被加到到NetworkDispatcher的处理队列, 就起不到Cache的作用了.</p>
-<p>而如果等待第一个Request被finish后, 再加入, 则因为Request被finish说明其已经被处理, 则已被Cache.</p>
+<p>所以堆排序的复杂度为O(NlogN)</p>
+<p>稳定性:</p>
+<p>非稳定</p>
+<p>假如, A在B前, 已经调整成最大堆后, A还在B前面, 因为是不断选择堆顶元素与最后一个交换, 可能A会被先选择, 先交换, 而先选择, 先交换的元素一定排在后选择, 后交换元素的后面. 所以是不稳定的</p>
+<h3 id="补充知识-堆"><a href="#补充知识-堆" class="headerlink" title="补充知识:堆"></a>补充知识:堆</h3><p>最大堆:父元素大于子元素, 但没有规则子元素这间的大小顺序, 这一点与二叉排序树不同</p>
+<p>完全二叉树: 将树的每一层从左到右填所组成的数就是完全二叉树<br>满二叉树: 是一种完全二叉树, 最后一层没有空位</p>
+<p>完全二叉树可以用数组来表示, 因为其父子关系的index有一定的数学关系</p>
+<p>关于堆的操作, 主要有两种</p>
+<ol>
+<li>添加,首先添加数组末尾, 然后不断的向上调整. 将一组数构造成堆的过程就是一个不断插入的过程</li>
+<li><p>删除</p>
+<ul>
+<li><p>从堆顶删除: 用最后一个元素替换堆顶元素, 然后向下不断调整, 对于最大堆, 选择子元素中最大的与之交换, 这是为了满足堆的性质, 父元素的值大于子元素</p>
+</li>
+<li><p>不是从堆顶删除: 同样, 也是用最后一个元素替换被删除的元素, 然后从被删除的元素所在的子树开始向下调整. </p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h3><p>当待排序的数组中数值在一个较小的范围内使用</p>
 
           
         
@@ -1112,10 +1177,10 @@ getTheme()
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 

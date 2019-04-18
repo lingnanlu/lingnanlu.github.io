@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -523,166 +521,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2014/11/03/understanding-the-callback/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2014/11/03/understanding-the-callback/" itemprop="url">回调和闭包</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-03T00:00:00+08:00">
-                2014-11-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>之前一直对<strong>回调</strong>这个概念不甚理解，对某一概念不理解但该概念又总总出现实在让人不爽，今天总算忍无可忍，发动Google和知乎技能，总算对回调有了那么一点点感觉，而在查资料的过程中也有一些惊喜的发现。</p>
-<hr>
-<p>我觉得，以下的两个回答对理解回调很有帮助。</p>
-<p>首先是<a href="http://www.zhihu.com/question/19801131" target="_blank" rel="noopener">futeng</a>的回答，给出了一种通俗易懂的，由浅入深的，符合人类自然认知过程的解答。对于初学者来说，是一个很好的答案。</p>
-<blockquote>
-<p>在Java社区的各种开源工具中，回调方法的使用俯拾即是。所以熟悉回调方法无疑能加速自己对开源轮子的掌握。网上搜了一些文章，奈何对回调方法的介绍大多只停留在什么是回调方法的程度上。本篇文章尝试从回调方法怎么来的、为什么要使用回调方法以及在实际项目中如何使用等方面来介绍下。</p>
-</blockquote>
-<hr>
-<p>而另一位<a href="http://www.zhihu.com/question/19801131" target="_blank" rel="noopener">黄兢成</a>则给出了更一般性的回答，解释了回调的本质</p>
-<blockquote>
-<p>这个是程序上的概念。本质上是叫别人做事，传进去的额外信息。</p>
-</blockquote>
-<p>并且提到一个自己从没想到过的观点——代码和数据的统一性</p>
-<blockquote>
-<p>再跟着，就来到计算机中比较诡异的地方。也就是代码(code)和数据(data)的统一，这是一个槛，如果不打通这个，很多概念就不清楚。我们常常说计算机程序分成code和data两部分。很多人就会觉得，code是会运行的，是动的，data是给code使用，是静态的，这是两种完全不同的东西。</p>
-</blockquote>
-<blockquote>
-<p>其实code只是对行为的一种描述，比如有个机器人可以开灯，关灯，扫地。跟着我要机器人开灯，扫地，关灯。如果跟机器人约定好，0表示开灯，1表示关灯，2表示扫地。我发出指令，0 1 2 1 0。跟着就可以控制机器人开灯，扫地，关灯。再约定用二进制表示，两位一个指令，就有一个数字串，0001110100，这个时候0001110100这串数字就描述了机器人的一系列动作，这个就是从一方面理解是code，可以它可以控制机器人的行为。但另一方面，它可以传递，可以记录，可以修改，也就是数据。只要大家都协商好，code就可以编码成data, 将data解释运行的时候，也变成了code。</p>
-</blockquote>
-<blockquote>
-<p>这个地方扯开了。我自己是不区分code和data的，统一称为信息。那既然int max(int a, int b)中int，double等表示普通data的东西可以传递进去，凭什么表示code的函数就不可以传进去了。有些语言确实是不区分的，它的function(表示code)跟int, double的地位是一样的。这种语言就为函数是第一类值。</p>
-</blockquote>
-<p>最后提到，如果认清了本质，什么委托，代理，监听，观察者之类的，其实都是一回事。</p>
-<blockquote>
-<p>其实你理解了，根本不用去关心术语的。术语是别人要告诉你啊，或者你去告诉人啊，使用的一套约定的词语。本质上就个东西，结果会有很多术语的。</p>
-</blockquote>
-<blockquote>
-<p>跟着再将回调的概念进化，比如某人同时关心A,B,C,D,E,F事件，并且这些事件是一组的，比如敲键盘，鼠标移动，鼠标点击等一组。将一组事件结合起来。在有些语言就变成一个接口，接口有N个函数。有些语言就映射成一个结构，里面放着N个函数指针。跟着就不是将单个函数指针传进去，而是将接口，或者函数指针的结构传进去。这些根据不同的用途，有些人叫它为代理啊，监听者啊，观察者啊等等。 </p>
-</blockquote>
-<hr>
-<p>具体到Java语言，经过查资料，发现有如下两种方法</p>
-<ol>
-<li><p><a href="http://blog.csdn.net/eyeooo/article/details/11971145" target="_blank" rel="noopener">http://blog.csdn.net/eyeooo/article/details/11971145</a></p>
-<p>这里有一个类Printer并且提供了一个Callback接口，当其它类委托Printer做某些事情时，要向Printer类提供某些信息，这些信息可以是Printer所要用到的数据，也可以是告诉Printer具体怎么做（这里可以看出数据和代码统一了），具体到本例，就是一个Callback接口的具体实现。</p>
-</li>
-<li><p><a href="http://blog.csdn.net/xiaanming/article/details/8703708" target="_blank" rel="noopener">http://blog.csdn.net/xiaanming/article/details/8703708</a></p>
-<p>这里方式是某一个类Wang保留一个它要委托类的引用（其实上面方式中也是主类保留了Printer类的引用），而Wang本身要实现一个Callback接口，并将Wang的引用传递给被委托类。该种方式与方式1的区别于，Callback接口的实现是由第三方类实现而非调用类实现，而本方式是由调用类本身实现接口。</p>
-</li>
-</ol>
-<hr>
-<p>以上是自己的一种拙见，因为平时没有应用过，难免理解有误，希望大家指出。<br>在此记下，供自己以后回顾方便。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2014/11/03/how-to-use-dynamic-libs-in-linux/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -850,6 +688,166 @@ FILES
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2014/11/03/understanding-the-callback/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014/11/03/understanding-the-callback/" itemprop="url">回调和闭包</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-03T00:00:00+08:00">
+                2014-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>之前一直对<strong>回调</strong>这个概念不甚理解，对某一概念不理解但该概念又总总出现实在让人不爽，今天总算忍无可忍，发动Google和知乎技能，总算对回调有了那么一点点感觉，而在查资料的过程中也有一些惊喜的发现。</p>
+<hr>
+<p>我觉得，以下的两个回答对理解回调很有帮助。</p>
+<p>首先是<a href="http://www.zhihu.com/question/19801131" target="_blank" rel="noopener">futeng</a>的回答，给出了一种通俗易懂的，由浅入深的，符合人类自然认知过程的解答。对于初学者来说，是一个很好的答案。</p>
+<blockquote>
+<p>在Java社区的各种开源工具中，回调方法的使用俯拾即是。所以熟悉回调方法无疑能加速自己对开源轮子的掌握。网上搜了一些文章，奈何对回调方法的介绍大多只停留在什么是回调方法的程度上。本篇文章尝试从回调方法怎么来的、为什么要使用回调方法以及在实际项目中如何使用等方面来介绍下。</p>
+</blockquote>
+<hr>
+<p>而另一位<a href="http://www.zhihu.com/question/19801131" target="_blank" rel="noopener">黄兢成</a>则给出了更一般性的回答，解释了回调的本质</p>
+<blockquote>
+<p>这个是程序上的概念。本质上是叫别人做事，传进去的额外信息。</p>
+</blockquote>
+<p>并且提到一个自己从没想到过的观点——代码和数据的统一性</p>
+<blockquote>
+<p>再跟着，就来到计算机中比较诡异的地方。也就是代码(code)和数据(data)的统一，这是一个槛，如果不打通这个，很多概念就不清楚。我们常常说计算机程序分成code和data两部分。很多人就会觉得，code是会运行的，是动的，data是给code使用，是静态的，这是两种完全不同的东西。</p>
+</blockquote>
+<blockquote>
+<p>其实code只是对行为的一种描述，比如有个机器人可以开灯，关灯，扫地。跟着我要机器人开灯，扫地，关灯。如果跟机器人约定好，0表示开灯，1表示关灯，2表示扫地。我发出指令，0 1 2 1 0。跟着就可以控制机器人开灯，扫地，关灯。再约定用二进制表示，两位一个指令，就有一个数字串，0001110100，这个时候0001110100这串数字就描述了机器人的一系列动作，这个就是从一方面理解是code，可以它可以控制机器人的行为。但另一方面，它可以传递，可以记录，可以修改，也就是数据。只要大家都协商好，code就可以编码成data, 将data解释运行的时候，也变成了code。</p>
+</blockquote>
+<blockquote>
+<p>这个地方扯开了。我自己是不区分code和data的，统一称为信息。那既然int max(int a, int b)中int，double等表示普通data的东西可以传递进去，凭什么表示code的函数就不可以传进去了。有些语言确实是不区分的，它的function(表示code)跟int, double的地位是一样的。这种语言就为函数是第一类值。</p>
+</blockquote>
+<p>最后提到，如果认清了本质，什么委托，代理，监听，观察者之类的，其实都是一回事。</p>
+<blockquote>
+<p>其实你理解了，根本不用去关心术语的。术语是别人要告诉你啊，或者你去告诉人啊，使用的一套约定的词语。本质上就个东西，结果会有很多术语的。</p>
+</blockquote>
+<blockquote>
+<p>跟着再将回调的概念进化，比如某人同时关心A,B,C,D,E,F事件，并且这些事件是一组的，比如敲键盘，鼠标移动，鼠标点击等一组。将一组事件结合起来。在有些语言就变成一个接口，接口有N个函数。有些语言就映射成一个结构，里面放着N个函数指针。跟着就不是将单个函数指针传进去，而是将接口，或者函数指针的结构传进去。这些根据不同的用途，有些人叫它为代理啊，监听者啊，观察者啊等等。 </p>
+</blockquote>
+<hr>
+<p>具体到Java语言，经过查资料，发现有如下两种方法</p>
+<ol>
+<li><p><a href="http://blog.csdn.net/eyeooo/article/details/11971145" target="_blank" rel="noopener">http://blog.csdn.net/eyeooo/article/details/11971145</a></p>
+<p>这里有一个类Printer并且提供了一个Callback接口，当其它类委托Printer做某些事情时，要向Printer类提供某些信息，这些信息可以是Printer所要用到的数据，也可以是告诉Printer具体怎么做（这里可以看出数据和代码统一了），具体到本例，就是一个Callback接口的具体实现。</p>
+</li>
+<li><p><a href="http://blog.csdn.net/xiaanming/article/details/8703708" target="_blank" rel="noopener">http://blog.csdn.net/xiaanming/article/details/8703708</a></p>
+<p>这里方式是某一个类Wang保留一个它要委托类的引用（其实上面方式中也是主类保留了Printer类的引用），而Wang本身要实现一个Callback接口，并将Wang的引用传递给被委托类。该种方式与方式1的区别于，Callback接口的实现是由第三方类实现而非调用类实现，而本方式是由调用类本身实现接口。</p>
+</li>
+</ol>
+<hr>
+<p>以上是自己的一种拙见，因为平时没有应用过，难免理解有误，希望大家指出。<br>在此记下，供自己以后回顾方便。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -912,10 +910,10 @@ FILES
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 

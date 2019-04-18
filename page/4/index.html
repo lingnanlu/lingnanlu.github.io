@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -260,7 +258,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/dynamic-search-tree/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/framework-dip-ioc-di/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -279,7 +277,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/08/07/dynamic-search-tree/" itemprop="url">动态搜索树</a></h1>
+                <a class="post-title-link" href="/2016/08/07/framework-dip-ioc-di/" itemprop="url">理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)</a></h1>
         
 
         <div class="post-meta">
@@ -331,20 +329,102 @@
       
         
           
-            <p><strong>二叉搜索树, 平衡二叉搜索树（AVL）, B+树, B树,B-树 2-3搜索树, 红黑树</strong></p>
-<p>以上这些都是动态搜索树, 可用来加快查找某一元素的效率, 以下简述它们之间的一点区别</p>
-<p><strong>二叉搜索树</strong>，在最坏的情况下是O(n).</p>
-<p>于是为了保证二叉搜索树不会发生严重失衡就有了<strong>平衡二叉搜索树</strong>.</p>
-<p>现在虽然平衡了， 但为了保证如此严格的平衡性， 每次添加删除元素时， 就需要付出比较大的代价， 为了得到平衡性带来的好处，同时不想为平衡性付出太大代价， 于是就有了<strong>红黑树</strong></p>
-<p>在说红黑树之前， 先介绍一个2-3搜索树， 其性质类似于二叉搜索树， 只是有两种结点， 2叉的和3叉的。</p>
-<p>当所有空结点到根结点的距离相同时, 是<strong>平衡2-3查找树</strong></p>
-<p>将<strong>平衡2-3查找树</strong>的3叉结点转化为两个2叉结点, 就得到了<strong>红黑树</strong>.</p>
-<p>以上说的都是2叉树， 给定同样数量的元素， 叉数越多，这个树就越扁， <strong>B树就是一种多叉搜索树</strong></p>
-<p>而<strong>B+树和B是类似的区别在于， 如果每一个结点带有额外信息的话， 那么， B树是所有结点带有信息， 而B+只有叶子结点带有信息</strong>。</p>
-<p>如果将B+树与B树用于磁盘文件访问, B+树因为非叶子结点不包含索引信息, 所以非叶子结点可以包含更多关键字信息, 进而能进一步减少磁盘的访问次数.</p>
-<p>而B-树就是B树, 正式的说法是B树.</p>
-<p><em>关于红黑树与2-3树,见\&lt;算法>彩色插页</em></p>
-<p><em>还有另外一种数据结构也可以加快检索， 即Hash表</em></p>
+            <p>本文目的有二</p>
+<ol>
+<li>讲解以上各个概念的含义</li>
+<li>各个概念之间的关系与区别</li>
+</ol>
+<h3 id="一-框架"><a href="#一-框架" class="headerlink" title="一 框架"></a>一 框架</h3><p>框架是什么？</p>
+<p>网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。 </p>
+</blockquote>
+<p>以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。</p>
+<h4 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h4><p>假如说， 我们现在想解决这样一个问题</p>
+<blockquote>
+<p>假如有一个文件保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        FileBasedMovieFinder finder = <span class="keyword">new</span> FileBasedMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileBasedMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 我们有一个新的问题</p>
+<blockquote>
+<p>假如数据库保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        DatabaseMovieFinder finder = <span class="keyword">new</span> DatabaseMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 又有新的需求了</p>
+<blockquote>
+<p>假如从网络得到一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码不写了， 应该和前面是类似的。</p>
+<p>于是， 每有一个新的需求， 那么， 除了添加新的Finder外(这是不可避免的)， 还要去修改MovieListPrinter。</p>
+<p>有人说， 虽然修改MovieListPrinter， 但每次只修改了一行， 大部分的代码还是可以重用的， 其实不然</p>
+<ol>
+<li>本例很简单， 所以只修改了一行</li>
+<li>重用的概念是针对某一程序中的实体来说，最小实体可用是一个函数， 大一点是一个类， 再大一点是一个包， 而且重用要求不对实体进行修改，而上面的重用只是重用了几行代码， 这和从其它地方复制粘贴几行代码有什么区别， 难道复制粘贴也叫重用？</li>
+</ol>
+<p>所以说， 当问题变化时， 我们的代码就相当于推到重来。之前的代码一点也不能重用。</p>
+<p>如果仔细考虑一下以上三个问题， 可以发现他们是一组类似的问题， 抽象一下可以得到如下表述</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>如果我们对照着这个更一般的问题来写代码， 就是这样子的了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    MovieFinder finder;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MovieListPrinter</span><span class="params">(MovieFinder finder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.finder = finder;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> <span class="keyword">implements</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到， MovieListPrinter中没有再和具体finder相关的代码了， 所以说MovieListPrinter就是可以重用的, 只要我们针对不同的具体问题传入不同的MovieFinder即可， 而MovieListPrinter本身则一点也不需要修改， 所以可以是重用的。</p>
+<p>现在， MovieListPrinter就可以称为了一最最简单的框架了， 它解决的是如下问题</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>再对比开始的定义， 应该明白了不少吧。</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。</p>
+</blockquote>
+<h3 id="二-DIP-依赖倒置"><a href="#二-DIP-依赖倒置" class="headerlink" title="二 DIP(依赖倒置)"></a>二 DIP(依赖倒置)</h3><p>依赖倒置是软件设计模式的一种原则， 它是什么含义呢？</p>
+<p>其解释出现在《敏捷软件开发》的第11章</p>
+<ol>
+<li>高层模块不应该依赖于低层模块， 二者都应该依赖于抽象</li>
+<li>抽象不应该依赖于细节，细节应该依赖于抽象。</li>
+</ol>
+<p>这里提到的<strong>高层模块</strong>， <strong>低层模块</strong>， <strong>抽象</strong>， <strong>细节</strong>到底指的是什么呢， <strong>依赖倒置</strong>又是什么含义呢？</p>
+<p>书中的一句话指明了回答以上问题的线索</p>
+<blockquote>
+<p>该原则是框架设计的核心原则</p>
+</blockquote>
+<p>而之前已经介绍了框架， 并设计了一个简单的框架， 也就是说， 在设计的过程中， 已经不知不觉的应用了该原则。 那么结束以上我们的设计过程， 就可以解释以上几个概念的含义了。</p>
+<p><strong>高层模块</strong>：对应的是MovieListPrinter, 它表示的是解决问题的一般思路, 它表示的是策略</p>
+<p><strong>低层模块</strong>：对应的是每一种MovieFinder， 其只能解决某一具体问题</p>
+<p>从各种MovieFinder中抽象出来的MovieFinder接口就是<strong>抽象</strong>， 而具体的MovieFinder就是<strong>细节</strong></p>
+<p>在设计框架之前</p>
+<blockquote>
+<p>MovieListPrinter（高层模块）依赖于各种MovieFinder(低层模块)， </p>
+</blockquote>
+<p>使用了框架后</p>
+<blockquote>
+<p>MovieListPrinter(高层模块)依赖于MovieFinder接口（抽象）， 同时， MovieFinder实现(细节）也依赖于MovieFinder接口（抽象）（这不就是开头的两句话吗）</p>
+</blockquote>
+<p>对比框架使用前后， 依赖关系发生了倒置（更形象的可以参考《敏捷软件开发》的第11章)</p>
+<p>所以不知不觉的， 在我们设计MovieListPrinter框架中就使用了DIP原则。</p>
+<p><em>注：高层模块和低层模块并不是绝对的， 在一个复杂的系统中可以有好多层， 某一层对上来说是低层模块， 对下来说又可以是高层模块</em></p>
+<h3 id="三-IoC和DI"><a href="#三-IoC和DI" class="headerlink" title="三 IoC和DI"></a>三 IoC和DI</h3><p>在谈这两个概念之前， 先回到开始的MovieListPrinter框架。</p>
+<p>假如应用程序中要使用这个框架，那么我们需要在其构造函数中传入一个具体的MovieFinder. 如我们的程序要从文件中读入电影列表，那么传入一个FileBasedMovieFinder即可。</p>
+<p>现在需求改了， 要从网络去读了， 那么需要修改应用程序。</p>
+<p>如果修改一个地方还好， 假如要有多个地方需要修改呢？ 假如这多个地方分布在几百的文件中呢？</p>
+<p>还有一种情况，现在我们的框架很小， 复杂的框架可能有复杂的依赖关系， 如A-&gt;B-&gt;C-&gt;…..-&gt;G</p>
+<p>可以， 如果我们要在应用程序中去人工的去处理这种依赖， 则很麻烦， 容易出错。</p>
+<p>如果有以下这样一种方法就好了。</p>
+<blockquote>
+<p>不是通过编程来注入某些依赖， 而是通知声明式来注入。 框架使用者只需要声明一个A需要B,那么就自动的为A注入一个B</p>
+</blockquote>
+<p>而以上这种机制实际上是有的。</p>
+<p>以下举两个例子（其实现来自于本人猜测， 不保证正确）</p>
+<ol>
+<li>Spring：在XML中声明依赖关系， 通过分析XML文件构建图来表示依赖关系，由Spring来负责提供一个类所需要的依赖。</li>
+<li>Dagger: Android的依赖注入库， 利用注解来声明依赖关系， 同样是需要构建某种图</li>
+</ol>
+<p>现在可以说一下这两个概念了。</p>
+<p><strong>IoC</strong>：是将由应用程序负责定位某种依赖转移到由某种外部机制来定位某种依赖（为什么叫反转呢？我也不知道）</p>
+<p><strong>DI</strong>: 上面说了由某种外部机制来定位， DI就是一种外部机制， 具体的例子见Spring和Dagger. 还有一种方式叫到<strong>Service Locator</strong>这是另一种定位某种依赖的机制</p>
+<h3 id="四-Spring"><a href="#四-Spring" class="headerlink" title="四 Spring"></a>四 Spring</h3><p>Spring的功能之一就是实现DI， 从这个意义来说， 其并不能算是一种框架， 当然如果把解决DI问题看作一般问题的话， 也可以称其为DI框架。</p>
 
           
         
@@ -1214,7 +1294,7 @@ while(true) {
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/sort-algorithm-summary/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/several-questions-about-volley/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -1233,7 +1313,7 @@ while(true) {
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/05/09/sort-algorithm-summary/" itemprop="url">排序算法总结</a></h1>
+                <a class="post-title-link" href="/2016/05/09/several-questions-about-volley/" itemprop="url">关于Volley的几个问题</a></h1>
         
 
         <div class="post-meta">
@@ -1285,102 +1365,35 @@ while(true) {
       
         
           
-            <blockquote>
-<p>对于每一种算法, 头脑中都要有其计算过程, 如快速排序, 归并排序, 理解了计算过程, 也就理解了时间复杂度与稳定性, 尤其是对于复杂算法</p>
-</blockquote>
-<h3 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h3><p>特性:</p>
-<p>一遍排序可以找到一个最大元素</p>
-<p>改进方法:</p>
-<p>在一遍排序过程中如果没有交换元素, 说明已经是有序了</p>
-<p>稳定性: 稳定的</p>
-<p>时间复杂度: O(N^2)</p>
-<h3 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h3><p>特性:</p>
-<p>每一遍都可以确定一个元素的最终位置, 也就知道该元素在最终排序过程中是第几大</p>
-<p>稳定性: </p>
-<p>不稳定的, 在partition过程中有可能将其后的元素放在它的前面</p>
-<p>时间复杂度: </p>
-<p>已经有序, 最坏是O(N^2), 最好是O(NlogN)</p>
-<p>因为其计算过程是树型递归, 对于树的每一层来说, 所比较的元素都是所有元素, 即O(N), 所以最终复杂度就是树的深度乘以O(N)</p>
-<h3 id="直接插入排序"><a href="#直接插入排序" class="headerlink" title="直接插入排序"></a>直接插入排序</h3><p>特性:</p>
-<p>部分有序, 原地排序, 将待排序元素看成一个有序表和一个无序表, 将无序表中的元素插入到有序表中.<br>所有有两个index, 一个指向有序表, 一个指向无序表, 排序过程中, 有序表不断增长.</p>
-<p>改进方法:</p>
-<p>因为有一个有序表, 在将无序表中的元素插入到有序表中时, 可以利用二分搜索的方法返回插入位置.</p>
-<p>稳定性:</p>
-<p>稳定的, 对于相同元素A, B, 假设A已在有序表中, 将B插入时依然可以放在其后面</p>
-<p>时间复杂度:</p>
-<p>共n-1趟, 每一趟都要比较和移位O(N), 利用二分查找可以减少比较的次数</p>
-<h3 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h3><p>特性:</p>
+            <h3 id="1-Response是如何被传递给UI线程时"><a href="#1-Response是如何被传递给UI线程时" class="headerlink" title="1. Response是如何被传递给UI线程时"></a>1. Response是如何被传递给UI线程时</h3><p>在初始化一个RequestQueue时, 会注入一个ExecutorDelivery对象, 该对象持有一个Handler对象, 而Handler对象又持有主线程的Looper对象.如下代码所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">RequestQueue</span><span class="params">(Cache cache, Network network, <span class="keyword">int</span> threadPoolSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(cache, network, threadPoolSize,</span><br><span class="line">            <span class="keyword">new</span> ExecutorDelivery(<span class="keyword">new</span> Handler(Looper.getMainLooper())));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而该ExecutorDelivery对象又会被传递给RequestQueue管理的Dispatcher</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Make sure any currently running dispatchers are stopped.</span></span><br><span class="line">    <span class="comment">// 启动之前将所有的dispatcher线程停止</span></span><br><span class="line">    stop();</span><br><span class="line">    <span class="comment">// Create the cache dispatcher and start it.</span></span><br><span class="line">    mCacheDispatcher = <span class="keyword">new</span> CacheDispatcher(mCacheQueue, mNetworkQueue,mCache, mDelivery);</span><br><span class="line">    mCacheDispatcher.start();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create network dispatchers (and corresponding threads) up to thepool size.</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mDispatchers.length; i++) &#123;</span><br><span class="line">        NetworkDispatcher networkDispatcher = <span class="keyword">new</span> NetworkDispatche(mNetworkQueue, mNetwork,</span><br><span class="line">                mCache, mDelivery);</span><br><span class="line">        mDispatchers[i] = networkDispatcher;</span><br><span class="line">        networkDispatcher.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Dispatcher就是工作者线程, 该线程的run()方法中调用mDelivery.postResponse(request, response)来发布response.</p>
+<p>而所谓的发布仅仅是通过将response转换为Runnable对象后</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mResponsePoster.execute(<span class="keyword">new</span> ResponseDeliveryRunnable(request, response, <span class="keyword">null</span>));</span><br></pre></td></tr></table></figure>
+<p>利用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">handler.post(command);</span><br></pre></td></tr></table></figure>
+<p>发送到主线程的消息队列中去</p>
+<h3 id="2-如何判断一个请求正在被处理"><a href="#2-如何判断一个请求正在被处理" class="headerlink" title="2. 如何判断一个请求正在被处理"></a>2. 如何判断一个请求正在被处理</h3><p>其实这就是mCurrentRequests的作用之一. 当一个请求被处理后, 会调用Request的finish方法, 该方法又调用RequestQueue的finish方法, 而在该方法中, 有</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (mCurrentRequests) &#123;</span><br><span class="line">   mCurrentRequests.remove(request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>说明当Request被处理完后, 会从mCurrentRequests中删除.</p>
+<p>由此可见, 如果一个Request还没有从mCurrentRequests中删除,说明其依然还在处理当中.</p>
+<h3 id="3-mCurrentRequests的作用是什么"><a href="#3-mCurrentRequests的作用是什么" class="headerlink" title="3. mCurrentRequests的作用是什么"></a>3. mCurrentRequests的作用是什么</h3><p>作用暂时有两点</p>
 <ol>
-<li>每次选择一个最大的, 或最小的. </li>
-<li>部分有序: 这种排序过程中也是部分有序</li>
-<li>可用来找出数组中前K大或前K小的元素</li>
-</ol>
-<p>稳定性: </p>
-<p>不稳定的, 如5, 5, 1</p>
-<p>时间复杂度:</p>
-<p>共n-1趟, 每一趟都要和剩余的元素进行比较, 所有为O(N^2)</p>
-<h3 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h3><p>特性:</p>
-<p>希尔排序是分组插入排序, 首先选择一个gap, 做为步长, 分为多组, 对每一组进行直接插入排序, 然后减少gap值, 再分组, 再直接插入排序, 当gap=1时, 再进行一次.</p>
-<p>主要是利用插入排序在部分有序的情况下, 性能更好的原因, 因为在部分有序的情况下, 查找所插入位置的比较次数就少了很多.</p>
-<p>注意这里数组元素数n, gap, 和所分组数m, 以有每组当中元素个数c的关系</p>
-<p>gap 就是所分组数, 可以这样去想, 一个gap内的所有元素都属于不同的组, 所以gap内的元素数就是组数, 所以gap == m</p>
-<p>c = n / gap, 至于有哪些元素, 画图</p>
-<p>稳定性:</p>
-<p>不稳定的, 因为A, B可能处理两个不同组, 在一个组排序过程中, B可能跑到了A的前面.</p>
-<h3 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h3><p>特性:</p>
-<p>将两个有序数列合并成一个有序数列, 称之为”归并”</p>
-<p>需要一个O(N)的辅助空间来排序.</p>
-<p>归并排序由两种方式</p>
-<ol>
-<li>从上到下:递归</li>
-<li>从下到上:迭代</li>
-</ol>
-<p>稳定性:</p>
-<p>还是考虑计算过程, 是一个二叉树, 在分解过程中, 元素的前后位置没变, 在合并两个数组的过程中, 元素的前后位置也没有发生变化, 所以最后都没有变化.</p>
-<p>时间复杂度:</p>
-<p>O(NlogN), 以从上往下分解为例, 其计算过程是一个不断的二分, 树的深度为O(logN), 而且不同于快速排序的是, 不论输入是否有序, 都是平均二分, 所以树的深度一直是O(logN), 而对于树的每一层, 都是要归并的数组, 归并每一层的数组的复杂度为O(N), 所以最弱时间复杂度为O(NlogN)</p>
-<h3 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h3><p>堆排序分两部分</p>
-<ol>
-<li>将数据调整成堆</li>
-<li>堆顶和末尾不断交换数据</li>
-</ol>
-<p>因为是堆顶和末尾不断交换数据</p>
-<p>对于最大堆, 交换后就是升序<br>对于最小堆, 交换后就是降序</p>
-<ol>
-<li>原地将数组调整成最大堆:</li>
-</ol>
-<p>从第一个非叶子结点开始, 不断向上调整</p>
-<ol start="2">
-<li>将堆顶与最后一个交换后, 不断向下调整</li>
-</ol>
-<p>时间复杂度:</p>
-<p>还是从计算过程来看</p>
-<ol>
-<li><p>调整成堆的过程是, 对于第一个非叶子结点到第一个结点(复杂度为O(N)), 不断向上调整(复杂度为树的深度, 因为是完全二叉树, 所以复杂度为O(logN))</p>
-</li>
-<li><p>交换数据的过程, 交换的元素个数为O(N), 每次交换后向下调整, 复杂度为树的深度O(logN))</p>
+<li>如问题2, 保存着所有正在被处理的Request</li>
+<li><p>可用来取消正在被处理的Request. 如RequestQueue中的cancelAll代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(RequestFilter filter)</span> </span>&#123;</span><br><span class="line">	 <span class="keyword">synchronized</span> (mCurrentRequests) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (Request&lt;?&gt; request : mCurrentRequests) &#123;</span><br><span class="line">        	<span class="keyword">if</span> (filter.apply(request)) request.cancel();</span><br><span class="line">    	&#125;</span><br><span class="line">	 &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>所以堆排序的复杂度为O(NlogN)</p>
-<p>稳定性:</p>
-<p>非稳定</p>
-<p>假如, A在B前, 已经调整成最大堆后, A还在B前面, 因为是不断选择堆顶元素与最后一个交换, 可能A会被先选择, 先交换, 而先选择, 先交换的元素一定排在后选择, 后交换元素的后面. 所以是不稳定的</p>
-<h3 id="补充知识-堆"><a href="#补充知识-堆" class="headerlink" title="补充知识:堆"></a>补充知识:堆</h3><p>最大堆:父元素大于子元素, 但没有规则子元素这间的大小顺序, 这一点与二叉排序树不同</p>
-<p>完全二叉树: 将树的每一层从左到右填所组成的数就是完全二叉树<br>满二叉树: 是一种完全二叉树, 最后一层没有空位</p>
-<p>完全二叉树可以用数组来表示, 因为其父子关系的index有一定的数学关系</p>
-<p>关于堆的操作, 主要有两种</p>
-<ol>
-<li>添加,首先添加数组末尾, 然后不断的向上调整. 将一组数构造成堆的过程就是一个不断插入的过程</li>
-<li><p>删除</p>
-<ul>
-<li><p>从堆顶删除: 用最后一个元素替换堆顶元素, 然后向下不断调整, 对于最大堆, 选择子元素中最大的与之交换, 这是为了满足堆的性质, 父元素的值大于子元素</p>
-</li>
-<li><p>不是从堆顶删除: 同样, 也是用最后一个元素替换被删除的元素, 然后从被删除的元素所在的子树开始向下调整. </p>
-</li>
-</ul>
-</li>
-</ol>
-<h3 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h3><p>当待排序的数组中数值在一个较小的范围内使用</p>
+<p>实际上, 取消操作不一定成功, 因为可能某一Dispatcher已经判断过isCanceled了.</p>
+<h3 id="4-mWaitingRequests的作用是什么"><a href="#4-mWaitingRequests的作用是什么" class="headerlink" title="4. mWaitingRequests的作用是什么"></a>4. mWaitingRequests的作用是什么</h3><p>由RequestQueue的add方法代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// If the request is uncacheable, skip the cache queue and go straight to the network.</span></span><br><span class="line"><span class="keyword">if</span> (!request.shouldCache()) &#123;</span><br><span class="line">    mNetworkQueue.add(request);</span><br><span class="line">    <span class="keyword">return</span> request;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">synchronized</span> (mWaitingRequests) &#123;</span><br><span class="line">    String cacheKey = request.getCacheKey();</span><br><span class="line">    <span class="keyword">if</span> (mWaitingRequests.containsKey(cacheKey)) &#123;</span><br><span class="line">        <span class="comment">// There is already a request in flight. Queue up.</span></span><br><span class="line">        Queue&lt;Request&lt;?&gt;&gt; stagedRequests = mWaitingRequests.ge(cacheKey);</span><br><span class="line">        <span class="keyword">if</span> (stagedRequests == <span class="keyword">null</span>) &#123;</span><br><span class="line">            stagedRequests = <span class="keyword">new</span> LinkedList&lt;Request&lt;?&gt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line">        stagedRequests.add(request);</span><br><span class="line">        mWaitingRequests.put(cacheKey, stagedRequests);</span><br><span class="line">        <span class="keyword">if</span> (VolleyLog.DEBUG) &#123;</span><br><span class="line">            VolleyLog.v(<span class="string">"Request for cacheKey=%s is in flight, puttingonhold."</span>, cacheKey);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Insert 'null' queue for this cacheKey, indicating there isnow arequest in</span></span><br><span class="line">        <span class="comment">// flight.</span></span><br><span class="line">        mWaitingRequests.put(cacheKey, <span class="keyword">null</span>);</span><br><span class="line">        mCacheQueue.add(request);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> request;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以及, RequestQueue的finish方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (request.shouldCache()) &#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mWaitingRequests) &#123;</span><br><span class="line">        String cacheKey = request.getCacheKey();</span><br><span class="line">        Queue&lt;Request&lt;?&gt;&gt; waitingRequests = mWaitingRequests.remo(cacheKey);</span><br><span class="line">        <span class="keyword">if</span> (waitingRequests != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (VolleyLog.DEBUG) &#123;</span><br><span class="line">                VolleyLog.v(<span class="string">"Releasing %d waiting requestsforcacheKey=%s."</span>,</span><br><span class="line">                        waitingRequests.size(), cacheKey);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// Process all queued up requests. They won't beconsidered asin flight, but</span></span><br><span class="line">            <span class="comment">// that's not a problem as the cache has been primedby'request'.</span></span><br><span class="line">            mCacheQueue.addAll(waitingRequests);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知, mWaitingRequests保存着具有相同cacheKey的所有Request, 而在Request被finish时, 具有相同cacheKey的Request会被加入到mCacheQueue中, 那么, 为什么不把相同cacheKey的Request直接加入到mCacheQueue, 而必须要等到某一Request被finish之后才加入呢?</p>
+<p>假如直接加入到mCacheQueue, 我们知道第一个Request还未被Cache, 所以会交给NetworkDispatcher来处理, 如果NetworkDispatcher还未处理, 又来了几个相同cacheKey的Request, 那么因为NetworkDispatcher还未处理, 所以还未被cache, 所以这些Request就都会被加到到NetworkDispatcher的处理队列, 就起不到Cache的作用了.</p>
+<p>而如果等待第一个Request被finish后, 再加入, 则因为Request被finish说明其已经被处理, 则已被Cache.</p>
 
           
         
@@ -1478,10 +1491,10 @@ while(true) {
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 

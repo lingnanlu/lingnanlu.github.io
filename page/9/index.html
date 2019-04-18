@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -99,7 +97,7 @@
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -199,9 +197,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             标签
           </a>
@@ -209,9 +207,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
             
             分类
           </a>
@@ -246,6 +244,241 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/dispatch-and-method-invocation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/03/11/dispatch-and-method-invocation/" itemprop="url">分派与方法调用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
+                2016-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="这里所说的方法调用指的是什么"><a href="#这里所说的方法调用指的是什么" class="headerlink" title="这里所说的方法调用指的是什么?"></a>这里所说的方法调用指的是什么?</h3><p>这里方法调用并不是指方法的执行,而是指确定所调用的方法的版本(即调用哪一个方法),因为一切方法调用在Class文件里面存储的都只是符号引用,而不是方法在实际运行时内存布局中的入口地址(相当于直接引用),所以在方法执行前,要在不同阶段确定其最终要使用的版本.</p>
+<p>根据所调用的方法类别不同,确定所调用方法的版本有两种方法:<strong>解析</strong>与<strong>分派</strong></p>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p>该方法针对的是那些在程序真正运行之前就可以确定调用版本的方法,并且这个方法的调用版本在运行期是不可改变的.确定这类方法的调用版本称为<strong>解析</strong>.</p>
+<p>这类方法主要包括</p>
+<ul>
+<li>静态方法</li>
+<li>私有方法</li>
+<li>实例构造器</li>
+<li>父类方法</li>
+<li><strong>被final修饰的方法</strong></li>
+</ul>
+<p>确定这些方法的调用版本的时期是在<strong>类的加载</strong>阶段(不会出现在程序运行阶段). 这些方法可以称为<strong>非虚方法</strong>, 相对的,其他方法称为<strong>虚方法</strong>(除去final方法)</p>
+<p>调用这几类方法的字节码指令如下:</p>
+<pre><code>invokestatic:调用静态方法
+invokespecial:调用实例构造器&lt;init&gt;方法,私有方法和父类方法
+</code></pre><h3 id="分派-dispatch"><a href="#分派-dispatch" class="headerlink" title="分派(dispatch)"></a>分派(dispatch)</h3><p>根据变量的类型来确定调用的方法版本,称为分派.</p>
+<p>分派可能是<strong>静态的</strong>, 也可能是<strong>动态的</strong>.<br>根据分派依据的宗量数可分为<strong>单分派</strong>, <strong>多分派</strong></p>
+<p>由此两两组合构成了<strong>静态单分派</strong>, <strong>静态多分派</strong>, <strong>动态单分派</strong>, <strong>动态多分派</strong></p>
+<p>涉及到分派的字节码指令为</p>
+<pre><code>invokevirtual:调用所有虚方法
+</code></pre><h4 id="1-静态分派"><a href="#1-静态分派" class="headerlink" title="1 静态分派"></a>1 静态分派</h4><p>首先了解几个概念,先看代码</p>
+<p>有如下继承关系</p>
+<pre><code>abstract class Human {}
+
+class Man extends Human {}
+
+class Woman extends Human {}
+</code></pre><p>有如下代码</p>
+<pre><code>Human h = new Man();
+</code></pre><p>其中Human叫做变量h的<strong>静态类型</strong>, 或者叫做<strong>外观类型</strong></p>
+<p>而Man叫做变量的<strong>实际类型</strong></p>
+<p>有了以上概念,可得静态分派的定义</p>
+<blockquote>
+<p>依赖静态类型来定位方法执行版本的分派动作称为静态分派.</p>
+</blockquote>
+<p>静态分派的典型应用是<strong>方法重载</strong>. 如下代码所示</p>
+<pre><code>public void sayHello(Human guy) {
+    System.out.println(&quot;hello guy&quot;);
+}
+
+public void sayHello(Man guy) {
+    System.out.println(&quot;hello gentleman&quot;);
+}
+
+public void sayHello(Woman guy) {
+    System.out.println(&quot;hello lady&quot;);
+}
+
+Human h = new Man();
+
+sayHello(h);
+</code></pre><p>以上代码的输出结果为</p>
+<pre><code>hello guy
+</code></pre><p>可见,是根据h的静态类型来确定所调用方法的版本.</p>
+<p>另外,<strong>静态分派发生在编译阶段</strong>, 并不是由虚拟机来执行的.</p>
+<h4 id="2-动态分派"><a href="#2-动态分派" class="headerlink" title="2 动态分派"></a>2 动态分派</h4><p>前面了解到静态分派的典型应用是方法重载(overload), 而动态分派的典型应用是多态性的另一种体现:<strong>重写(override)</strong></p>
+<p>动态分派是根据变量的<strong>实际类型</strong>来进行分派的.动态分派就是平时常用的多态性.</p>
+<p>动态分派的定义如下</p>
+<blockquote>
+<p>在<strong>运行期</strong>根据<strong>实际类型</strong>确定方法执行版本的分派过程称为动态分派</p>
+</blockquote>
+<h4 id="3-单分派和多分派"><a href="#3-单分派和多分派" class="headerlink" title="3 单分派和多分派"></a>3 单分派和多分派</h4><p>首先了解一个概念<strong>宗量</strong></p>
+<blockquote>
+<p>方法的接收者(a.method(), a就是接收者)与方法的参数统称为方法的宗量</p>
+</blockquote>
+<p>单分派是根据一个宗量对方法的版本进行选择,多分派是根据多个宗量.</p>
+<p>以下是一个静态分派与动态分派结合的例子</p>
+<pre><code>class Fruit{}
+
+class Apple extends Fruit{}
+
+class Banana extends Fruit{}
+
+class People{
+
+    public void eat(Fruit f){
+        System.out.println(&quot;People eat Fruit&quot;);
+    }
+
+    public void eat(Apple f){
+        System.out.println(&quot;People eat Apple&quot;);
+    }
+
+    public void eat(Banana f){
+        System.out.println(&quot;People eat Banana&quot;);
+    }
+}
+
+class Boy extends People{
+
+    public void eat(Fruit f){
+        System.out.println(&quot;Boy eats Fruit&quot;);
+    }
+    public void eat(Apple f){
+        System.out.println(&quot;Boy eats Apple&quot;);
+    }
+    public void eat(Banana f){
+        System.out.println(&quot;Boy eats Banana&quot;);
+    }
+}
+
+public static void main(String[] argu) {
+
+    People boy = new Boy();
+    Fruit apple = new Apple();
+    Fruit banana = new Banana();
+
+    boy.eat(apple);
+    boy.eat(banana);
+}
+</code></pre><p>结果是:</p>
+<pre><code>Boy eats Fruit
+Boy eats Fruit
+</code></pre><p><strong>虚拟机动态分派的实现</strong></p>
+<p><em>以下方法只是一种常用的实现方法,并不代表唯一方法</em></p>
+<p>为了实现动态分派, 会为类在方法区中建立一个虚方法表, 表中存放着各个方法的实际入口地址. 如果某个方法在子类中没有被重写,那子类的虚方法表里面的地址入口和父类相同方法的地址入口是一致的,都指向父类的实现入口.如果子类重写了这个方法,子类方法表中的地址将会替换为指向子类实现版本的入口地址.</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -397,166 +630,6 @@ for(int i : list) {
 </code></pre><p>转化成</p>
 <pre><code>method(new T[]);
 </code></pre>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/03/11/java-gc-and-ref/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/11/java-gc-and-ref/" itemprop="url">Java 垃圾回收以及引用类型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-11T00:00:00+08:00">
-                2016-03-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="判断对象是否可被回收的算法"><a href="#判断对象是否可被回收的算法" class="headerlink" title="判断对象是否可被回收的算法"></a>判断对象是否可被回收的算法</h3><ol>
-<li><p>引用计数算法</p>
-<p>缺点:无法处理相互循环引用的问题,如</p>
-<pre><code>a.instance = b;
-b.instance = a;
-</code></pre></li>
-<li><p>可达性分析算法:选择GC root对象为起始点,对其进行图的可达性分析,达不到的点就是可回收的点,可作为GC root的对象包括以下几种</p>
-<ul>
-<li>虚拟机栈(栈帧中的本地变量表)中引用的对象</li>
-<li>方法区中类静态属性引用的对象</li>
-<li>方法区中常量引用的对象</li>
-</ul>
-</li>
-</ol>
-<h3 id="再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom"><a href="#再谈引用-强引用-Strong-软引用-Soft-弱引用-Weak-虚引用-Phantom" class="headerlink" title="再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)"></a>再谈引用, 强引用(Strong), 软引用(Soft), 弱引用(Weak), 虚引用(Phantom)</h3><p>以上4种引用强度依次减弱</p>
-<p>这四者的不同之处在于<strong>回收的时机不同,即生存期不同</strong></p>
-<ol>
-<li>强引用:就是平时的引用</li>
-<li>软引用:软引用的对象将尽可能得到保存,直到将要发生内存溢出.</li>
-<li>弱引用:只生存到下一次垃圾收集发生之前</li>
-<li>虚引用:不会对其生存时间构成影响,其存在的目的是当被虚引用引用的对象被回收时收到一个系统通知.</li>
-</ol>
-<h3 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h3><p>垃圾回收不仅仅发生在堆区,也可以发生在方法区.</p>
-<p>方法区回收主要包括两部分内容:废弃常量, 无用的类</p>
-<h3 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h3><ol>
-<li><p>标记-清除算法</p>
-<p>分两个阶段,先标记可回收的对象,再对其进行清除,因为没有整理空闲空间,所以会产生大量不连续的内存碎片.</p>
-</li>
-<li><p>复制算法</p>
-<p>将内存分两块,每次只用一块,当其中一块快用完时,将存活的对象复制到另一块上,再把已使用过的内存空间一次清理掉.</p>
-<p>因为有一块一直没被使用,所以有一定的空间浪费,所以这两块的大小可以根据情况不一定要相同.</p>
-<p>该算法适合对象存活率不高时使用,因为存活率高时,内存经常不够用,会存在大量的复制行为.</p>
-</li>
-<li><p>标记 - 整理</p>
-<p>该方法是对1的改进,在第二阶段会对内存整理,整理出连续的空闲空间.</p>
-</li>
-<li><p>分代收集</p>
-<p>该方法是以上三种的结合. 首先将内存根据对象的存活期分为几块,对于不同的存活期的使用不同的收集算法.</p>
-<p>如对于大批死去,少量存活的新生代,使用复制算法<br>对于大批存活,少量死去的老年代,使用标记-清除或标记整理</p>
-</li>
-</ol>
-
           
         
       
@@ -1397,10 +1470,10 @@ System.out.println(second);
               
               
               <div class="site-state-item site-state-tags">
-                
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
