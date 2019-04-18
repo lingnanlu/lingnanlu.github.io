@@ -260,151 +260,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/09/01/synchronized-and-reentrantlock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/09/01/synchronized-and-reentrantlock/" itemprop="url">Synchronized和Reentrantlock的区别</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-01T00:00:00+08:00">
-                2016-09-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>ReentrantLock和Synchronized具有相同的行为与语义， 并且有更强大的功能， 如下 </p>
-<ol>
-<li><p>支持非块结构的锁， 如下这样</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ReentrantLock lock;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  lock.lock();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  lock.unlock();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>支持公平与非公平锁</p>
-</li>
-</ol>
-<p>公平锁是线程按照FIFO的顺序来获取锁， 而非公平锁是倾向于将访问权授予等待时间最长的线程， 两者相比使用非公平锁一般具有更高的总体吞吐量</p>
-<ol start="3">
-<li><p>支持lock polling, 即trylock()方法， 利用该方法可以实现无锁同步， 如</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(!lock.trylock()) &#123;</span><br><span class="line">	doNothing;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doRealThing;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>支持可中断锁等候（应用场景？）</p>
-</li>
-<li><p>支持多个条件</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">Condition con1 = lock.newCondition();</span><br><span class="line">Condition con2 = lock.newCondition();</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>什么时候使用Synchronzied和ReentrantLock呢？</p>
-<p>一般使用Synchronized就可以了， 因为Lock需要显示的去释放锁(利用finally)， 这可能忘记， 而Synchronzied则由JVM来做这件事。除非要使用更高级的特性， 否则使用Synchronzied就可以了。</p>
-<p>参考资源</p>
-<ol>
-<li><a href="http://stackoverflow.com/questions/11821801/why-use-a-reentrantlock-if-one-can-use-synchronizedthis" target="_blank" rel="noopener">Why use a ReentrantLock if one can use synchronized(this)?</a></li>
-<li><a href="http://www.ibm.com/developerworks/java/library/j-jtp10264/" target="_blank" rel="noopener">Java theory and practice: More flexible, scalable locking in JDK 5.0</a></li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/09/01/threadlocal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -502,6 +357,151 @@
 <ol>
 <li><a href="http://droidyue.com/blog/2016/03/13/learning-threadlocal-in-java/index.html" target="_blank" rel="noopener">理解Java中的ThreadLocal</a></li>
 <li><a href="http://stackoverflow.com/questions/2784009/why-should-java-threadlocal-variables-be-static" target="_blank" rel="noopener">Why should Java ThreadLocal variables be static</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/09/01/synchronized-and-reentrantlock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/01/synchronized-and-reentrantlock/" itemprop="url">Synchronized和Reentrantlock的区别</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-01T00:00:00+08:00">
+                2016-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>ReentrantLock和Synchronized具有相同的行为与语义， 并且有更强大的功能， 如下 </p>
+<ol>
+<li><p>支持非块结构的锁， 如下这样</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ReentrantLock lock;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  lock.lock();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  lock.unlock();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>支持公平与非公平锁</p>
+</li>
+</ol>
+<p>公平锁是线程按照FIFO的顺序来获取锁， 而非公平锁是倾向于将访问权授予等待时间最长的线程， 两者相比使用非公平锁一般具有更高的总体吞吐量</p>
+<ol start="3">
+<li><p>支持lock polling, 即trylock()方法， 利用该方法可以实现无锁同步， 如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(!lock.trylock()) &#123;</span><br><span class="line">	doNothing;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doRealThing;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>支持可中断锁等候（应用场景？）</p>
+</li>
+<li><p>支持多个条件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">Condition con1 = lock.newCondition();</span><br><span class="line">Condition con2 = lock.newCondition();</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>什么时候使用Synchronzied和ReentrantLock呢？</p>
+<p>一般使用Synchronized就可以了， 因为Lock需要显示的去释放锁(利用finally)， 这可能忘记， 而Synchronzied则由JVM来做这件事。除非要使用更高级的特性， 否则使用Synchronzied就可以了。</p>
+<p>参考资源</p>
+<ol>
+<li><a href="http://stackoverflow.com/questions/11821801/why-use-a-reentrantlock-if-one-can-use-synchronizedthis" target="_blank" rel="noopener">Why use a ReentrantLock if one can use synchronized(this)?</a></li>
+<li><a href="http://www.ibm.com/developerworks/java/library/j-jtp10264/" target="_blank" rel="noopener">Java theory and practice: More flexible, scalable locking in JDK 5.0</a></li>
 </ol>
 
           
@@ -866,7 +866,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-handler-ctx--pipeline-uml/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/16/netty-client-accept/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -885,7 +885,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/08/16/netty-handler-ctx--pipeline-uml/" itemprop="url">Netty Handler CTX & Pipeline UML</a></h1>
+                <a class="post-title-link" href="/2016/08/16/netty-client-accept/" itemprop="url">Netty流程简析-接收客户端连接</a></h1>
         
 
         <div class="post-meta">
@@ -937,7 +937,47 @@
       
         
           
-            <p><img src="/assets/pics/netty_handler_ctx_pipeline_uml.jpg" alt="alt"></p>
+            <p>服务端启动完成后, 启动了一个mainReactor, 它不断监听Selector上NioServerSocketChannel是否Accept就绪, 如果Accetp就绪, 要做如下工作</p>
+<ol>
+<li>初始化一个NioSocketChannel</li>
+<li>初始化NioSocketChannel对应的Pipeline,即将用户自定义的childhander添加到pipeline中, 这里一般是一个initializer</li>
+<li>将NioSocketChannel注册到一个NioEventLoop中, 该NioEventLoop作为subReactor</li>
+<li>触发channelRegister事件, initializer响应该事件, 从而初始化NioSocketChannel对应的Pipeline.</li>
+</ol>
+<h3 id="0-NioEventLoop-run"><a href="#0-NioEventLoop-run" class="headerlink" title="0 NioEventLoop.run()"></a>0 NioEventLoop.run()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(;;) &#123;</span><br><span class="line">    select();</span><br><span class="line">    processSelectedKeys();</span><br><span class="line">    runAllTask();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要做三方面工作</p>
+<ol>
+<li>选择就绪的Key, 这里指有客户端到来.</li>
+<li>处理就绪Key</li>
+<li>执行队列中其它任务</li>
+</ol>
+<h3 id="0-1-NioEventLoop-select"><a href="#0-1-NioEventLoop-select" class="headerlink" title="0.1 NioEventLoop.select()"></a>0.1 NioEventLoop.select()</h3><p>选择就绪的Key, 这里指有客户端到来.</p>
+<h3 id="0-2-NioEventLoop-processSelectedKeysOptimized-selectedKeys"><a href="#0-2-NioEventLoop-processSelectedKeysOptimized-selectedKeys" class="headerlink" title="0.2 NioEventLoop.processSelectedKeysOptimized(selectedKeys)"></a>0.2 NioEventLoop.processSelectedKeysOptimized(selectedKeys)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;;i++) &#123;</span><br><span class="line">    <span class="keyword">final</span> SelectionKey k = selectedKeys[i];</span><br><span class="line">    <span class="keyword">final</span> Object a = k.attachment();</span><br><span class="line">    <span class="keyword">if</span> (a <span class="keyword">instanceof</span> AbstractNioChannel) &#123;</span><br><span class="line">        processSelectedKey(k, (AbstractNioChannel) a);</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里是对每一个准备好的Key进行处理.</p>
+<p>注意, 以下这行代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Object a = k.attachment();</span><br></pre></td></tr></table></figure>
+<p>这里的a实际上是将NioServerSocketChannel注册到Selector上时的NioServerSocketChannel</p>
+<h3 id="0-2-1-NioEventLoop-processSelectedKey-SelectionKey-k-AbstractNioChannel-ch"><a href="#0-2-1-NioEventLoop-processSelectedKey-SelectionKey-k-AbstractNioChannel-ch" class="headerlink" title="0.2.1 NioEventLoop.processSelectedKey(SelectionKey k, AbstractNioChannel ch)"></a>0.2.1 NioEventLoop.processSelectedKey(SelectionKey k, AbstractNioChannel ch)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">AbstractNioChannel.NioUnsafe unsafe = ch.unsafe();</span><br><span class="line"><span class="keyword">int</span> readyOps = k.readyOps();</span><br><span class="line">       </span><br><span class="line"><span class="keyword">if</span> ((readyOps &amp; (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != <span class="number">0</span>) &#123;</span><br><span class="line">    unsafe.read();  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的UnSafe就是NioServerSocketChannel的unsafe.</p>
+<h3 id="0-2-1-1-NioMessageUnsafe-read"><a href="#0-2-1-1-NioMessageUnsafe-read" class="headerlink" title="0.2.1.1 NioMessageUnsafe.read()"></a>0.2.1.1 NioMessageUnsafe.read()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Object&gt; readBuf = <span class="keyword">new</span> ArrayList&lt;Object&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">do</span>&#123;</span><br><span class="line">    <span class="keyword">int</span> localRead = doReadMessages(readBuf);</span><br><span class="line">&#125; <span class="keyword">while</span>(...)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i ++) &#123;</span><br><span class="line">    readPending = <span class="keyword">false</span>;</span><br><span class="line">    pipeline.fireChannelRead(readBuf.get(i));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里第一个do循环是因为可能有多个用户连接进来了.之后调用NioServerSocketChannel的Pipeline</p>
+<h3 id="0-2-1-1-1-NioServerSocketChannel-doReadMessage-readBuf"><a href="#0-2-1-1-1-NioServerSocketChannel-doReadMessage-readBuf" class="headerlink" title="0.2.1.1.1 NioServerSocketChannel.doReadMessage(readBuf)"></a>0.2.1.1.1 NioServerSocketChannel.doReadMessage(readBuf)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SocketChannel ch = javaChannel().accept(); </span><br><span class="line">buf.add(<span class="keyword">new</span> NioSocketChannel(<span class="keyword">this</span>, ch));</span><br></pre></td></tr></table></figure>
+<p>由此可以看出真正的accept操作是在这里发生的, 此时和客户端建立了链接, 并将该Channel包装成NioSocketChannel, 然后添加到readBuf中去,</p>
+<h3 id="0-2-1-1-2-DefaultChannelPipeline-fireChannelRead-NioSocketChannel"><a href="#0-2-1-1-2-DefaultChannelPipeline-fireChannelRead-NioSocketChannel" class="headerlink" title="0.2.1.1.2 DefaultChannelPipeline.fireChannelRead(NioSocketChannel)"></a>0.2.1.1.2 DefaultChannelPipeline.fireChannelRead(NioSocketChannel)</h3><p>这里的Pipeline是NioServerSocketChannel的Pipeline, 此时Pipeline中有一个ServerBootstrapAcceptor, 所以会传递到ServerBootstrapAcceptor的channelRead方法</p>
+<h3 id="0-2-1-1-3-ServerBootstrapAcceptor-channelRead-ctx-msg"><a href="#0-2-1-1-3-ServerBootstrapAcceptor-channelRead-ctx-msg" class="headerlink" title="0.2.1.1.3 ServerBootstrapAcceptor.channelRead(ctx, msg)"></a>0.2.1.1.3 ServerBootstrapAcceptor.channelRead(ctx, msg)</h3><p>记得初始化ServerBootstrapAcceptor时, 该Acceptor有四个属性是由ServerBootstrap传过来的.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.childGroup = childGroup;</span><br><span class="line"><span class="keyword">this</span>.childHandler = childHandler;</span><br><span class="line"><span class="keyword">this</span>.childOptions = childOptions;</span><br><span class="line"><span class="keyword">this</span>.childAttrs = childAttrs;</span><br></pre></td></tr></table></figure>
+<p>这里的childGroup就是subReactor, childHandler就是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b.group(bossGroup, workerGroup).childHandler(<span class="keyword">new</span> Initializer());</span><br></pre></td></tr></table></figure>
+<p>这个Initializer是用来初始化NioSocketChannel所对应的Pipeline的.</p>
+<p>来看ServerBootstrapAcceptor的read方法.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Channel child = (Channel) msg;</span><br><span class="line">child.pipeline().addLast(childHandler);</span><br><span class="line">childGroup.register(child).addListener(<span class="keyword">new</span> ChannelFutureListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> throwsException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!future.isSuccess()) &#123;</span><br><span class="line">            forceClose(child, future.cause());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>做了以下工作</p>
+<ol>
+<li>将initializer添加到Pipeline</li>
+<li>注册NioSocketChannel到某一EventLoop中, 而这个register操作就和之前将NioServerSocketChannel注册到NioEventLoop中一样了.</li>
+</ol>
+<p>之后, 触发channelRegister事件, 执行initializer的initChannel方法, 进一步初始化NioSocketChannel所对应的pipeline.</p>
+<p>至此, 接收客户端并注册到NioEventLoop的过程完毕.</p>
 
           
         

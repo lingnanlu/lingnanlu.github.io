@@ -539,141 +539,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/block-and-unblock-sync/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/05/09/block-and-unblock-sync/" itemprop="url">阻塞同步(互斥同步)与非阻塞同步</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-09T00:00:00+08:00">
-                2016-05-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="阻塞同步"><a href="#阻塞同步" class="headerlink" title="阻塞同步"></a>阻塞同步</h3><p>就是使用synchronized等进行的同步, 因为需要进行线程的阻塞与唤醒, 而这两个操作需要进行系统调用, 进行用户态与核心态的转换, 其性能影响较大.</p>
-<p>这是一种悲观的加锁策略, 悲观指的是:总是认为只要不去做正确的同步措施, 那就肯定会出现问题, 无论共享数据是否真的会出现竞争.</p>
-<h3 id="非阻塞同步"><a href="#非阻塞同步" class="headerlink" title="非阻塞同步"></a>非阻塞同步</h3><p>即不使用synchronized等, 不会进行线程的阻塞与唤醒. 其实现往往依赖于乐观加锁策略.</p>
-<p>那么什么是乐观加锁策略(Lock-free, 无锁同步)?</p>
-<p>当一个线程要修改共享数据时, 假定其它线程不会修改共享数据, 所以对对共享数据进行读入和修改时, 并不需要加锁,只有将共享数据保存时, 需要作一个判断, 那就是, 在将新值保存时, 旧值有没有被修改过, 如果没有则说明没有其它线程修改过数据, 所以可以放心的保存(其实这样说不完全正确, 因为存在ABA的问题, 即其它线程将数据A修改为B后, 又修改回了A). 如果被修改过, 放弃保存, 从新读取数据, 重复此过程, 一直到可以保存为止. 可见该过程对共享数据的修改并没有利用加锁机制.</p>
-<p>下面举个真实的例子, 以下为Java中AtomicInteger的源代码.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AtomicInteger</span> <span class="keyword">extends</span> <span class="title">Number</span> <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">incrementAndGet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">for</span>(;;) &#123;</span><br><span class="line">			<span class="comment">//获得当前值</span></span><br><span class="line">			<span class="keyword">int</span> current = get();</span><br><span class="line">			<span class="keyword">int</span> next = current + <span class="number">1</span>;</span><br><span class="line">			<span class="comment">//在更新当前值之前, 判断一下旧值有没有被修改过(即value的值与current是相同), 如果没有, 则更新为next, 否则重试.</span></span><br><span class="line">			<span class="keyword">if</span>(compareAndSet(current, next)) &#123;</span><br><span class="line">				<span class="keyword">return</span> next;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>由以上讨论可知, 以下操作必须是原子的</p>
-<p><strong>检查旧值有没有被修改过, 如果没有, 则更新变量</strong></p>
-<p>以上这条操作由处理器的CompareAndSwap指令来执行, 该指令是原子操作, 在Java中, 由sun.misc.Unsafe类的compareAndSwapInt()等方法进行包装.</p>
-<h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁."></a>自旋锁.</h3><p>自旋锁指的是一种获取锁的策略. 在互斥同步中, 如果一个线程试图去获取一个已被占用的锁, 会被阻塞, 我们知道, 阻塞的开销很大.</p>
-<p>而自旋是指, 如果获取不了锁, 并不阻塞. 而是不断去尝试获取锁, 直到能获取锁.</p>
-<p>那么现在问题来了, 如果一直尝试获取锁, 就会一直占用CPU, 而持有锁的线程得不到CPU就不会释放锁, 岂不是会造成一直等待?</p>
-<p>其实, 自旋锁的使用是有一个前提的, 那就是有多个CPU, 可以同时运行多个线程, 那么以上问题就可以解决了.</p>
-<p>而且自旋锁的出现是为了解决阻塞开销过大问题, 而这个开销过大只是相对来说, 相对于谁呢? 相对于线程的操作来说, 如果一个线程对共享数据的操作时间远远小于其阻塞的开销时间, 那么使用自旋锁是合适的.<br>如果阻塞的开销远小于对共享数据的操作时间, 即可以忽略不计, 那么使用阻塞也不会太影响性能.</p>
-<p>而且, 如果另一个线程长期持有锁, 也不适合自旋, 因为会长期在CPU上忙等, 浪费CPU的资源. 此时可以设置个阈值, 当自旋一定次数后, 还得不到锁, 就阻塞挂起.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/binary-search-tree/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -770,6 +635,141 @@
 <li>二分查找只能用顺序表来表示, 并且插入删除时, 需要移动大量的数据, 所以不适合动态变化的数据, 只适合于静态查找</li>
 <li>而二叉查找树使用的是链表, 插入删除时不需要移动大量的数据, 可适用与动态变化的表.</li>
 </ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/05/09/block-and-unblock-sync/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/05/09/block-and-unblock-sync/" itemprop="url">阻塞同步(互斥同步)与非阻塞同步</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-09T00:00:00+08:00">
+                2016-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="阻塞同步"><a href="#阻塞同步" class="headerlink" title="阻塞同步"></a>阻塞同步</h3><p>就是使用synchronized等进行的同步, 因为需要进行线程的阻塞与唤醒, 而这两个操作需要进行系统调用, 进行用户态与核心态的转换, 其性能影响较大.</p>
+<p>这是一种悲观的加锁策略, 悲观指的是:总是认为只要不去做正确的同步措施, 那就肯定会出现问题, 无论共享数据是否真的会出现竞争.</p>
+<h3 id="非阻塞同步"><a href="#非阻塞同步" class="headerlink" title="非阻塞同步"></a>非阻塞同步</h3><p>即不使用synchronized等, 不会进行线程的阻塞与唤醒. 其实现往往依赖于乐观加锁策略.</p>
+<p>那么什么是乐观加锁策略(Lock-free, 无锁同步)?</p>
+<p>当一个线程要修改共享数据时, 假定其它线程不会修改共享数据, 所以对对共享数据进行读入和修改时, 并不需要加锁,只有将共享数据保存时, 需要作一个判断, 那就是, 在将新值保存时, 旧值有没有被修改过, 如果没有则说明没有其它线程修改过数据, 所以可以放心的保存(其实这样说不完全正确, 因为存在ABA的问题, 即其它线程将数据A修改为B后, 又修改回了A). 如果被修改过, 放弃保存, 从新读取数据, 重复此过程, 一直到可以保存为止. 可见该过程对共享数据的修改并没有利用加锁机制.</p>
+<p>下面举个真实的例子, 以下为Java中AtomicInteger的源代码.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AtomicInteger</span> <span class="keyword">extends</span> <span class="title">Number</span> <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">incrementAndGet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">for</span>(;;) &#123;</span><br><span class="line">			<span class="comment">//获得当前值</span></span><br><span class="line">			<span class="keyword">int</span> current = get();</span><br><span class="line">			<span class="keyword">int</span> next = current + <span class="number">1</span>;</span><br><span class="line">			<span class="comment">//在更新当前值之前, 判断一下旧值有没有被修改过(即value的值与current是相同), 如果没有, 则更新为next, 否则重试.</span></span><br><span class="line">			<span class="keyword">if</span>(compareAndSet(current, next)) &#123;</span><br><span class="line">				<span class="keyword">return</span> next;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由以上讨论可知, 以下操作必须是原子的</p>
+<p><strong>检查旧值有没有被修改过, 如果没有, 则更新变量</strong></p>
+<p>以上这条操作由处理器的CompareAndSwap指令来执行, 该指令是原子操作, 在Java中, 由sun.misc.Unsafe类的compareAndSwapInt()等方法进行包装.</p>
+<h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁."></a>自旋锁.</h3><p>自旋锁指的是一种获取锁的策略. 在互斥同步中, 如果一个线程试图去获取一个已被占用的锁, 会被阻塞, 我们知道, 阻塞的开销很大.</p>
+<p>而自旋是指, 如果获取不了锁, 并不阻塞. 而是不断去尝试获取锁, 直到能获取锁.</p>
+<p>那么现在问题来了, 如果一直尝试获取锁, 就会一直占用CPU, 而持有锁的线程得不到CPU就不会释放锁, 岂不是会造成一直等待?</p>
+<p>其实, 自旋锁的使用是有一个前提的, 那就是有多个CPU, 可以同时运行多个线程, 那么以上问题就可以解决了.</p>
+<p>而且自旋锁的出现是为了解决阻塞开销过大问题, 而这个开销过大只是相对来说, 相对于谁呢? 相对于线程的操作来说, 如果一个线程对共享数据的操作时间远远小于其阻塞的开销时间, 那么使用自旋锁是合适的.<br>如果阻塞的开销远小于对共享数据的操作时间, 即可以忽略不计, 那么使用阻塞也不会太影响性能.</p>
+<p>而且, 如果另一个线程长期持有锁, 也不适合自旋, 因为会长期在CPU上忙等, 浪费CPU的资源. 此时可以设置个阈值, 当自旋一定次数后, 还得不到锁, 就阻塞挂起.</p>
 
           
         

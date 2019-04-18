@@ -639,6 +639,135 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---behavior/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/07/10/dive-into-yii---behavior/" itemprop="url">深入理解Yii笔记 - 行为(Behavior)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
+                2015-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="行为是什么"><a href="#行为是什么" class="headerlink" title="行为是什么"></a>行为是什么</h3><p>行为就是一种遵循某种规范的类。</p>
+<p>行为并不是PHP的语言特性，而可以说是一种方法学，一种设计模式，用来在不修改现有类的情况下为类添加特有的行为(注入属性，方法之类)</p>
+<h3 id="行为的绑定"><a href="#行为的绑定" class="headerlink" title="行为的绑定"></a>行为的绑定</h3><ol>
+<li>行为只能绑定到Component</li>
+<li>绑定是双向的，需要Component和Behavior同时做工作。</li>
+<li>所谓的绑定也是Components中维护一个数组，其元素是所绑定的行为，同时，行为类维护一个成员$owner，指向其所绑定的Component。</li>
+<li>行为也可以对事件做出响应，即处理事件，当绑定某一行为到Component时，会将行为所绑定的事件注册到其依附的Component中去。</li>
+</ol>
+<h3 id="行为的一个应用"><a href="#行为的一个应用" class="headerlink" title="行为的一个应用"></a>行为的一个应用</h3><p>yii\behaviors\TimeStampBehavior是yii内置的一种行为，其绑定了两个事件，<br>BaseActiveRecord::EVENT_BEFORE_INSERT<br>BaseActiveRecord::EVENT_BEFORE_UPDATE<br>当这两个事件发生时，会更新相应字段的时间戳。</p>
+<p>此时，我们可以定义一个Component做为Model，将TimeStampBehavior绑定到该对象上，当往数据库插入或更新一条记录时，会发生相应的事件，然后自动更新相应的字段。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---event/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -750,135 +879,6 @@
 </ol>
 <hr>
 <p>综上所说，首先事件由某一Component实例或Event与handler进行绑定，然后，由某一Component实例或Event进行触发，相应的handler进行处理。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2015/07/10/dive-into-yii---behavior/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/07/10/dive-into-yii---behavior/" itemprop="url">深入理解Yii笔记 - 行为(Behavior)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-07-10T00:00:00+08:00">
-                2015-07-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="行为是什么"><a href="#行为是什么" class="headerlink" title="行为是什么"></a>行为是什么</h3><p>行为就是一种遵循某种规范的类。</p>
-<p>行为并不是PHP的语言特性，而可以说是一种方法学，一种设计模式，用来在不修改现有类的情况下为类添加特有的行为(注入属性，方法之类)</p>
-<h3 id="行为的绑定"><a href="#行为的绑定" class="headerlink" title="行为的绑定"></a>行为的绑定</h3><ol>
-<li>行为只能绑定到Component</li>
-<li>绑定是双向的，需要Component和Behavior同时做工作。</li>
-<li>所谓的绑定也是Components中维护一个数组，其元素是所绑定的行为，同时，行为类维护一个成员$owner，指向其所绑定的Component。</li>
-<li>行为也可以对事件做出响应，即处理事件，当绑定某一行为到Component时，会将行为所绑定的事件注册到其依附的Component中去。</li>
-</ol>
-<h3 id="行为的一个应用"><a href="#行为的一个应用" class="headerlink" title="行为的一个应用"></a>行为的一个应用</h3><p>yii\behaviors\TimeStampBehavior是yii内置的一种行为，其绑定了两个事件，<br>BaseActiveRecord::EVENT_BEFORE_INSERT<br>BaseActiveRecord::EVENT_BEFORE_UPDATE<br>当这两个事件发生时，会更新相应字段的时间戳。</p>
-<p>此时，我们可以定义一个Component做为Model，将TimeStampBehavior绑定到该对象上，当往数据库插入或更新一条记录时，会发生相应的事件，然后自动更新相应的字段。</p>
 
           
         

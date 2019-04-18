@@ -519,7 +519,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/dynamic-search-tree/">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/framework-dip-ioc-di/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="asanelder">
@@ -538,7 +538,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2016/08/07/dynamic-search-tree/" itemprop="url">动态搜索树</a></h1>
+                <a class="post-title-link" href="/2016/08/07/framework-dip-ioc-di/" itemprop="url">理清概念-框架,DIP(依赖倒置),IoC(控制反转),DI(依赖注入)</a></h1>
         
 
         <div class="post-meta">
@@ -590,169 +590,102 @@
       
         
           
-            <p><strong>二叉搜索树, 平衡二叉搜索树（AVL）, B+树, B树,B-树 2-3搜索树, 红黑树</strong></p>
-<p>以上这些都是动态搜索树, 可用来加快查找某一元素的效率, 以下简述它们之间的一点区别</p>
-<p><strong>二叉搜索树</strong>，在最坏的情况下是O(n).</p>
-<p>于是为了保证二叉搜索树不会发生严重失衡就有了<strong>平衡二叉搜索树</strong>.</p>
-<p>现在虽然平衡了， 但为了保证如此严格的平衡性， 每次添加删除元素时， 就需要付出比较大的代价， 为了得到平衡性带来的好处，同时不想为平衡性付出太大代价， 于是就有了<strong>红黑树</strong></p>
-<p>在说红黑树之前， 先介绍一个2-3搜索树， 其性质类似于二叉搜索树， 只是有两种结点， 2叉的和3叉的。</p>
-<p>当所有空结点到根结点的距离相同时, 是<strong>平衡2-3查找树</strong></p>
-<p>将<strong>平衡2-3查找树</strong>的3叉结点转化为两个2叉结点, 就得到了<strong>红黑树</strong>.</p>
-<p>以上说的都是2叉树， 给定同样数量的元素， 叉数越多，这个树就越扁， <strong>B树就是一种多叉搜索树</strong></p>
-<p>而<strong>B+树和B是类似的区别在于， 如果每一个结点带有额外信息的话， 那么， B树是所有结点带有信息， 而B+只有叶子结点带有信息</strong>。</p>
-<p>如果将B+树与B树用于磁盘文件访问, B+树因为非叶子结点不包含索引信息, 所以非叶子结点可以包含更多关键字信息, 进而能进一步减少磁盘的访问次数.</p>
-<p>而B-树就是B树, 正式的说法是B树.</p>
-<p><em>关于红黑树与2-3树,见\&lt;算法>彩色插页</em></p>
-<p><em>还有另外一种数据结构也可以加快检索， 即Hash表</em></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/hashmap-loadfactor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="asanelder">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Code, Food & Music">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/08/07/hashmap-loadfactor/" itemprop="url">HashMap中loadfactor的含义</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-07T00:00:00+08:00">
-                2016-08-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>JDK文档中提到</p>
-<blockquote>
-<p>An instance of HashMap has two parameters that affect its performance: initial capacity and load factor. The capacity is the number of buckets in the hash table, and the initial capacity is simply the capacity at the time the hash table is created. The load factor is a measure of how full the hash table is allowed to get before its capacity is automatically increased. When the number of entries in the hash table exceeds the product of the load factor and the current capacity, the hash table is rehashed (that is, internal data structures are rebuilt) so that the hash table has approximately twice the number of buckets.</p>
-<p>As a general rule, the default load factor (.75) offers a good tradeoff between time and space costs. Higher values decrease the space overhead but increase the lookup cost (reflected in most of the operations of the HashMap class, including get and put). The expected number of entries in the map and its load factor should be taken into account when setting its initial capacity, so as to minimize the number of rehash operations. If the initial capacity is greater than the maximum number of entries divided by the load factor, no rehash operations will ever occur.</p>
-</blockquote>
-<p>注意其中</p>
-<blockquote>
-<p>The load factor is a measure of how full the hash table is allowed to get before its capacity is automatically increased. </p>
-</blockquote>
-<p>但这句话到底是什么含义呢？</p>
-<p>要想理解以上这句话，需要了解有关HashMap的其它几个术语</p>
+            <p>本文目的有二</p>
 <ol>
-<li><strong>capacity</strong>：指桶的个数</li>
-<li><strong>size</strong>：指Map中Entry的个数</li>
-<li><strong>threshold</strong>：threshold = capacity * loadfactor, 含当size&gt;=threshold时， 增加capacity为原来的2倍（参考源代码）</li>
-<li><strong>loadfactor</strong>: 含义是什么呢？ </li>
+<li>讲解以上各个概念的含义</li>
+<li>各个概念之间的关系与区别</li>
 </ol>
-<p>不妨通过一个例子来了解loadfactor的含义</p>
-<p>假设capacity=10</p>
+<h3 id="一-框架"><a href="#一-框架" class="headerlink" title="一 框架"></a>一 框架</h3><p>框架是什么？</p>
+<p>网上有不同的诠释， 本文给出以下解释（只是自己的见解， 不一定正确）</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。 </p>
+</blockquote>
+<p>以上的解释还是很抽象， 下面举一个简单的例子，从中可以看出框架是如何产生的， 进而理解其含义。</p>
+<h4 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h4><p>假如说， 我们现在想解决这样一个问题</p>
+<blockquote>
+<p>假如有一个文件保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        FileBasedMovieFinder finder = <span class="keyword">new</span> FileBasedMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileBasedMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 我们有一个新的问题</p>
+<blockquote>
+<p>假如数据库保存着一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码可以这样写</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        DatabaseMovieFinder finder = <span class="keyword">new</span> DatabaseMovieFinder();</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在， 又有新的需求了</p>
+<blockquote>
+<p>假如从网络得到一个电影列表， 我们想将某导演导的电影输出到控制台</p>
+</blockquote>
+<p>代码不写了， 应该和前面是类似的。</p>
+<p>于是， 每有一个新的需求， 那么， 除了添加新的Finder外(这是不可避免的)， 还要去修改MovieListPrinter。</p>
+<p>有人说， 虽然修改MovieListPrinter， 但每次只修改了一行， 大部分的代码还是可以重用的， 其实不然</p>
 <ol>
-<li><p>假设loadfactor=10, 由以上可知, 当size&gt;=(threshold = capacity * loadfactor)时扩容， 即size&gt;=100时扩容，<br>而此时只有10个桶， 可以看出， 每个桶都是比较满的。但扩容的速度比较慢</p>
-</li>
-<li><p>假设loadfactor=0.1,则size=1时扩容， 而此时有10个桶， 大多数桶还是很空的。但扩容的速度比较快。</p>
-</li>
+<li>本例很简单， 所以只修改了一行</li>
+<li>重用的概念是针对某一程序中的实体来说，最小实体可用是一个函数， 大一点是一个类， 再大一点是一个包， 而且重用要求不对实体进行修改，而上面的重用只是重用了几行代码， 这和从其它地方复制粘贴几行代码有什么区别， 难道复制粘贴也叫重用？</li>
 </ol>
-<p>于是， 可以理解上文中那句话了。</p>
-<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>由上讨论可知</p>
-<p>当loadfactor比较大时， 桶比较满， 空间占用比较少，扩容速率比较慢， rehash次数比较少, 但每个桶中元素比较多， 所以查找效率会低一些</p>
-<p>当loadfactor比较少时， 桶比较空， 空间占用比较多，扩容速率比较快， rehash次数比较多， 查找效率会高一些</p>
-<p>最终是在时间和空间中找到一个平衡</p>
+<p>所以说， 当问题变化时， 我们的代码就相当于推到重来。之前的代码一点也不能重用。</p>
+<p>如果仔细考虑一下以上三个问题， 可以发现他们是一组类似的问题， 抽象一下可以得到如下表述</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>如果我们对照着这个更一般的问题来写代码， 就是这样子的了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MovieListPrinter</span> </span>&#123;</span><br><span class="line">    MovieFinder finder;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MovieListPrinter</span><span class="params">(MovieFinder finder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.finder = finder;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printMovieListByDirector</span><span class="params">(String directorName)</span> </span>&#123;</span><br><span class="line">        List&lt;Movie&gt; movies = finder.findByDirectorName(directorName);</span><br><span class="line">        <span class="keyword">for</span>(Movie movie:movies) &#123;</span><br><span class="line">            System.out.println(movie);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseMovieFinder</span> <span class="keyword">implements</span> <span class="title">MovieFinder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Movie&gt; <span class="title">findByDirectorName</span><span class="params">(String directorName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到， MovieListPrinter中没有再和具体finder相关的代码了， 所以说MovieListPrinter就是可以重用的, 只要我们针对不同的具体问题传入不同的MovieFinder即可， 而MovieListPrinter本身则一点也不需要修改， 所以可以是重用的。</p>
+<p>现在， MovieListPrinter就可以称为了一最最简单的框架了， 它解决的是如下问题</p>
+<blockquote>
+<p>从某个地方得到一个电影列表， 某导演导的电影输出到控制台</p>
+</blockquote>
+<p>再对比开始的定义， 应该明白了不少吧。</p>
+<blockquote>
+<p>框架是解决一类问题的一种抽象， 可用来解决特殊性问题。</p>
+</blockquote>
+<h3 id="二-DIP-依赖倒置"><a href="#二-DIP-依赖倒置" class="headerlink" title="二 DIP(依赖倒置)"></a>二 DIP(依赖倒置)</h3><p>依赖倒置是软件设计模式的一种原则， 它是什么含义呢？</p>
+<p>其解释出现在《敏捷软件开发》的第11章</p>
+<ol>
+<li>高层模块不应该依赖于低层模块， 二者都应该依赖于抽象</li>
+<li>抽象不应该依赖于细节，细节应该依赖于抽象。</li>
+</ol>
+<p>这里提到的<strong>高层模块</strong>， <strong>低层模块</strong>， <strong>抽象</strong>， <strong>细节</strong>到底指的是什么呢， <strong>依赖倒置</strong>又是什么含义呢？</p>
+<p>书中的一句话指明了回答以上问题的线索</p>
+<blockquote>
+<p>该原则是框架设计的核心原则</p>
+</blockquote>
+<p>而之前已经介绍了框架， 并设计了一个简单的框架， 也就是说， 在设计的过程中， 已经不知不觉的应用了该原则。 那么结束以上我们的设计过程， 就可以解释以上几个概念的含义了。</p>
+<p><strong>高层模块</strong>：对应的是MovieListPrinter, 它表示的是解决问题的一般思路, 它表示的是策略</p>
+<p><strong>低层模块</strong>：对应的是每一种MovieFinder， 其只能解决某一具体问题</p>
+<p>从各种MovieFinder中抽象出来的MovieFinder接口就是<strong>抽象</strong>， 而具体的MovieFinder就是<strong>细节</strong></p>
+<p>在设计框架之前</p>
+<blockquote>
+<p>MovieListPrinter（高层模块）依赖于各种MovieFinder(低层模块)， </p>
+</blockquote>
+<p>使用了框架后</p>
+<blockquote>
+<p>MovieListPrinter(高层模块)依赖于MovieFinder接口（抽象）， 同时， MovieFinder实现(细节）也依赖于MovieFinder接口（抽象）（这不就是开头的两句话吗）</p>
+</blockquote>
+<p>对比框架使用前后， 依赖关系发生了倒置（更形象的可以参考《敏捷软件开发》的第11章)</p>
+<p>所以不知不觉的， 在我们设计MovieListPrinter框架中就使用了DIP原则。</p>
+<p><em>注：高层模块和低层模块并不是绝对的， 在一个复杂的系统中可以有好多层， 某一层对上来说是低层模块， 对下来说又可以是高层模块</em></p>
+<h3 id="三-IoC和DI"><a href="#三-IoC和DI" class="headerlink" title="三 IoC和DI"></a>三 IoC和DI</h3><p>在谈这两个概念之前， 先回到开始的MovieListPrinter框架。</p>
+<p>假如应用程序中要使用这个框架，那么我们需要在其构造函数中传入一个具体的MovieFinder. 如我们的程序要从文件中读入电影列表，那么传入一个FileBasedMovieFinder即可。</p>
+<p>现在需求改了， 要从网络去读了， 那么需要修改应用程序。</p>
+<p>如果修改一个地方还好， 假如要有多个地方需要修改呢？ 假如这多个地方分布在几百的文件中呢？</p>
+<p>还有一种情况，现在我们的框架很小， 复杂的框架可能有复杂的依赖关系， 如A-&gt;B-&gt;C-&gt;…..-&gt;G</p>
+<p>可以， 如果我们要在应用程序中去人工的去处理这种依赖， 则很麻烦， 容易出错。</p>
+<p>如果有以下这样一种方法就好了。</p>
+<blockquote>
+<p>不是通过编程来注入某些依赖， 而是通知声明式来注入。 框架使用者只需要声明一个A需要B,那么就自动的为A注入一个B</p>
+</blockquote>
+<p>而以上这种机制实际上是有的。</p>
+<p>以下举两个例子（其实现来自于本人猜测， 不保证正确）</p>
+<ol>
+<li>Spring：在XML中声明依赖关系， 通过分析XML文件构建图来表示依赖关系，由Spring来负责提供一个类所需要的依赖。</li>
+<li>Dagger: Android的依赖注入库， 利用注解来声明依赖关系， 同样是需要构建某种图</li>
+</ol>
+<p>现在可以说一下这两个概念了。</p>
+<p><strong>IoC</strong>：是将由应用程序负责定位某种依赖转移到由某种外部机制来定位某种依赖（为什么叫反转呢？我也不知道）</p>
+<p><strong>DI</strong>: 上面说了由某种外部机制来定位， DI就是一种外部机制， 具体的例子见Spring和Dagger. 还有一种方式叫到<strong>Service Locator</strong>这是另一种定位某种依赖的机制</p>
+<h3 id="四-Spring"><a href="#四-Spring" class="headerlink" title="四 Spring"></a>四 Spring</h3><p>Spring的功能之一就是实现DI， 从这个意义来说， 其并不能算是一种框架， 当然如果把解决DI问题看作一般问题的话， 也可以称其为DI框架。</p>
 
           
         
@@ -946,6 +879,139 @@
 <li>其它性质与HashMap类似，如查找性质等</li>
 </ol>
 <h4 id="2-TreeSet"><a href="#2-TreeSet" class="headerlink" title="2 TreeSet"></a>2 TreeSet</h4><p>参照HashSet的4条与TreeMap的性质。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://asanelder.me/2016/08/07/dynamic-search-tree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="asanelder">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Code, Food & Music">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/08/07/dynamic-search-tree/" itemprop="url">动态搜索树</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-07T00:00:00+08:00">
+                2016-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>二叉搜索树, 平衡二叉搜索树（AVL）, B+树, B树,B-树 2-3搜索树, 红黑树</strong></p>
+<p>以上这些都是动态搜索树, 可用来加快查找某一元素的效率, 以下简述它们之间的一点区别</p>
+<p><strong>二叉搜索树</strong>，在最坏的情况下是O(n).</p>
+<p>于是为了保证二叉搜索树不会发生严重失衡就有了<strong>平衡二叉搜索树</strong>.</p>
+<p>现在虽然平衡了， 但为了保证如此严格的平衡性， 每次添加删除元素时， 就需要付出比较大的代价， 为了得到平衡性带来的好处，同时不想为平衡性付出太大代价， 于是就有了<strong>红黑树</strong></p>
+<p>在说红黑树之前， 先介绍一个2-3搜索树， 其性质类似于二叉搜索树， 只是有两种结点， 2叉的和3叉的。</p>
+<p>当所有空结点到根结点的距离相同时, 是<strong>平衡2-3查找树</strong></p>
+<p>将<strong>平衡2-3查找树</strong>的3叉结点转化为两个2叉结点, 就得到了<strong>红黑树</strong>.</p>
+<p>以上说的都是2叉树， 给定同样数量的元素， 叉数越多，这个树就越扁， <strong>B树就是一种多叉搜索树</strong></p>
+<p>而<strong>B+树和B是类似的区别在于， 如果每一个结点带有额外信息的话， 那么， B树是所有结点带有信息， 而B+只有叶子结点带有信息</strong>。</p>
+<p>如果将B+树与B树用于磁盘文件访问, B+树因为非叶子结点不包含索引信息, 所以非叶子结点可以包含更多关键字信息, 进而能进一步减少磁盘的访问次数.</p>
+<p>而B-树就是B树, 正式的说法是B树.</p>
+<p><em>关于红黑树与2-3树,见\&lt;算法>彩色插页</em></p>
+<p><em>还有另外一种数据结构也可以加快检索， 即Hash表</em></p>
 
           
         
